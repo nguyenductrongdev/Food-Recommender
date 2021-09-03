@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="container">
+    <div class="row">
+        <div class="col-12 col-md-6 mx-auto">
+            <h1>Đăng nhập</h1>
+            <form class="p-3 shadow" name="frmLogin" method="post" action="/nguoi-dung/dang-nhap">
+                <div class="form-group">
+                    <div class="input-group mb-3 input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">
+                                <i class="fas fa-user"></i>
+                            </span>
+                        </div>
+                        <input type="text" name="txtTaiKhoan" class="form-control" id="txtTaiKhoan"
+                            placeholder="Username...">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group mb-3 input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">
+                                <i class="fas fa-unlock-alt"></i>
+                            </span>
+                        </div>
+                        <input type="password" name="txtMatKhau" class="form-control" id="txtMatKhau"
+                            placeholder="Password...">
+                    </div>
+                </div>
+                <button class="btn btn-primary form-control">Đăng nhập</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

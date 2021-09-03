@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+
+
+{% block main %}
+<div class="container">
+    <div class="row mt-5">
+        <div class="col-12">
+            <form class="p-3 shadow" id="frmThemThucPham" name="frmThemThucPham" method="post" action="/thuc-phan/them">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="fHinhAnh" role="button">
+                            <img src="https://matviet.vn/wp-content/uploads/woocommerce-placeholder.png" alt="hinhanh"
+                                id="hinhanh" class="d-block rounded" style="width: 100%; height: 20vw;">
+                        </label>
+                    </div>
+
+                    <div class="col-md-8">
+                        <input type="file" name="fHinhAnh" id="fHinhAnh" class="d-none">
+                        <!-- <input type="file" name="fHinhAnh" id="fHinhAnh" onchange="console.log('ccc')"> -->
+
+                        <div class="form-group">
+                            <label for="slLoaiThucPham">Loại thực phẩm</label>
+                            <select name="slLoaiThucPham" id="slLoaiThucPham" class="form-control">
+                                <option value="">---- Chọn loại thực phẩm ----</option>}
+                                {% for food in food_list %}
+                                <option value="{{food.LTP_MA}}">{{food.LTP_TEN}}</option>}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="numSoLuong">Số lượng</label>
+                            <input type="number" min="1" class="form-control" id="numSoLuong" name="numSoLuong">
+                        </div>
+                        <div class="form-group">
+                            <label for="slDonVi">Đơn vị</label>
+                            <select name="slDonVi" id="slDonVi" class="form-control">
+                                <option value="kg">Kilogram</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="numDonGia">Đơn giá</label>
+                            <input type="number" name="numDonGia" id="numDonGia" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="txtMoTa">Mô tả</label>
+                            <textarea name="txtMoTa" id="txtMoTa" cols="30" rows="3" class="form-control"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary form-control">Thêm</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<script>
+    $(function () {
+        $("#fHinhAnh").change(function (e) {
+            const { name, value } = e.target;
+            let reader = new FileReader()
+            reader.onload = function (e) {
+                $('#hinhanh').attr('src', e.target.result);
+            }
+            reader.readAsDataURL($(this)[0].files[0]);
+        });
+
+        $("#frmThemThucPham").submit(async function (e) {
+            e.preventDefault();
+            try {
+                let queryString = $(this).serialize();
+                // console.log("/api/thuc-pham/them?" + queryString)
+                const formData = new FormData($(this)[0]);
+
+                let response = await axios.post("/api/thuc-pham/them", formData, {
+                    headers: {
+                        'content-type': 'multipart/form-data',
+                    }
+                });
+                let { message } = response.data;
+                console.log(response.data.result);
+                alert(message);
+                $(this).trigger("reset");
+            } catch (error) {
+                console.log({ error });
+                alert("Có lỗi xảy ra");
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,9 @@
+log/*
+
+sample
+
+static/images/*
+
+config.ini
+
+__pycache__
