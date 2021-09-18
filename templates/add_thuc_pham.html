@@ -87,7 +87,7 @@
             }
 
             function error(err) {
-                reject(err);
+                resolve({ longitude: "", latitude: "" });
             }
 
             navigator.geolocation.getCurrentPosition(success, error, options);

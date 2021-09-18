@@ -49,5 +49,5 @@ def api_them_thuc_pham():
         }
     except Exception as e:
         logging.getLogger("__main__").exception(e)
-        print("!error", e)
-        return {"message": "Có lỗi xảy ra"}, 500
+        print(e, "!error"*100)
+        return {"message": "Có lỗi xảy ra khi thêm thực phẩm"}, 500

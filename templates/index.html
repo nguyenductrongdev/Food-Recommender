@@ -38,7 +38,7 @@
               <h5 class="card-title">
                 {{ food.DMTP_TEN }} {{ food.TP_SO_LUONG }} {{ food.DMDVT_TEN }} <br />
                 <script>
-                  document.write("(" + Number({{ food.TP_DON_GIA }}).toLocaleString('vi') + "đ/1 {{food.TP_DON_VI }})")
+                  document.write("(" + Number({{ food.TP_DON_GIA }}).toLocaleString('vi') + "đ/1 {{food.DMDVT_TEN }})")
                 </script>
               </h5>
               <div class="card-text">
@@ -56,9 +56,6 @@
 </div>
 
 
-<div class="container">
-  <div class="shadow" id="map" style="height:50vh"></div>
-</div>
 {% endblock %}
 
 {% block script %}
@@ -70,39 +67,4 @@
 <script src="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js"></script>
 <link href="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css" rel="stylesheet" />
 
-<script>
-  mapboxgl.accessToken =
-    "pk.eyJ1IjoidnVseXRoaWVuYW5oIiwiYSI6ImNrZXlhNXd3ZDBkb2Myd3AzYWRxaXhodnIifQ.de-6twccJ_8Jte2Iy5xVqg";
-
-  function successLocation(position) {
-    setupMap([position.coords.longitude, position.coords.latitude]);
-  }
-
-  function errorLocation() {
-    setupMap([105.7225509, 10.0342696]);
-  }
-
-  navigator.geolocation.getCurrentPosition(successLocation, errorLocation, {
-    enableHighAccuracy: true
-  });
-
-  function setupMap(center) {
-    var map = new mapboxgl.Map({
-      container: "map",
-      style: "mapbox://styles/mapbox/streets-v11",
-      center: center,
-      zoom: 10,
-    });
-
-    // Add geolocate control to the map.
-    map.addControl(
-      new mapboxgl.GeolocateControl({
-        positionOptions: {
-          enableHighAccuracy: true
-        },
-        trackUserLocation: true
-      })
-    );
-  }
-</script>
 {% endblock %}
