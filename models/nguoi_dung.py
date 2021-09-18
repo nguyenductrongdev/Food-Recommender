@@ -13,14 +13,13 @@ class NguoiDung:
             ND_DIA_CHI = new_user.get("ND_DIA_CHI", None)
             ND_SO_DIEN_THOAI = new_user.get("ND_SO_DIEN_THOAI", None)
             ND_EMAIL = new_user.get("ND_EMAIL", None)
-            ND_VI_TRI = new_user.get("ND_VI_TRI", None)
 
             sql = """
-                INSERT INTO nguoi_dung(ND_TAI_KHOAN, ND_MAT_KHAU, ND_HO_TEN, ND_DIA_CHI, ND_SO_DIEN_THOAI, ND_EMAIL, ND_VI_TRI) 
-                VALUES(%s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO nguoi_dung(ND_TAI_KHOAN, ND_MAT_KHAU, ND_HO_TEN, ND_DIA_CHI, ND_SO_DIEN_THOAI, ND_EMAIL) 
+                VALUES(%s, %s, %s, %s, %s, %s)
             """
             val = (ND_TAI_KHOAN, ND_MAT_KHAU, ND_HO_TEN, ND_DIA_CHI,
-                   ND_SO_DIEN_THOAI, ND_EMAIL, ND_VI_TRI)
+                   ND_SO_DIEN_THOAI, ND_EMAIL)
 
             cursor.execute(sql, val)
             db.commit()

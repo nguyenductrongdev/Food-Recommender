@@ -4,13 +4,19 @@ from flask import Flask, request, jsonify, url_for, render_template, redirect, f
 import logging
 from pythonjsonlogger import jsonlogger
 
-from models.loai_thuc_pham import LoaiThucPham
+
+from routes.nguoi_dung import route as nguoi_dung_route
+from routes.thuc_pham import route as thuc_pham_route
+
+from api.routes.thuc_pham import route as api_thuc_pham_route
+
+
+from models.thuc_pham import ThucPham
+from models.danh_muc_don_vi_tinh import DanhMucDonViTinh
+from models.nguoi_dung import NguoiDung
+from models.danh_muc_thuc_pham import DanhMucThucPham
 from models.thuc_pham import ThucPham
 
-from controllers.nguoi_dung import login, post_login, register, post_register
-from controllers.thuc_pham import add_thuc_pham
-
-from api.controllers.thuc_pham import api_them_thuc_pham
 
 app = Flask(__name__)
 
@@ -28,25 +34,67 @@ hdlr.setFormatter(fmt)
 log.addHandler(hdlr)
 
 
+@app.route('/', methods=['GET'])
 def index():
-    return render_template("index.html")
+    # food_list = ThucPham.get_all()
+    # user_list = NguoiDung.get_all()
+    # food_type_list = DanhMucThucPham.get_all()
+
+    # # food_list with extra field
+    # for i, food in enumerate(food_list):
+    #     ND_TAI_KHOAN = user_list[user_list == ]
+
+    #     DMTP_TEN = ""
+
+    #     food_list[i].update({
+    #         "ND_TAI_KHOAN": ND_TAI_KHOAN,
+    #         "DMTP_TEN": DMTP_TEN,
+    #     })
+
+    food_list = []
+    return render_template("index.html", food_list=food_list)
 
 
-app.add_url_rule("/", view_func=index)
+@app.route('/food-map', methods=['GET'])
+def food_map():
 
-app.add_url_rule("/nguoi-dung/dang-nhap", view_func=login, methods=["GET"])
-app.add_url_rule("/nguoi-dung/dang-nhap",
-                 view_func=post_login, methods=["POST"])
+    food_list = ThucPham.get_all()
+    danh_muc_thuc_pham_list = DanhMucThucPham.get_all()
+    danh_muc_don_vi_tinh_list = DanhMucDonViTinh.get_all()
 
-app.add_url_rule("/nguoi-dung/dang-ky", view_func=register, methods=["GET"])
-app.add_url_rule("/nguoi-dung/dang-ky",
-                 view_func=post_register, methods=["POST"])
+    geo_location_list = []
+    info_in_location = []
 
-app.add_url_rule("/thuc-pham/them",
-                 view_func=add_thuc_pham, methods=['GET'])
+    for food in food_list:
+        longitude, latitude = food.get("TP_VI_TRI_BAN_DO").split("|")
+        geo_location_list.append({
+            "longitude": longitude,
+            "latitude": latitude,
+        })
 
-app.add_url_rule("/api/thuc-pham/them",
-                 view_func=api_them_thuc_pham, methods=['POST'])
+        DMDVT_TEN = list(filter(lambda dmdvt: dmdvt.get("DMDVT_MA") ==
+                                food.get("DMDVT_MA"), danh_muc_don_vi_tinh_list))[0].get("DMDVT_TEN")
+        DMTP_TEN = list(filter(lambda dmtp: dmtp.get("DMTP_MA") ==
+                               food.get("DMTP_MA"), danh_muc_thuc_pham_list))[0].get("DMTP_TEN")
+
+        info_in_location.append({
+            "TP_NGAY_BAN": food.get("TP_NGAY_BAN"),
+            "DMTP_TEN": DMTP_TEN,
+            "TP_SO_LUONG": food.get("TP_SO_LUONG"),
+            "DMDVT_TEN": DMDVT_TEN,
+        })
+
+    print(info_in_location)
+
+    return render_template("food_map.html", geo_location_list=geo_location_list, lengthLocation=len(geo_location_list), information_in_location=info_in_location)
+
+
+# Non-API routes
+app.register_blueprint(thuc_pham_route, url_prefix='/thuc-pham')
+app.register_blueprint(nguoi_dung_route, url_prefix='/nguoi-dung')
+
+# API routes
+app.register_blueprint(api_thuc_pham_route, url_prefix='/api/thuc-pham')
 
 
 if __name__ == "__main__":

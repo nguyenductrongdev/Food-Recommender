@@ -17,14 +17,13 @@
 
                     <div class="col-md-8">
                         <input type="file" name="fHinhAnh" id="fHinhAnh" class="d-none">
-                        <!-- <input type="file" name="fHinhAnh" id="fHinhAnh" onchange="console.log('ccc')"> -->
 
                         <div class="form-group">
-                            <label for="slLoaiThucPham">Loại thực phẩm</label>
+                            <label for="slLoaiThucPham">Danh mục thực phẩm</label>
                             <select name="slLoaiThucPham" id="slLoaiThucPham" class="form-control">
-                                <option value="">---- Chọn loại thực phẩm ----</option>}
+                                <option value="">---- Chọn danh mục thực phẩm ----</option>}
                                 {% for food in food_list %}
-                                <option value="{{food.LTP_MA}}">{{food.LTP_TEN}}</option>}
+                                <option value="{{food.DMTP_MA}}">{{food.DMTP_TEN}}</option>}
                                 {% endfor %}
                             </select>
                         </div>
@@ -35,12 +34,24 @@
                         <div class="form-group">
                             <label for="slDonVi">Đơn vị</label>
                             <select name="slDonVi" id="slDonVi" class="form-control">
-                                <option value="kg">Kilogram</option>
+                                <option value="">---- Chọn đơn vị ----</option>
+                                {% for unit in unit_list %}
+                                <option value="{{unit.DMDVT_MA}}">{{unit.DMDVT_TEN}}</option>}
+                                {% endfor %}
                             </select>
                         </div>
                         <div class="form-group">
                             <label for="numDonGia">Đơn giá</label>
                             <input type="number" name="numDonGia" id="numDonGia" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="txtNgayBan">Ngày bán</label>
+                            <input type="date" name="txtNgayBan" id="txtNgayBan" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="txtViTriBanDo">Vị trí bán</label>
+                            <input type="text" name="txtViTriBanDo" id="txtViTriBanDo" class="form-control"
+                                placeholder="Vị trí hiện tại của bạn" readonly>
                         </div>
                         <div class="form-group">
                             <label for="txtMoTa">Mô tả</label>
@@ -59,6 +70,31 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 <script>
+    function getGeoLocation() {
+        var options = {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+        };
+
+        return new Promise((resolve, reject) => {
+            function success(pos) {
+                var crd = pos.coords;
+                let { latitude, longitude } = crd;
+
+                resolve({ latitude, longitude });
+                console.log({ latitude, longitude });
+            }
+
+            function error(err) {
+                reject(err);
+            }
+
+            navigator.geolocation.getCurrentPosition(success, error, options);
+        });
+    }
+
+
     $(function () {
         $("#fHinhAnh").change(function (e) {
             const { name, value } = e.target;
@@ -74,6 +110,10 @@
             try {
                 let queryString = $(this).serialize();
                 // console.log("/api/thuc-pham/them?" + queryString)
+                let { longitude, latitude } = await getGeoLocation();
+
+                $("#txtViTriBanDo").val(`${longitude}|${latitude}`);
+
                 const formData = new FormData($(this)[0]);
 
                 let response = await axios.post("/api/thuc-pham/them", formData, {
