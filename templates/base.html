@@ -30,34 +30,17 @@
                     <a class="nav-link" href="/thuc-pham/them">Thêm thực phẩm</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/nguoi-dung/dang-ky">Đăng ký</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/nguoi-dung/dang-nhap">Đăng nhập</a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link" href="/food-map">Food map</a>
                 </li>
             </ul>
 
-            <!-- <ul class="navbar-nav mr-auto">
-                {% if user is defined %}
+            <ul class="navbar-nav ml-auto">
+                {% if user_info and user_info.ND_TAI_KHOAN %}
                 <li class="nav-item">
-                    <div class="dropdown dropleft">
-                        <a class="dropdown-toggle text-decoration-none" href="#" role="button" id="dropdownMenuLink"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <p>{{ user.ND_TAI_KHOAN }}</p>
-                        </a>
-
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                            <a class="dropdown-item" href="/nguoi-dung/dang-nhap">
-                                Trang cá nhân
-                            </a>
-                            <a class="dropdown-item" href="/nguoi-dung/dang-xuat">
-                                Đăng xuất
-                            </a>
-                        </div>
-                    </div>
+                    <a class="nav-link btn btn-success" href="/nguoi-dung/{{user_info.ND_TAI_KHOAN}}">
+                        <i class="fas fa-user"></i>
+                        {{ user_info.ND_TAI_KHOAN }}
+                    </a>
                 </li>
                 {% else %}
                 <li class="nav-item">
@@ -67,7 +50,7 @@
                     <a class="nav-link" href="/nguoi-dung/dang-ky">Đăng ký</a>
                 </li>
                 {% endif %}
-            </ul> -->
+            </ul>
         </div>
     </nav>
 

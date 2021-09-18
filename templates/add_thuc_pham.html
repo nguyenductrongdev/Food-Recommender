@@ -52,6 +52,27 @@
                             <label for="txtViTriBanDo">Vị trí bán</label>
                             <input type="text" name="txtViTriBanDo" id="txtViTriBanDo" class="form-control"
                                 placeholder="Vị trí hiện tại của bạn" readonly>
+                            <!-- This section will change when address change -->
+                            <div id="txtViTriBanDo-option">
+                                <script>
+                                    document.querySelector("#txtViTriBanDo").onchange = function (e) {
+                                        let address = $(this).val();
+                                        console.log({ address });
+                                        const API_KEY = "YfpvQP_YBoVu3ASRnFsok_sMz13rvkVba8Ak7RDUxas";
+                                        let url = "https://geocoder.ls.hereapi.com/6.2/geocode.json?searchtext=" + address + "&gen=9&apikey=" + API_KEY;
+                                        let xmlHttp = new XMLHttpRequest();
+                                        xmlHttp.open("GET", url, false);
+                                        xmlHttp.send(null);
+                                        let json = JSON.parse(xmlHttp.responseText);
+                                        let presentHTML = "";
+                                        for (let i = 0; i < Number(json.Response?.View[0]?.Result?.length); i++) {
+                                            let locationLabel = json.Response.View[0].Result[i].Location.Address.Label;
+                                            presentHTML += `<div class="shadow p-1 w-100">${locationLabel}</div><br/>`
+                                        }
+                                        document.querySelector("#txtViTriBanDo-option").innerHTML = presentHTML || "Không có";
+                                    }
+                                </script>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="txtMoTa">Mô tả</label>

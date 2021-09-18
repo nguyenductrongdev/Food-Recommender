@@ -1,3 +1,4 @@
+from functools import wraps
 import configparser
 import os
 from flask import Flask, request, jsonify, url_for, render_template, redirect, flash, send_file, session
@@ -55,9 +56,21 @@ def index():
             "ND_TAI_KHOAN": ND_TAI_KHOAN,
         })
 
-    print(thuc_pham_list)
+    # get user for template
+    _ = list(filter(lambda nd: str(nd.get('ND_MA')) ==
+                    request.cookies.get("ND_MA"), nguoi_dung_list))
 
-    return render_template("index.html", food_list=thuc_pham_list)
+    ND_TAI_KHOAN = _[0].get("ND_TAI_KHOAN") if len(_) > 0 else None
+    user_info = {
+        "ND_TAI_KHOAN": ND_TAI_KHOAN,
+    }
+    # get user for template
+
+    return render_template(
+        "index.html",
+        user_info=user_info,
+        food_list=thuc_pham_list,
+    )
 
 
 @app.route('/food-map', methods=['GET'])
