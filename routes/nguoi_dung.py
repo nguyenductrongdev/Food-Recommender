@@ -31,18 +31,13 @@ def post_login():
         password = query_string_dict["txtMatKhau"]
 
         user_list = NguoiDung.get_all()
-        # return {
-        #     "user_list": user_list,
-        # }
-        # find current user
         current_user = list(filter(
             lambda user: user["ND_TAI_KHOAN"] == username and user["ND_MAT_KHAU"] == password, user_list))
         current_user = current_user[0] if len(current_user) else None
         # set behavior depending on user
         if current_user:
-            print("xxxxxxxxxxxxxx", current_user)
-            response = make_response(render_template(
-                "user.html", user=current_user))
+            response = make_response(
+                redirect(f"/nguoi-dung/{current_user.get('ND_TAI_KHOAN')}"))
             response.set_cookie('ND_MA', str(current_user["ND_MA"]))
             return response
         else:
@@ -83,3 +78,29 @@ def post_register():
     except Exception as e:
         logging.getLogger("__main__").exception(e)
         abort(500)
+
+
+@route.route('/dang-xuat', methods=['GET'])
+def logout():
+    resp = make_response(redirect("/"))
+    resp.set_cookie('ND_MA', expires=0)
+    return resp
+
+
+@route.route('/<nd_tai_khoan>', methods=['GET'])
+def private_page(nd_tai_khoan):
+    nguoi_dung_list = NguoiDung.get_all()
+
+    # get user for template
+    _ = list(filter(lambda nd: str(nd.get('ND_MA')) ==
+                    nd_tai_khoan, nguoi_dung_list))
+
+    ND_TAI_KHOAN = _[0].get("ND_TAI_KHOAN") if len(_) > 0 else None
+    user_info = {
+        "ND_TAI_KHOAN": ND_TAI_KHOAN,
+    }
+    # get user for template
+    return render_template(
+        "user.html",
+        user_info=user_info,
+    )
