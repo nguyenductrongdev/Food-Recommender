@@ -126,6 +126,16 @@
             reader.readAsDataURL($(this)[0].files[0]);
         });
 
+        $("#slLoaiThucPham").change(async function () {
+            let value = $(this).val();
+            console.log({ value });
+            // get unit list based on dmtp_ma
+            let response = await axios.get(`/api/unit?dmtp_ma=${value}`);
+            let units = response.data.units;
+            let presentHTML = units.map(unit => `<option value=${unit.DMDVT_MA}>${unit.DMDVT_TEN}</option>`).join('');
+            $('#slDonVi').html(presentHTML);
+        });
+
         $("#frmThemThucPham").submit(async function (e) {
             e.preventDefault();
             try {
@@ -151,6 +161,7 @@
                 alert("Có lỗi xảy ra");
             }
         });
+
     });
 </script>
 {% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+
+{% block main %}
+<div class="container">
+    <div class="row">
+        <div class="col-12 col-md-6 mx-auto">
+            <h1>Thêm nhu cầu mua</h1>
+            <form action="/api/nguoi-dung/them-nhu-cau-mua" name="frmThemNhuCau" id="frmThemNhuCau"
+                class="shadow p-4 mt-5">
+                <div class="form-group mb-5">
+                    <label for="txtThoiGian">Thời gian:</label>
+                    <input type="date" name="txtThoiGian" class="form-control" id="txtThoiGian">
+                </div>
+
+                <div class="form-row">
+                    <div class="col-8">
+                        <label for="slDanhMucThucPham">Danh mục thực phẩm:</label>
+                        <select name="slDanhMucThucPham" id="slDanhMucThucPham" class="form-control">
+                            <option value="">---- Chọn danh mục thực phẩm ----</option>
+                            {% for food_type in food_type_list %}
+                            <option value="{{ food_type.DMTP_MA }}">{{ food_type.DMTP_TEN }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <label for="numSoLuong">Số lượng:</label>
+                        <input type="number" name="numSoLuong" class="form-control" id="numSoLuong" min="0">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="">Đơn vị:</label>
+                    <select name="slDonVi" class="form-control" id="slDonVi">
+                        <option value="">---- Chọn đơn vị ----</option>
+                        {% for unit in unit_list %}
+                        <option value="{{ unit.DMDVT_MA }}">{{ unit.DMDVT_TEN }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button class="btn btn-primary form-control">Gửi yêu cầu</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block script %}
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    $(function () {
+        // YYYY-MM-DD
+        let today = new Date();
+        let d = ("0" + today.getDate()).substr(-2);
+        let m = ("0" + today.getMonth()).substr(-2);
+        let y = today.getFullYear();
+        $("#txtThoiGian").val(`${y}-${m}-${d}`);
+
+
+        $("#frmThemNhuCau").submit(async function (e) {
+            e.preventDefault();
+            try {
+                let formData = new FormData(this);
+                let response = await axios.post("/api/nguoi-dung/them-nhu-cau-mua", formData, {
+                    headers: {
+                        'content-type': 'multipart/form-data',
+                    }
+                });
+                alert("Thêm thành công")
+            } catch (error) {
+                alert("Có lỗi xảy ra");
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,8 +1,11 @@
+from middlewares.require_login import require_login
 from flask import Blueprint, request, abort, jsonify, url_for, render_template, redirect, flash, send_file, session, make_response
 from jinja2 import TemplateNotFound
 import logging
 
 from models.nguoi_dung import NguoiDung
+from models.danh_muc_thuc_pham import DanhMucThucPham
+from models.danh_muc_don_vi_tinh import DanhMucDonViTinh
 
 route = Blueprint(
     'nguoi_dung',
@@ -87,12 +90,36 @@ def logout():
     return resp
 
 
+@route.route('/them-nhu-cau-mua', methods=['GET'])
+@require_login()
+def add_request():
+    nguoi_dung_list = NguoiDung.get_all()
+    # get user for template
+    _ = list(filter(lambda nd: str(nd.get('ND_MA')) ==
+                    request.cookies.get("ND_MA"), nguoi_dung_list))
+
+    ND_TAI_KHOAN = _[0].get("ND_TAI_KHOAN") if len(_) > 0 else None
+    user_info = {
+        "ND_TAI_KHOAN": ND_TAI_KHOAN,
+    }
+    # get user for template
+    food_type_list = DanhMucThucPham.get_all()
+    unit_list = DanhMucDonViTinh.get_all()
+    return render_template(
+        "add_request.html",
+        user_info=user_info,
+        food_type_list=food_type_list,
+        unit_list=unit_list,
+    )
+
+
 @route.route('/<nd_tai_khoan>', methods=['GET'])
+@require_login()
 def private_page(nd_tai_khoan):
     nguoi_dung_list = NguoiDung.get_all()
 
     # get user for template
-    _ = list(filter(lambda nd: str(nd.get('ND_MA')) ==
+    _ = list(filter(lambda nd: str(nd.get('ND_TAI_KHOAN')) ==
                     nd_tai_khoan, nguoi_dung_list))
 
     ND_TAI_KHOAN = _[0].get("ND_TAI_KHOAN") if len(_) > 0 else None

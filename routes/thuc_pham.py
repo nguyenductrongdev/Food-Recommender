@@ -39,5 +39,5 @@ def add_thuc_pham():
         user_info=user_info,
         food_list=food_list,
         user=current_user,
-        unit_list=unit_list
+        # unit_list=unit_list
     )

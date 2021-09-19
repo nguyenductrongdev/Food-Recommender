@@ -4,12 +4,14 @@ import os
 from flask import Flask, request, jsonify, url_for, render_template, redirect, flash, send_file, session
 import logging
 from pythonjsonlogger import jsonlogger
+from flask import g
 
 
 from routes.nguoi_dung import route as nguoi_dung_route
 from routes.thuc_pham import route as thuc_pham_route
 
 from api.routes.thuc_pham import route as api_thuc_pham_route
+from api.routes.nguoi_dung import route as api_nguoi_dung_route
 
 
 from models.thuc_pham import ThucPham
@@ -39,31 +41,16 @@ log.addHandler(hdlr)
 def index():
     nguoi_dung_list = NguoiDung.get_all()
     thuc_pham_list = ThucPham.get_all()
-    danh_muc_thuc_pham_list = DanhMucThucPham.get_all()
-    danh_muc_don_vi_tinh_list = DanhMucDonViTinh.get_all()
-
-    for index, food in enumerate(thuc_pham_list):
-        DMDVT_TEN = list(filter(lambda dmdvt: dmdvt.get("DMDVT_MA") ==
-                                food.get("DMDVT_MA"), danh_muc_don_vi_tinh_list))[0].get("DMDVT_TEN")
-        DMTP_TEN = list(filter(lambda dmtp: dmtp.get("DMTP_MA") ==
-                               food.get("DMTP_MA"), danh_muc_thuc_pham_list))[0].get("DMTP_TEN")
-        ND_TAI_KHOAN = list(filter(lambda dmtp: dmtp.get("ND_MA") ==
-                                   food.get("ND_MA"), nguoi_dung_list))[0].get("ND_TAI_KHOAN")
-
-        thuc_pham_list[index].update({
-            "DMTP_TEN": DMTP_TEN,
-            "DMDVT_TEN": DMDVT_TEN,
-            "ND_TAI_KHOAN": ND_TAI_KHOAN,
-        })
 
     # get user for template
-    _ = list(filter(lambda nd: str(nd.get('ND_MA')) ==
-                    request.cookies.get("ND_MA"), nguoi_dung_list))
-
-    ND_TAI_KHOAN = _[0].get("ND_TAI_KHOAN") if len(_) > 0 else None
-    user_info = {
-        "ND_TAI_KHOAN": ND_TAI_KHOAN,
-    }
+    try:
+        ND_TAI_KHOAN = list(filter(lambda nd: str(nd.get('ND_MA')) ==
+                                   request.cookies.get("ND_MA"), nguoi_dung_list))[0].get("ND_TAI_KHOAN")
+        user_info = {
+            "ND_TAI_KHOAN": ND_TAI_KHOAN,
+        }
+    except:
+        user_info = None
     # get user for template
 
     return render_template(
@@ -116,12 +103,32 @@ def food_map():
     return render_template("food_map.html", geo_location_list=geo_location_list, lengthLocation=len(geo_location_list), information_in_location=info_in_location)
 
 
+@app.route(r'/api/unit')
+def get_unit():
+    from models.db_utils import cursor, db
+    print("aaa")
+    DMTP_MA = request.args.get("dmtp_ma")
+    sql = f"""
+        SELECT danh_muc_don_vi_tinh.DMDVT_MA, DMDVT_TEN
+        FROM danh_muc_thuc_pham, danh_muc_don_vi_tinh, dmtp_dmdvt
+        WHERE danh_muc_thuc_pham.DMTP_MA = {DMTP_MA}
+            AND danh_muc_thuc_pham.DMTP_MA = dmtp_dmdvt.DMTP_MA
+            AND dmtp_dmdvt.DMDVT_MA = danh_muc_don_vi_tinh.DMDVT_MA
+    """
+    cursor.execute(sql)
+    units = cursor.fetchall()
+    return {
+        "units": units
+    }, 200
+
+
 # Non-API routes
 app.register_blueprint(thuc_pham_route, url_prefix='/thuc-pham')
 app.register_blueprint(nguoi_dung_route, url_prefix='/nguoi-dung')
 
 # API routes
 app.register_blueprint(api_thuc_pham_route, url_prefix='/api/thuc-pham')
+app.register_blueprint(api_nguoi_dung_route, url_prefix='/api/nguoi-dung')
 
 
 if __name__ == "__main__":

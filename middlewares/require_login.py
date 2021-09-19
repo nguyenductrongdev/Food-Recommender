@@ -7,11 +7,8 @@ def require_login():
         @wraps(f)
         def __home_decorator(*args, **kwargs):
             ND_MA = request.cookies.get("ND_MA")
-            print("Cookie:", ND_MA, "+"*100)
             if not ND_MA:
                 return redirect("/nguoi-dung/dang-nhap")
-            else:
-                print("Cookie:", ND_MA, "+"*100)
             result = f(*args, **kwargs)
             return result
         return __home_decorator
