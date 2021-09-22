@@ -4,6 +4,14 @@
 {% block main %}
 <div class="container">
     <div class="row">
+        <div class="col-12 col-md-4 mx-auto shadow">
+            <h4>Danh sách nhu cầu:</h4>
+            <ol id="require-list">
+
+            </ol>
+        </div>
+
+
         <div class="col-12 col-md-6 mx-auto">
             <h1>Thêm nhu cầu mua</h1>
             <form action="/api/nguoi-dung/them-nhu-cau-mua" name="frmThemNhuCau" id="frmThemNhuCau"
@@ -38,6 +46,8 @@
                         {% endfor %}
                     </select>
                 </div>
+                <button type="button" class="btn btn-success form-control mb-1" id="btn-add-require-list">Thêm vào
+                    danhsách</button>
                 <button class="btn btn-primary form-control">Gửi yêu cầu</button>
             </form>
         </div>
@@ -58,17 +68,45 @@
         $("#txtThoiGian").val(`${y}-${m}-${d}`);
 
 
+        $("#btn-add-require-list").click(function (e) {
+            let danhMuc = $("#slDanhMucThucPham").val();
+            let soLuong = $("#numSoLuong").val();
+            let donVi = $("#slDonVi").val();
+
+            let danhMucText = $(`#slDanhMucThucPham option[value="${danhMuc}"]`).html();
+            let donViText = $(`#slDonVi option[value="${donVi}"]`).html();
+
+            let danhMucList = Array.from($("#require-list li")).map(e => $(e).attr("data-danh-muc"));
+
+            if (danhMucList.includes(danhMuc)) {
+                const existItem = $(`#require-list li[data-danh-muc="${danhMuc}"]`);
+                let newSoLuong = Number(existItem.attr("data-so-luong")) + Number(soLuong);
+
+                existItem.attr("data-so-luong", newSoLuong);
+                let presentText = danhMucText + " " + newSoLuong + " " + donViText;
+                existItem.html(presentText)
+            } else {
+                let presentText = danhMucText + " " + soLuong + " " + donViText;
+                $("#require-list").append(`<li data-danh-muc="${danhMuc}" data-so-luong="${soLuong}" data-don-vi="${donVi}">${presentText}</li>`);
+            }
+        });
+
         $("#frmThemNhuCau").submit(async function (e) {
             e.preventDefault();
+            let requireList = Array.from($("#require-list li")).map(e => ({
+                danhMuc: $(e).attr("data-danh-muc"),
+                soLuong: $(e).attr("data-so-luong"),
+                donVi: $(e).attr("data-don-vi"),
+            }));
+
+            let requires = JSON.stringify(requireList);
+
             try {
-                let formData = new FormData(this);
-                let response = await axios.post("/api/nguoi-dung/them-nhu-cau-mua", formData, {
-                    headers: {
-                        'content-type': 'multipart/form-data',
-                    }
-                });
+                let txtThoiGian = $("#txtThoiGian").val();
+                let response = await axios.post(`/api/nguoi-dung/them-nhu-cau-mua?txtThoiGian=${txtThoiGian}&requires=${requires}`);
                 alert("Thêm thành công")
             } catch (error) {
+                console.log({ error });
                 alert("Có lỗi xảy ra");
             }
         });
