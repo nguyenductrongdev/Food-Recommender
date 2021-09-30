@@ -12,11 +12,13 @@ class ChiTietNhuCauMua:
         DMTP_MA = fields["DMTP_MA"]
         NCM_MA = fields["NCM_MA"]
         CTNCM_SO_LUONG = fields["CTNCM_SO_LUONG"]
+        DMDVT_MA = fields["DMDVT_MA"]
 
         sql = """
-            INSERT INTO chi_tiet_nhu_cau_mua(DMTP_MA, NCM_MA, CTNCM_SO_LUONG) VALUES (%s, %s, %s)
+            INSERT INTO chi_tiet_nhu_cau_mua(DMTP_MA, NCM_MA, CTNCM_SO_LUONG, DMDVT_MA) 
+            VALUES (%s, %s, %s, %s)
         """
-        val = (DMTP_MA, NCM_MA, CTNCM_SO_LUONG)
+        val = (DMTP_MA, NCM_MA, CTNCM_SO_LUONG, DMDVT_MA)
 
         cursor.execute(sql, val)
         db.commit()

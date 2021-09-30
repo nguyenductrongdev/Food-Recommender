@@ -39,7 +39,7 @@ def them_nhu_cau_mua():
                 "DMTP_MA": food_request_detail["danhMuc"],
                 "NCM_MA": new_food_request["NCM_MA"],
                 "CTNCM_SO_LUONG": food_request_detail["soLuong"],
-                # miss donVi
+                "DMDVT_MA": food_request_detail["donVi"],
             }
             ChiTietNhuCauMua.create(new_rerquest_detail)
 

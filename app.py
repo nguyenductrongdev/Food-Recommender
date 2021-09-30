@@ -57,6 +57,7 @@ def index():
         "index.html",
         user_info=user_info,
         food_list=thuc_pham_list,
+        user_list=nguoi_dung_list,
     )
 
 
@@ -65,6 +66,9 @@ def food_map():
     food_list = ThucPham.get_all()
     danh_muc_thuc_pham_list = DanhMucThucPham.get_all()
     danh_muc_don_vi_tinh_list = DanhMucDonViTinh.get_all()
+    nguoi_dung_list = NguoiDung.get_all()
+
+    user_info = None
 
     geo_location_list = []
     info_in_location = []
@@ -98,9 +102,23 @@ def food_map():
             "DMDVT_TEN": DMDVT_TEN,
         })
 
-    # print(info_in_location)
+    # get user for template
+    try:
+        ND_TAI_KHOAN = list(filter(lambda nd: str(nd.get('ND_MA')) ==
+                                   request.cookies.get("ND_MA"), nguoi_dung_list))[0].get("ND_TAI_KHOAN")
+        user_info = {
+            "ND_TAI_KHOAN": ND_TAI_KHOAN,
+        }
+    except:
+        user_info = None
+    # get user for template
 
-    return render_template("food_map.html", geo_location_list=geo_location_list, lengthLocation=len(geo_location_list), information_in_location=info_in_location)
+    return render_template(
+        "food_map.html",
+        user_info=user_info,
+        geo_location_list=geo_location_list,
+        lengthLocation=len(geo_location_list), information_in_location=info_in_location
+    )
 
 
 @app.route(r'/api/unit')
