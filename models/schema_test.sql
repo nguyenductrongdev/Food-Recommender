@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     9/23/2021 4:30:21 PM                         */
+/* Created on:     10/1/2021 1:22:22 PM                         */
 /*==============================================================*/
 
 
@@ -26,8 +26,9 @@ create table CHI_TIET_NHU_CAU_MUA
    DMTP_MA              int not null,
    NCM_MA               int not null,
    DMDVT_MA             int not null,
+   ND_MA                int not null,
    CTNCM_SO_LUONG       float,
-   primary key (DMTP_MA, NCM_MA)
+   primary key (DMTP_MA, NCM_MA, DMDVT_MA)
 );
 
 /*==============================================================*/
@@ -113,6 +114,9 @@ alter table CHI_TIET_NHU_CAU_MUA add constraint FK_CTNCM_NCM foreign key (NCM_MA
 
 alter table CHI_TIET_NHU_CAU_MUA add constraint FK_DMDVT_CTNCM foreign key (DMDVT_MA)
       references DANH_MUC_DON_VI_TINH (DMDVT_MA) on delete restrict on update restrict;
+
+alter table CHI_TIET_NHU_CAU_MUA add constraint FK_UU_TIEN foreign key (ND_MA)
+      references NGUOI_DUNG (ND_MA) on delete restrict on update restrict;
 
 alter table DMTP_DMDVT add constraint FK_DMTP_DMDVT foreign key (DMTP_MA)
       references DANH_MUC_THUC_PHAM (DMTP_MA) on delete restrict on update restrict;

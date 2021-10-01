@@ -61,6 +61,19 @@ def index():
     )
 
 
+@app.route('/utils/nguoi-dung', methods=['GET'])
+def nd():
+    nguoi_dung_list = NguoiDung.get_all()
+    nguoi_dung_list = list(map(lambda user:
+                           {
+                               "nd_ma": user.get('ND_MA'),
+                               "nd_tai_khoan": user.get('ND'),
+                           }, nguoi_dung_list))
+    return {
+        "users": nguoi_dung_list,
+    }
+
+
 @app.route('/food-map', methods=['GET'])
 def food_map():
     food_list = ThucPham.get_all()
