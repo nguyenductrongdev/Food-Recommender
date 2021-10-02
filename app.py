@@ -41,6 +41,7 @@ log.addHandler(hdlr)
 def index():
     nguoi_dung_list = NguoiDung.get_all()
     thuc_pham_list = ThucPham.get_all()
+    danh_muc_thuc_pham_list = DanhMucThucPham.get_all()
 
     # get user for template
     try:
@@ -58,6 +59,7 @@ def index():
         user_info=user_info,
         food_list=thuc_pham_list,
         user_list=nguoi_dung_list,
+        danh_muc_thuc_pham_list=danh_muc_thuc_pham_list
     )
 
 

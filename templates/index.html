@@ -28,15 +28,6 @@
 <div class="container">
   <h2 class="section-header">Thực phẩm đang bán</h2>
   <div class="row">
-    <!-- <div class="col-md-3">
-      <select name="slFilter" id="slFilter" class="form-control">
-        <option value="">Tất cả người dùng</option>
-        {% for user in user_list %}
-        <option value="{{ user.ND_MA }}">{{ user.ND_TAI_KHOAN }}</option>
-        {% endfor %}
-      </select>
-    </div> -->
-
     <div class="col-md-3">
       <input type="text" id="txtFilter" class="form-control" placeholder="Lọc theo tên người dùng">
       <div id="user-list" class="position-absolute w-100" style="z-index: 1;">
@@ -95,13 +86,8 @@
 <script>
   $(function () {
 
-    $("#slFilter").change(async function () {
-      let val = $(this).val();
-      let response = await axios.get("/api/thuc-pham", {
-        params: { nd_ma: val }
-      });
-      let foods = response.data.foods;
-      let productsHTML = foods.map(food => {
+    function toFoodString(foods) {
+      return foods.map(food => {
         return `
             <div class="col-3 my-3">
                   <div class="card product">
@@ -119,11 +105,9 @@
 </div>
 </div>
 </div>
-`
-      })
-
-      $("#product-presenter").html(productsHTML);
-    });
+`;
+      });
+    }
 
 
     $("#txtFilter").keyup(async function () {
@@ -143,26 +127,7 @@
       if (val === "") {
         let response = await axios.get("/api/thuc-pham");
         let foods = response.data.foods;
-        let productsHTML = foods.map(food => {
-          return `
-            <div class="col-3 my-3">
-                  <div class="card product">
-                    <img class="card-img-top product__image" src="${food.TP_HINH_ANH}" alt="Card image cap">
-                    <div class="card-body">
-                      <h5 class="card-title">
-                        ${food.DMTP_TEN} ${food.TP_SO_LUONG} ${food.DMDVT_TEN} <br />
-                        ${Number(food.TP_DON_GIA).toLocaleString('vi')} đ/1 ${food.DMDVT_TEN})
-</h5>
-<div class="card-text">
-  <p><i class="fas fa-file-medical-alt"></i> ${food.TP_MO_TA}</p>
-  <p><i class="fas fa-user"></i> Người bán: <a href="#" class="text-success">${food.ND_TAI_KHOAN}</a>
-  </p>
-</div>
-</div>
-</div>
-</div>
-`
-        });
+        let productsHTML = toFoodString(foods);
 
         $("#product-presenter").html(productsHTML);
       }
@@ -177,27 +142,7 @@
         params: { nd_ma: val }
       });
       let foods = response.data.foods;
-      let productsHTML = foods.map(food => {
-        return `
-            <div class="col-3 my-3">
-                  <div class="card product">
-                    <img class="card-img-top product__image" src="${food.TP_HINH_ANH}" alt="Card image cap">
-                    <div class="card-body">
-                      <h5 class="card-title">
-                        ${food.DMTP_TEN} ${food.TP_SO_LUONG} ${food.DMDVT_TEN} <br />
-                        ${Number(food.TP_DON_GIA).toLocaleString('vi')} đ/1 ${food.DMDVT_TEN})
-</h5>
-<div class="card-text">
-  <p><i class="fas fa-file-medical-alt"></i> ${food.TP_MO_TA}</p>
-  <p><i class="fas fa-user"></i> Người bán: <a href="#" class="text-success">${food.ND_TAI_KHOAN}</a>
-  </p>
-</div>
-</div>
-</div>
-</div>
-`
-      });
-
+      let productsHTML = toFoodString(foods);
       $("#product-presenter").html(productsHTML);
     });
   });
