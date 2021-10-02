@@ -110,6 +110,7 @@ def add_request():
         user_info=user_info,
         food_type_list=food_type_list,
         unit_list=unit_list,
+        user_list=nguoi_dung_list,
     )
 
 

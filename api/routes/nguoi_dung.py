@@ -25,6 +25,7 @@ def them_nhu_cau_mua():
             "ND_MA": request.cookies.get("ND_MA"),
             "NCM_THOI_GIAN": query_string_dict["txtThoiGian"],
         }
+
         # Create NhuCauMua record
         new_food_request = NhuCauMua.create(newRequest)
 

@@ -1,10 +1,12 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     10/1/2021 1:22:22 PM                         */
+/* Created on:     10/2/2021 8:42:14 PM                         */
 /*==============================================================*/
 
 
 drop table if exists CHI_TIET_NHU_CAU_MUA;
+
+drop table if exists DANG_KY_MUA;
 
 drop table if exists DANH_MUC_DON_VI_TINH;
 
@@ -26,9 +28,19 @@ create table CHI_TIET_NHU_CAU_MUA
    DMTP_MA              int not null,
    NCM_MA               int not null,
    DMDVT_MA             int not null,
-   ND_MA                int not null,
    CTNCM_SO_LUONG       float,
    primary key (DMTP_MA, NCM_MA, DMDVT_MA)
+);
+
+/*==============================================================*/
+/* Table: DANG_KY_MUA                                           */
+/*==============================================================*/
+create table DANG_KY_MUA
+(
+   ND_MA                int not null,
+   TP_MA                int not null,
+   DKM_SO_LUONG         int,
+   primary key (ND_MA, TP_MA)
 );
 
 /*==============================================================*/
@@ -115,7 +127,10 @@ alter table CHI_TIET_NHU_CAU_MUA add constraint FK_CTNCM_NCM foreign key (NCM_MA
 alter table CHI_TIET_NHU_CAU_MUA add constraint FK_DMDVT_CTNCM foreign key (DMDVT_MA)
       references DANH_MUC_DON_VI_TINH (DMDVT_MA) on delete restrict on update restrict;
 
-alter table CHI_TIET_NHU_CAU_MUA add constraint FK_UU_TIEN foreign key (ND_MA)
+alter table DANG_KY_MUA add constraint FK_DKM_TP foreign key (TP_MA)
+      references THUC_PHAM (TP_MA) on delete restrict on update restrict;
+
+alter table DANG_KY_MUA add constraint FK_ND_DKM foreign key (ND_MA)
       references NGUOI_DUNG (ND_MA) on delete restrict on update restrict;
 
 alter table DMTP_DMDVT add constraint FK_DMTP_DMDVT foreign key (DMTP_MA)

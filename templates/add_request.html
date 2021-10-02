@@ -46,6 +46,7 @@
                         {% endfor %}
                     </select>
                 </div>
+
                 <button type="button" class="btn btn-success form-control mb-1" id="btn-add-require-list">Thêm vào
                     danhsách</button>
                 <button class="btn btn-primary form-control">Gửi yêu cầu</button>
@@ -103,6 +104,7 @@
 
             try {
                 let txtThoiGian = $("#txtThoiGian").val();
+                let slNguoiDung = $("#slNguoiDung").val();
                 let response = await axios.post(`/api/nguoi-dung/them-nhu-cau-mua?txtThoiGian=${txtThoiGian}&requires=${requires}`);
                 alert("Thêm thành công")
             } catch (error) {
