@@ -54,6 +54,7 @@ def index():
         user_info = None
     # get user for template
 
+    print("danh_muc_thuc_pham_list", danh_muc_thuc_pham_list)
     return render_template(
         "index.html",
         user_info=user_info,

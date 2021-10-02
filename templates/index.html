@@ -28,8 +28,9 @@
 <div class="container">
   <h2 class="section-header">Thực phẩm đang bán</h2>
   <div class="row">
+
     <div class="col-md-3">
-      <input type="text" id="txtFilter" class="form-control" placeholder="Lọc theo tên người dùng">
+      <input type="text" id="txtFilter-nd-ma" class="form-control" placeholder="Lọc theo tên người dùng">
       <div id="user-list" class="position-absolute w-100" style="z-index: 1;">
         <!-- <div data-nd-ma="" class="bg-white w-100 shadow user-list__item d-none">Tất cả</div> -->
         {% for user in user_list %}
@@ -37,6 +38,17 @@
         </div>
         {% endfor %}
       </div>
+    </div>
+
+    <div class="col-md-3">
+      <select name="slFilter-dmtp-ma" class="form-control" id="slFilter-dmtp-ma">
+        <option data-dmtp-ma="" class="bg-white w-100 shadow user-list__item" value="">
+          Tất cả danh mục thực phẩm
+        </option>
+        {% for dmtp in danh_muc_thuc_pham_list %}
+        <option value="{{ dmtp.DMTP_MA }}">{{ dmtp.DMTP_TEN }}</option>
+        {% endfor %}
+      </select>
     </div>
 
   </div>
@@ -110,7 +122,7 @@
     }
 
 
-    $("#txtFilter").keyup(async function () {
+    $("#txtFilter-nd-ma").keyup(async function () {
       let val = $(this).val();
       console.log({ val });
       $(".user-list__item").addClass("d-none");
@@ -140,6 +152,17 @@
 
       let response = await axios.get("/api/thuc-pham", {
         params: { nd_ma: val }
+      });
+      let foods = response.data.foods;
+      let productsHTML = toFoodString(foods);
+      $("#product-presenter").html(productsHTML);
+    });
+
+    $("#slFilter-dmtp-ma").change(async function () {
+      let val = $(this).val();
+
+      let response = await axios.get("/api/thuc-pham", {
+        params: { dmtp_ma: val }
       });
       let foods = response.data.foods;
       let productsHTML = toFoodString(foods);

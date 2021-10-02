@@ -22,11 +22,17 @@ config.read(CONFIG_PATH)
 def index():
     thuc_pham_list = ThucPham.get_all()
     query_string_dict = request.values
+
     nd_ma = query_string_dict.get("nd_ma")
+    dmtp_ma = query_string_dict.get("dmtp_ma")
 
     if nd_ma:
         thuc_pham_list = list(filter(
             lambda food: food.get("ND_MA") == int(nd_ma), thuc_pham_list))
+
+    if dmtp_ma:
+        thuc_pham_list = list(filter(
+            lambda food: food.get("DMTP_MA") == int(dmtp_ma), thuc_pham_list))
 
     return {
         "foods": thuc_pham_list
