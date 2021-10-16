@@ -7,12 +7,20 @@ from models.dang_ky_mua import DangKyMua
 
 from middlewares.require_login import require_login
 from models.thuc_pham import ThucPham
+import configparser
+import uuid
+import os
+
 
 route = Blueprint(
     'thuc_pham',
     __name__,
     template_folder='templates',
 )
+
+config = configparser.ConfigParser()
+CONFIG_PATH = os.path.abspath("./config.ini")
+config.read(CONFIG_PATH)
 
 
 @route.route('/', methods=['GET'])
@@ -69,6 +77,37 @@ def add_thuc_pham():
         user=current_user,
         # unit_list=unit_list
     )
+
+
+@route.route('/them', methods=['POST'])
+def post_them_thuc_pham():
+    """
+        Create thuc pham
+    """
+    try:
+        query_string_dict = request.values
+
+        file = request.files.get('fHinhAnh')
+        file_ext = file.filename.split('.')[-1]
+        file_path = os.path.join(
+            config['APP']['UPLOAD_FOLDER'], f"{str(uuid.uuid4())}.{file_ext}")
+
+        new_thuc_pham = {
+            "ND_MA": request.cookies.get("ND_MA") or query_string_dict.get("ND_MA"),
+            "DMTP_MA": query_string_dict.get("slLoaiThucPham"),
+            "TP_MO_TA": query_string_dict.get("txtMoTa"),
+            "TP_HINH_ANH": file_path,
+            "TP_DON_GIA": query_string_dict.get("numDonGia"),
+            "TP_SO_LUONG": query_string_dict.get("numSoLuong"),
+            "DMDVT_MA": query_string_dict.get("slDonVi"),
+            "TP_VI_TRI_BAN_DO": query_string_dict.get("txtViTriBanDo"),
+            "TP_NGAY_BAN": query_string_dict.get("txtNgayBan"),
+        }
+        ThucPham.create(new_thuc_pham)
+        file.save(file_path)
+        return redirect("/thuc-pham/them")
+    except Exception as e:
+        raise
 
 
 @route.route('/dang-ky', methods=['POST'])
