@@ -100,3 +100,10 @@
     </div>
 </div>
 {% endblock %}
+
+{% block script %}
+<script src="/static/vendor/ckeditor/ckeditor.js"></script>
+<script type="text/javascript">
+    CKEDITOR.replace('txtMoTa');
+</script>
+{% endblock %}
