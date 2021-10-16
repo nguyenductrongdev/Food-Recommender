@@ -80,6 +80,12 @@
         </div>
         {% endfor %}
       </div>
+      <div class="row my-3">
+        <div class="col-12 d-flex justify-content-center align-items-center">
+          <button type="button" class="btn btn-outline-dark w-25" id="btn-next-page">
+            Xem tiếp <i class="fas fa-sort-down"></i></button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -98,8 +104,10 @@
 
 
 <script>
-  $(function () {
+  const LIMIT = 20;
+  var currentPage = 1;
 
+  $(function () {
     function toFoodString(foods) {
       return foods.map(food => {
         return `
@@ -171,6 +179,20 @@
       let productsHTML = toFoodString(foods);
       $("#product-presenter").html(productsHTML);
     });
+
+    $("#btn-next-page").click(async function () {
+      let api = `/api/thuc-pham?page=${currentPage + 1}&limit=${LIMIT}`;
+      currentPage++;
+      let response = await axios.get(api);
+      let items = response.data?.foods;
+      if (items.length === 0) {
+        alert("Đã hiển thị toàn bộ sản phẩm");
+      } else {
+        let itemsHTML = toFoodString(items);
+        $("#product-presenter").append(itemsHTML);
+      }
+    });
   });
+
 </script>
 {% endblock %}

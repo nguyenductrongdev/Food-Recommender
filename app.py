@@ -54,11 +54,10 @@ def index():
         user_info = None
     # get user for template
 
-    print("danh_muc_thuc_pham_list", danh_muc_thuc_pham_list)
     return render_template(
         "index.html",
         user_info=user_info,
-        food_list=thuc_pham_list,
+        food_list=thuc_pham_list[:20],
         user_list=nguoi_dung_list,
         danh_muc_thuc_pham_list=danh_muc_thuc_pham_list
     )
@@ -140,7 +139,6 @@ def food_map():
 @app.route(r'/api/unit')
 def get_unit():
     from models.db_utils import cursor, db
-    print("aaa")
     DMTP_MA = request.args.get("dmtp_ma")
     sql = f"""
         SELECT danh_muc_don_vi_tinh.DMDVT_MA, DMDVT_TEN

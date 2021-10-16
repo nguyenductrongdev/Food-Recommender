@@ -75,7 +75,6 @@ def add_thuc_pham():
         user_info=user_info,
         food_list=food_list,
         user=current_user,
-        # unit_list=unit_list
     )
 
 
@@ -105,6 +104,8 @@ def post_them_thuc_pham():
         }
         ThucPham.create(new_thuc_pham)
         file.save(file_path)
+        print(new_thuc_pham)
+        print(query_string_dict)
         return redirect("/thuc-pham/them")
     except Exception as e:
         raise

@@ -18,7 +18,7 @@
                     </div>
 
                     <div class="col-md-8 d-flex justify-content-center align-items-center">
-                        <input type="file" name="fHinhAnh" id="fHinhAnh" class="d-none">
+                        <input type="file" name="fHinhAnh" id="fHinhAnh" class="d-none" required>
 
                         <div class="form-row">
                             <div class="col-6">
@@ -70,11 +70,11 @@
 
                             <div class="col-6">
                                 <label for="txtViTriBanDo">Vị trí bán</label>
-                                <input type="text" name="txtViTriBanDo" id="txtViTriBanDo" class="form-control"
-                                    placeholder="Vị trí hiện tại của bạn" required>
+                                <input type="text" name="txtViTriBanDo" id="txtViTriBanDo" class="form-control" value=""
+                                    placeholder="Vị trí hiện tại của bạn">
                                 <div class="invalid-feedback">Chưa điền vị trí bán.</div>
                                 <!-- This section will change when address change -->
-                                <div id="txtViTriBanDo-option">
+                                <!-- <div id="txtViTriBanDo-option">
                                     <script>
                                         document.querySelector("#txtViTriBanDo").onchange = function (e) {
                                             let address = $(this).val();
@@ -93,7 +93,7 @@
                                             document.querySelector("#txtViTriBanDo-option").innerHTML = presentHTML || "Không có";
                                         }
                                     </script>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </div>
@@ -106,7 +106,7 @@
                 </div>
                 <div class="row mt-3">
                     <div class="col-12">
-                        <button type="submit" class="btn btn-primary form-control">Thêm</button>
+                        <button type="button" class="btn btn-primary form-control">Thêm</button>
                     </div>
                 </div>
             </form>
@@ -118,6 +118,10 @@
 {% block script %}
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
+<script src="/static/vendor/ckeditor/ckeditor.js"></script>
+<script type="text/javascript">
+    CKEDITOR.replace('txtMoTa');
+</script>
 
 <script>
     function getGeoLocation() {
@@ -146,28 +150,48 @@
 
 
     $(function () {
-        (function () {
-            'use strict';
-            window.addEventListener('load', function () {
-                // Get the forms we want to add validation styles to
-                var forms = document.getElementsByClassName('needs-validation');
-                // Loop over them and prevent submission
-                var validation = Array.prototype.filter.call(forms, function (form) {
-                    form.addEventListener('submit', async function (event) {
-                        if ($("#txtViTriBanDo").val() === "") {
-                            let { longitude, latitude } = await getGeoLocation();
-                            $("#txtViTriBanDo").val(`${longitude}|${latitude}`);
-                        }
+        // window.addEventListener('load', function () {
+        //     // Get the forms we want to add validation styles to
+        //     var forms = document.getElementsByClassName('needs-validation');
+        //     // Loop over them and prevent submission
+        //     var validation = Array.prototype.filter.call(forms, function (form) {
+        //         form.addEventListener('submit', async function (event) {
+        //             if (form.checkValidity() === false) {
+        //                 event.preventDefault();
+        //                 event.stopPropagation();
+        //             } else {
+        //                 const DEFAULT_LOCATION_MARK = "Vị trí hiện tại của bạn";
 
-                        if (form.checkValidity() === false) {
-                            event.preventDefault();
-                            event.stopPropagation();
-                        }
-                        form.classList.add('was-validated');
-                    }, false);
-                });
-            }, false);
-        })();
+        //                 if ($("#txtViTriBanDo").val() === DEFAULT_LOCATION_MARK) {
+        //                     let { longitude, latitude } = await getGeoLocation();
+        //                     $("#txtViTriBanDo").val(`${longitude}|${latitude}`);
+        //                     alert($("#txtViTriBanDo").val())
+        //                 }
+        //             }
+
+        //             form.classList.add('was-validated');
+        //         }, false);
+        //     });
+        // }, false);
+
+        $(`#frmThemThucPham button[type="button"]`).click(async function (event) {
+            try {
+                if ($("#frmThemThucPham")[0].checkValidity() === false) {
+                    console.log("Check false");
+                    return false;
+                } else {
+                    if ($("#txtViTriBanDo").val() === "") {
+                        let { longitude, latitude } = await getGeoLocation();
+                        $("#txtViTriBanDo").val(`${longitude}|${latitude}`);
+                    }
+                    $("#frmThemThucPham").addClass('was-validated');
+                    console.log("Ready for submission");
+                    $("#frmThemThucPham").trigger('submit');
+                }
+            } catch (error) {
+                console.log({ error });
+            }
+        });
 
 
         $("#fHinhAnh").change(function (e) {
