@@ -5,6 +5,7 @@
 <div class="container">
     <div class="row mt-5">
         <div class="col-12">
+            <h2 class="section-header">Thông tin thực phẩm</h2>
             <form class="p-3 shadow" id="frmThongTinThucPham" name="frmThongTinThucPham" method="post"
                 action="/thuc-phan/them">
                 <div class="row">
@@ -45,28 +46,53 @@
                                 <input type="text" name="txtViTriBanDo" id="txtViTriBanDo" class="form-control"
                                     placeholder="Vị trí hiện tại của bạn">
                             </div>
-                            <div class="col-12">
-                                <label for="txtMoTa">Mô tả</label>
-                                <textarea name="txtMoTa" id="txtMoTa" cols="30" rows="3" class="form-control"
-                                    readonly>{{food.TP_MO_TA}}</textarea>
-                            </div>
                         </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <label for="txtMoTa">Mô tả</label>
+                        <textarea name="txtMoTa" id="txtMoTa" cols="30" rows="8" class="form-control"
+                            readonly>{{food.TP_MO_TA}}</textarea>
                     </div>
                 </div>
             </form>
         </div>
     </div>
 
+
     <div class="row mt-3">
-        <div class="col-md-4 mx-auto">
-            <form action="/thuc-pham/dang-ky" class="bg-success p-5 shadow rounded" method="post">
+        <div class="col-12">
+            <h2 class="section-header">Đặt mua</h2>
+            <form action="/thuc-pham/dang-ky" class="bg-light p-5 shadow-lg rounded" method="post">
                 <input type="hidden" name="txtNDMa" value="{{user_info.ND_MA}}" />
                 <input type="hidden" name="txtTPMa" value="{{food.TP_MA}}" />
 
-                <div class="form-group">
-                    <label for="numDangKy">Đặt mua</label>
-                    <input type="number" name="numSoLuongDangKy" id="numSoLuongDangKy" class="form-control" min="0"
-                        max="{{food.TP_SO_LUONG}}" />
+                <div class="form-row">
+                    <div class="col-4">
+                        <div class="form-group">
+                            <label for="numDangKy">Số lượng</label>
+                            <input type="number" name="numSoLuongDangKy" id="numSoLuongDangKy" class="form-control"
+                                step="0.1" max="{{food.TP_SO_LUONG}}" />
+                        </div>
+                        <div class="form-group">
+                            <label for="txtThoiGian">Thời gian</label>
+                            <script
+                                src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment-with-locales.min.js"
+                                integrity="sha512-LGXaggshOkD/at6PFNcp2V2unf9LzFq6LE+sChH7ceMTDP0g2kn6Vxwgg7wkPP7AAtX+lmPqPdxB47A0Nz0cMQ=="
+                                crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+                            <script>
+                                var today = moment().format('YYYY-MM-DD');
+                                document.write(`<input type="date" name="txtThoiGian" id="txtThoiGian" class="form-control" value="${today}" />`)
+                            </script>
+                        </div>
+                    </div>
+
+                    <div class="col-8">
+                        <label for="txtNote">Ghi chú</label>
+                        <textarea name="txtNote" id="txtNote" cols="30" rows="5"
+                            class="form-control position-relative"></textarea>
+                    </div>
                 </div>
                 <button class="btn btn-primary form-control mt-3" type="submit">Đặt</button>
             </form>

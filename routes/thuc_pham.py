@@ -62,7 +62,6 @@ def add_thuc_pham():
         "ND_TAI_KHOAN": ND_TAI_KHOAN,
     }
     # get user for template
-
     return render_template(
         "add_thuc_pham.html",
         user_info=user_info,
@@ -78,8 +77,11 @@ def tp_dang_ky_mua():
     query_string_dict = request.values
     new_dang_ky_mua = {
         "ND_MA": query_string_dict.get("txtNDMa"),
+
         "TP_MA": query_string_dict.get("txtTPMa"),
+        "DKM_THOI_GIAN": query_string_dict.get("txtThoiGian"),
         "DKM_SO_LUONG": query_string_dict.get("numSoLuongDangKy"),
+        "DKM_GHI_CHU": query_string_dict.get("txtNote"),
     }
     DangKyMua.create(new_dang_ky_mua)
     # return str(new_dang_ky_mua)

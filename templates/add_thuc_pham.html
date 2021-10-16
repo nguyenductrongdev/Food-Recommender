@@ -29,7 +29,8 @@
                         </div>
                         <div class="form-group">
                             <label for="numSoLuong">Số lượng</label>
-                            <input type="number" min="1" class="form-control" id="numSoLuong" name="numSoLuong">
+                            <input type="number" min="0" class="form-control" id="numSoLuong" name="numSoLuong"
+                                step="0.1">
                         </div>
                         <div class="form-group">
                             <label for="slDonVi">Đơn vị</label>
@@ -45,8 +46,15 @@
                             <input type="number" name="numDonGia" id="numDonGia" class="form-control">
                         </div>
                         <div class="form-group">
+                            <script
+                                src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment-with-locales.min.js"
+                                integrity="sha512-LGXaggshOkD/at6PFNcp2V2unf9LzFq6LE+sChH7ceMTDP0g2kn6Vxwgg7wkPP7AAtX+lmPqPdxB47A0Nz0cMQ=="
+                                crossorigin="anonymous" referrerpolicy="no-referrer"></script>
                             <label for="txtNgayBan">Ngày bán</label>
-                            <input type="date" name="txtNgayBan" id="txtNgayBan" class="form-control">
+                            <script>
+                                var today = moment().format('YYYY-MM-DD');
+                                document.write(`<input type="date" name="txtNgayBan" id="txtNgayBan" class="form-control" value="${today}" />`)
+                            </script>
                         </div>
                         <div class="form-group">
                             <label for="txtViTriBanDo">Vị trí bán</label>
