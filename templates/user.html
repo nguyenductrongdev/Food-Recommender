@@ -8,36 +8,48 @@
         </div>
     </div>
 
+
     <div class="row">
         <div class="col-12">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs mb-5">
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#menu-ban">
+                        <h2><i class="fas fa-store-alt btn btn-dark"></i> Chức năng cho người bán</h2>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#menu-mua">
+                        <h2><i class="fas fa-shopping-cart btn btn-dark"></i> Chức năng cho người mua</h2>
+                    </a>
+                </li>
+            </ul>
 
-            <h2><i class="fas fa-shopping-cart btn btn-dark"></i> Chức năng cho người mua</h2>
+            <!-- Tab panes -->
+            <div class="tab-content mb-5">
+                <div class="tab-pane container fade" id="menu-ban">
+                    <a href="/thuc-pham/them" class="btn btn-success">
+                        <i class="fas fa-plus-square"></i>
+                        Thêm thực phẩm bán
+                    </a>
 
-            <a href="/nguoi-dung/them-nhu-cau-mua" class="btn btn-success">
-                <i class="fas fa-plus-square"></i>
-                Thêm nhu cầu mua
-            </a>
+                    <a href="/nguoi-dung/{{user_info.ND_TAI_KHOAN}}/cua-hang" class="btn btn-success">
+                        <i class="fas fa-plus-square"></i>
+                        Xem cửa hàng
+                    </a>
+                </div>
+                <div class="tab-pane container active" id="menu-mua">
+                    <a href="/nguoi-dung/them-nhu-cau-mua" class="btn btn-success">
+                        <i class="fas fa-plus-square"></i>
+                        Thêm nhu cầu mua
+                    </a>
 
-            <a href="/nguoi-dung/nhu-cau-mua" class="btn btn-success">
-                <i class="fas fa-plus-square"></i>
-                Danh sách nhu cầu mua
-            </a>
-        </div>
-    </div>
-
-    <div class="row my-5">
-        <div class="col-12">
-            <h2><i class="fas fa-store-alt btn btn-dark"></i> Chức năng cho người bán</h2>
-
-            <a href="/thuc-pham/them" class="btn btn-success">
-                <i class="fas fa-plus-square"></i>
-                Thêm thực phẩm bán
-            </a>
-
-            <a href="/nguoi-dung/{{user_info.ND_TAI_KHOAN}}/cua-hang" class="btn btn-success">
-                <i class="fas fa-plus-square"></i>
-                Xem cửa hàng
-            </a>
+                    <a href="/nguoi-dung/nhu-cau-mua" class="btn btn-success">
+                        <i class="fas fa-plus-square"></i>
+                        Danh sách nhu cầu mua
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </div>

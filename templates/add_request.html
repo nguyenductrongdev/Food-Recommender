@@ -1,18 +1,69 @@
 {% extends 'base.html' %}
 
 
-{% block main %}
-<div class="container">
-    <div class="row">
-        <div class="col-12 col-md-4 mx-auto shadow">
-            <h4>Danh sách nhu cầu:</h4>
-            <ol id="require-list">
+{% block style %}
+<style>
+    #request-table tr td:nth-child(1),
+    #request-table tr th:nth-child(1) {
+        width: 20%;
+    }
 
-            </ol>
+    #request-table tr td:nth-child(2),
+    #request-table tr th:nth-child(2) {
+        width: 15%;
+    }
+
+    #request-table tr td:nth-child(3),
+    #request-table tr th:nth-child(3) {
+        width: 15%;
+    }
+
+    #request-table tr td:nth-child(4),
+    #request-table tr th:nth-child(4) {
+        width: 50%;
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+<div class="container-fluid">
+    <div class="row my-5">
+        <div class="col-12 col-md-7 mx-auto shadow">
+            <h4>Danh sách nhu cầu:</h4>
+            <table class="table table-striped table-bordered" id="request-table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Tên</th>
+                        <th>Số lượng</th>
+                        <th>Đơn vị</th>
+                        <th>Gợi ý</th>
+                    </tr>
+                </thead>
+                <tbody id="require-list">
+                    <!-- <tr>
+                        <td>Thịt heo</td>
+                        <td>1</td>
+                        <td>Kilogram</td>
+                        <td>
+                            <a href="#" class="badge badge-info">Nguyen Van A</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Cà chua</td>
+                        <td>1</td>
+                        <td>Kilogram</td>
+                        <td>
+                            <a href="#" class="badge badge-info">Nguyen Van A</a>
+                            <a href="#" class="badge badge-info">Nguyen Van B</a>
+                            <a href="#" class="badge badge-info">Nguyen Van C</a>
+                        </td>
+                    </tr> -->
+                </tbody>
+            </table>
         </div>
 
 
-        <div class="col-12 col-md-6 mx-auto">
+        <div class="col-12 col-md-4 mx-auto">
             <h1>Thêm nhu cầu mua</h1>
             <form action="/api/nguoi-dung/them-nhu-cau-mua" name="frmThemNhuCau" id="frmThemNhuCau"
                 class="shadow p-4 mt-5">
@@ -75,24 +126,30 @@
             let danhMucText = $(`#slDanhMucThucPham option[value="${danhMuc}"]`).html();
             let donViText = $(`#slDonVi option[value="${donVi}"]`).html();
 
-            let danhMucList = Array.from($("#require-list li")).map(e => $(e).attr("data-danh-muc"));
-
+            let danhMucList = Array.from($("#require-list tr")).map(e => $(e).attr("data-danh-muc"));
+            console.log({ danhMucList });
             if (danhMucList.includes(danhMuc)) {
-                const existItem = $(`#require-list li[data-danh-muc="${danhMuc}"]`);
-                let newSoLuong = Number(existItem.attr("data-so-luong")) + Number(soLuong);
+                const existRow = $(`#require-list tr[data-danh-muc="${danhMuc}"]`);
+                const SO_LUONG_TD_INDEX = 1;
+                let newSoLuong = Number(existRow.attr("data-so-luong")) + Number(soLuong);
 
-                existItem.attr("data-so-luong", newSoLuong);
-                let presentText = danhMucText + " " + newSoLuong + " " + donViText;
-                existItem.html(presentText)
+                existRow.children("td").eq(SO_LUONG_TD_INDEX).html(newSoLuong)
+                existRow.attr("data-so-luong", newSoLuong);
             } else {
-                let presentText = danhMucText + " " + soLuong + " " + donViText;
-                $("#require-list").append(`<li data-danh-muc="${danhMuc}" data-so-luong="${soLuong}" data-don-vi="${donVi}">${presentText}</li>`);
+                $("#require-list").append(
+                    `<tr data-danh-muc="${danhMuc}" data-so-luong="${soLuong}" data-don-vi="${donVi}">
+                        <td>${danhMucText}</td>    
+                        <td>${soLuong}</td>    
+                        <td>${donViText}</td>    
+                        <td></td>    
+                    </tr>`
+                );
             }
         });
 
         $("#frmThemNhuCau").submit(async function (e) {
             e.preventDefault();
-            let requireList = Array.from($("#require-list li")).map(e => ({
+            let requireList = Array.from($("#require-list tr")).map(e => ({
                 danhMuc: $(e).attr("data-danh-muc"),
                 soLuong: $(e).attr("data-so-luong"),
                 donVi: $(e).attr("data-don-vi"),
@@ -103,7 +160,8 @@
             try {
                 let txtThoiGian = $("#txtThoiGian").val();
                 let slNguoiDung = $("#slNguoiDung").val();
-                let response = await axios.post(`/api/nguoi-dung/them-nhu-cau-mua?txtThoiGian=${txtThoiGian}&requires=${requires}`);
+                console.log(`/api/nguoi-dung/them-nhu-cau-mua?txtThoiGian=${txtThoiGian}&requires=${requires}`);
+                // let response = await axios.post(`/api/nguoi-dung/them-nhu-cau-mua?txtThoiGian=${txtThoiGian}&requires=${requires}`);
                 alert("Thêm thành công")
             } catch (error) {
                 console.log({ error });
