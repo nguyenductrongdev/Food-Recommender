@@ -17,8 +17,14 @@
             <form action="/api/nguoi-dung/them-nhu-cau-mua" name="frmThemNhuCau" id="frmThemNhuCau"
                 class="shadow p-4 mt-5">
                 <div class="form-group mb-5">
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment-with-locales.min.js"
+                        integrity="sha512-LGXaggshOkD/at6PFNcp2V2unf9LzFq6LE+sChH7ceMTDP0g2kn6Vxwgg7wkPP7AAtX+lmPqPdxB47A0Nz0cMQ=="
+                        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
                     <label for="txtThoiGian">Thời gian:</label>
-                    <input type="date" name="txtThoiGian" class="form-control" id="txtThoiGian">
+                    <script>
+                        var today = moment().format('YYYY-MM-DD');
+                        document.write(`<input type="date" name="txtThoiGian" id="txtThoiGian" class="form-control" value="${today}" />`)
+                    </script>
                 </div>
 
                 <div class="form-row">
@@ -61,14 +67,6 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
     $(function () {
-        // YYYY-MM-DD
-        let today = new Date();
-        let d = ("0" + today.getDate()).substr(-2);
-        let m = ("0" + today.getMonth()).substr(-2);
-        let y = today.getFullYear();
-        $("#txtThoiGian").val(`${y}-${m}-${d}`);
-
-
         $("#btn-add-require-list").click(function (e) {
             let danhMuc = $("#slDanhMucThucPham").val();
             let soLuong = $("#numSoLuong").val();
@@ -111,6 +109,17 @@
                 console.log({ error });
                 alert("Có lỗi xảy ra");
             }
+        });
+
+        // Change option tags following the food
+        $("#slDanhMucThucPham").change(async function () {
+            let value = $(this).val();
+            if (value == "") return;
+            // get unit list based on dmtp_ma
+            let response = await axios.get(`/api/unit?dmtp_ma=${value}`);
+            let units = response.data.units;
+            let presentHTML = units.map(unit => `<option value=${unit.DMDVT_MA}>${unit.DMDVT_TEN}</option>`).join('');
+            $('#slDonVi').html(presentHTML);
         });
     });
 </script>

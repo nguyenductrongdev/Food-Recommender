@@ -1,11 +1,14 @@
+from models.thuc_pham import ThucPham
 from middlewares.require_login import require_login
 from flask import Blueprint, request, abort, jsonify, url_for, render_template, redirect, flash, send_file, session, make_response
 from jinja2 import TemplateNotFound
 import logging
 
+from models.chi_tiet_nhu_cau_mua import ChiTietNhuCauMua
 from models.nguoi_dung import NguoiDung
 from models.danh_muc_thuc_pham import DanhMucThucPham
 from models.danh_muc_don_vi_tinh import DanhMucDonViTinh
+from models.nhu_cau_mua import NhuCauMua
 
 route = Blueprint(
     'nguoi_dung',
@@ -114,6 +117,39 @@ def add_request():
     )
 
 
+@route.route('/nhu-cau-mua', methods=['GET'])
+def nhu_cau_mua():
+    nguoi_dung_list = NguoiDung.get_all()
+    food_requests = NhuCauMua.get_all()
+    requests_details = ChiTietNhuCauMua.get_all()
+
+    def get_request_details(req_ma):
+        return list(filter(lambda req_detail: int(req_detail["NCM_MA"]) == int(req_ma), requests_details))
+
+    for i in range(len(food_requests)):
+        # get request_details
+        req_details = get_request_details(food_requests[i]["NCM_MA"])
+        food_requests[i].update({
+            "details": req_details,
+        })
+
+    # get user for template
+    _ = list(filter(lambda nd: str(nd.get('ND_MA')) ==
+                    request.cookies.get("ND_MA"), nguoi_dung_list))
+
+    ND_TAI_KHOAN = _[0].get("ND_TAI_KHOAN") if len(_) > 0 else None
+    user_info = {
+        "ND_TAI_KHOAN": ND_TAI_KHOAN,
+    }
+    # get user for template
+
+    return render_template(
+        "food_requests.html",
+        food_requests=food_requests,
+        user_info=user_info
+    )
+
+
 @route.route('/<nd_tai_khoan>', methods=['GET'])
 @require_login()
 def private_page(nd_tai_khoan):
@@ -131,4 +167,31 @@ def private_page(nd_tai_khoan):
     return render_template(
         "user.html",
         user_info=user_info,
+    )
+
+
+@route.route(r'/<nd_tai_khoan>/cua-hang', methods=['GET'])
+@require_login()
+def shop(nd_tai_khoan):
+    nguoi_dung_list = NguoiDung.get_all()
+    thuc_pham_list = ThucPham.get_all()
+    danh_muc_thuc_pham_list = DanhMucThucPham.get_all()
+
+    # get user for template
+    try:
+        ND_TAI_KHOAN = list(filter(lambda nd: str(nd.get('ND_MA')) ==
+                                   request.cookies.get("ND_MA"), nguoi_dung_list))[0].get("ND_TAI_KHOAN")
+        user_info = {
+            "ND_TAI_KHOAN": ND_TAI_KHOAN,
+        }
+    except:
+        user_info = None
+    # get user for template
+
+    food_list = list(
+        filter(lambda food: food["ND_TAI_KHOAN"] == nd_tai_khoan, thuc_pham_list))
+    return render_template(
+        "shop.html",
+        user_info=user_info,
+        food_list=food_list,
     )

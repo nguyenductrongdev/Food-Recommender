@@ -150,30 +150,6 @@
 
 
     $(function () {
-        // window.addEventListener('load', function () {
-        //     // Get the forms we want to add validation styles to
-        //     var forms = document.getElementsByClassName('needs-validation');
-        //     // Loop over them and prevent submission
-        //     var validation = Array.prototype.filter.call(forms, function (form) {
-        //         form.addEventListener('submit', async function (event) {
-        //             if (form.checkValidity() === false) {
-        //                 event.preventDefault();
-        //                 event.stopPropagation();
-        //             } else {
-        //                 const DEFAULT_LOCATION_MARK = "Vị trí hiện tại của bạn";
-
-        //                 if ($("#txtViTriBanDo").val() === DEFAULT_LOCATION_MARK) {
-        //                     let { longitude, latitude } = await getGeoLocation();
-        //                     $("#txtViTriBanDo").val(`${longitude}|${latitude}`);
-        //                     alert($("#txtViTriBanDo").val())
-        //                 }
-        //             }
-
-        //             form.classList.add('was-validated');
-        //         }, false);
-        //     });
-        // }, false);
-
         $(`#frmThemThucPham button[type="button"]`).click(async function (event) {
             try {
                 if ($("#frmThemThucPham")[0].checkValidity() === false) {

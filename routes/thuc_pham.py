@@ -23,14 +23,14 @@ CONFIG_PATH = os.path.abspath("./config.ini")
 config.read(CONFIG_PATH)
 
 
-@route.route('/', methods=['GET'])
+@route.route('/<tp_ma>', methods=['GET'])
 @require_login()
-def tp_index():
+def tp_index(tp_ma):
     food_list = ThucPham.get_all()
     nguoi_dung_list = NguoiDung.get_all()
 
     query_string_dict = request.values
-    tp_ma = query_string_dict.get("tp_ma")
+    # tp_ma = query_string_dict.get("tp_ma")
 
     food = list(
         filter(lambda food: food.get("TP_MA") == int(tp_ma), food_list)

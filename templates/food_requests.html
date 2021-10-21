@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block style %}
+<style>
+    .container {
+        min-height: 90vh;
+    }
+</style>
+{% endblock %}
+
+
+{% block main%}
+<main class="container">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="section-header">Danh sách nhu cầu mua</h2>
+        </div>
+    </div>
+    <div class="row">
+        {% for req in food_requests %}
+        <div class="col-4 my-3 btn btn-light shadow">
+            <div>
+                <span class="badge badge-pill badge-danger">3</span>
+
+                <b>Thời gian</b>: {{req.NCM_THOI_GIAN}}
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment-with-locales.min.js"
+                    integrity="sha512-LGXaggshOkD/at6PFNcp2V2unf9LzFq6LE+sChH7ceMTDP0g2kn6Vxwgg7wkPP7AAtX+lmPqPdxB47A0Nz0cMQ=="
+                    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+                <script>
+                    let [year, month, day] = `{{ req.NCM_THOI_GIAN }}`.split("-")
+                    let relativeTime = moment([year, month, day]).fromNow();
+
+                    document.write(`<i>(${relativeTime})</i>`);
+                </script>
+            </div>
+            <div>
+                <b>Danh sách thực phẩm:</b>
+                <table class="table table-sm table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Tên</th>
+                            <th>Số lượng</th>
+                            <th>Đơn vị</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for detail in req.details %}
+                        <tr>
+                            <td>{{ detail.DMTP_TEN }}</td>
+                            <td>
+                                <script>document.write(`{{ detail.CTNCM_SO_LUONG }}`.replace(/\.[0]*$/g, ""))</script>
+                            </td>
+                            <td>{{ detail.DMDVT_TEN }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</main>
+{% endblock %}

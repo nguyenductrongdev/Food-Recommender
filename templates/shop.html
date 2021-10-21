@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+
+{% block style %}
+<style>
+    .product {
+        display: flex;
+        flex-direction: column;
+        height: 55vh;
+    }
+
+    .product__image {
+        width: 100%;
+        height: 45%;
+        object-fit: cover;
+    }
+</style>
+{% endblock %}
+
+
+{% block main %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="section-header">Thực phẩm đang bán</h1>
+        </div>
+    </div>
+    <div class="row">
+        {% for food in food_list %}
+        <div class="col-3 my-3">
+            <div class="card product">
+                <img class="card-img-top product__image" src="/{{ food.TP_HINH_ANH }}" alt="Card image cap">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        {{ food.DMTP_TEN }}
+                        <script>document.write(String({{ food.TP_SO_LUONG }}).replace(/\.0*$/g, ''))</script>
+                        {{ food.DMDVT_TEN}}
+                        <br />
+                        <script>
+                            document.write("(" + Number(String({{ food.TP_DON_GIA }}).replace(/\.0*$/g, '')).toLocaleString('vi') + "đ/1 {{food.DMDVT_TEN }})")
+                        </script>
+                    </h5>
+                    <div class="card-text">
+                        <p class="text-truncate"><i class="fas fa-file-medical-alt"></i> {{ food.TP_MO_TA }}</p>
+                        <p><i class="fas fa-user"></i> Người bán: <br /> <a href="#" class="text-success">{{
+                                food.ND_TAI_KHOAN
+                                }}</a>
+                        </p>
+                    </div>
+
+                    <a href="/thuc-pham/{{food.TP_MA}}" class="btn btn-primary stretched-link">Xem chi
+                        tiết</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

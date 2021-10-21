@@ -3,7 +3,14 @@ from .db_utils import cursor, db
 
 class ChiTietNhuCauMua:
     def get_all():
-        cursor.execute("SELECT * FROM danh_muc_don_vi_tinh")
+        sql = """
+            SELECT * 
+            FROM chi_tiet_nhu_cau_mua, danh_muc_don_vi_tinh, danh_muc_thuc_pham 
+            WHERE chi_tiet_nhu_cau_mua.dmdvt_ma = danh_muc_don_vi_tinh.dmdvt_ma
+                AND chi_tiet_nhu_cau_mua.dmtp_ma = danh_muc_thuc_pham.dmtp_ma
+        """
+        print(sql)
+        cursor.execute(sql)
         food_list = cursor.fetchall()
         return food_list
 
