@@ -1,5 +1,36 @@
 {% extends 'base.html' %}
 
+{% block head %}
+<script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDi-dB6ZoS8B9F_UogzuqqS13DdSzwzF1I&libraries=places&language=vi&region=VN"
+    id="googleMaps"></script>
+
+<script type="text/javascript">
+    function initialize() {
+        var address = (document.getElementById('txtAddress'));
+        var autocomplete = new google.maps.places.Autocomplete(address);
+        autocomplete.setTypes(['geocode']);
+        google.maps.event.addListener(autocomplete, 'place_changed', function () {
+            var place = autocomplete.getPlace();
+            if (!place.geometry) {
+                return;
+            }
+
+            var address = '';
+            console.log(place.address_components);
+            if (place.address_components) {
+                address = [
+                    (place.address_components[0] && place.address_components[0].short_name || ''),
+                    (place.address_components[1] && place.address_components[1].short_name || ''),
+                    (place.address_components[2] && place.address_components[2].short_name || '')
+                ].join(' ');
+            }
+        });
+    }
+
+    google.maps.event.addDomListener(window, 'load', initialize);
+</script>
+{% endblock %}
 
 
 {% block main %}
@@ -9,6 +40,8 @@
             <h2 class="section-header">Đăng bán thực phẩm</h2>
             <form class="p-3 shadow needs-validation" id="frmThemThucPham" name="frmThemThucPham" method="post"
                 action="/thuc-pham/them" enctype="multipart/form-data" novalidate>
+                <input type="text" name="txtViTriBanDo" id="txtViTriBanDo" class="d-none">
+
                 <div class="row">
                     <div class="col-md-4">
                         <label for="fHinhAnh" role="button">
@@ -69,31 +102,11 @@
                             </div>
 
                             <div class="col-6">
-                                <label for="txtViTriBanDo">Vị trí bán</label>
-                                <input type="text" name="txtViTriBanDo" id="txtViTriBanDo" class="form-control" value=""
+                                <label for="txtAddress">Vị trí bán</label>
+                                <input type="text" name="txtAddress" id="txtAddress" class="form-control" value=""
                                     placeholder="Vị trí hiện tại của bạn">
                                 <div class="invalid-feedback">Chưa điền vị trí bán.</div>
-                                <!-- This section will change when address change -->
-                                <!-- <div id="txtViTriBanDo-option">
-                                    <script>
-                                        document.querySelector("#txtViTriBanDo").onchange = function (e) {
-                                            let address = $(this).val();
-                                            console.log({ address });
-                                            const API_KEY = "YfpvQP_YBoVu3ASRnFsok_sMz13rvkVba8Ak7RDUxas";
-                                            let url = "https://geocoder.ls.hereapi.com/6.2/geocode.json?searchtext=" + address + "&gen=9&apikey=" + API_KEY;
-                                            let xmlHttp = new XMLHttpRequest();
-                                            xmlHttp.open("GET", url, false);
-                                            xmlHttp.send(null);
-                                            let json = JSON.parse(xmlHttp.responseText);
-                                            let presentHTML = "";
-                                            for (let i = 0; i < Number(json.Response?.View[0]?.Result?.length); i++) {
-                                                let locationLabel = json.Response.View[0].Result[i].Location.Address.Label;
-                                                presentHTML += `<div class="shadow p-1 w-100">${locationLabel}</div><br/>`
-                                            }
-                                            document.querySelector("#txtViTriBanDo-option").innerHTML = presentHTML || "Không có";
-                                        }
-                                    </script>
-                                </div> -->
+
                             </div>
                         </div>
                     </div>
@@ -189,6 +202,22 @@
             $('#slDonVi').html(presentHTML);
         });
 
+        $("#txtAddress").change(function (e) {
+            geocoder = new google.maps.Geocoder();
+            var address = $("#txtAddress").val();
+
+            geocoder.geocode({ 'address': address }, function (results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    let location = results[0].geometry.location;
+                    let [lat, lng] = [location.lat(), location.lng()];
+                    $("#txtViTriBanDo").val(`${lat}|${lng}`);
+                }
+
+                else {
+                    alert("Geocode was not successful for the following reason: " + status);
+                }
+            });
+        });
     });
 </script>
 {% endblock %}

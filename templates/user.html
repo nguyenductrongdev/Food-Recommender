@@ -1,5 +1,17 @@
 {% extends 'base.html' %}
 
+{% block style %}
+<style>
+    .nav-link {
+        color: lightgray !important;
+    }
+
+    .nav-link.active {
+        color: darkblue !important;
+    }
+</style>
+{% endblock %}
+
 {% block main %}
 <div class="container">
     <div class="row">
@@ -28,23 +40,23 @@
             <!-- Tab panes -->
             <div class="tab-content mb-5">
                 <div class="tab-pane container fade" id="menu-ban">
-                    <a href="/thuc-pham/them" class="btn btn-success">
+                    <a href="/thuc-pham/them" class="btn btn-darkblue">
                         <i class="fas fa-plus-square"></i>
                         Thêm thực phẩm bán
                     </a>
 
-                    <a href="/nguoi-dung/{{user_info.ND_TAI_KHOAN}}/cua-hang" class="btn btn-success">
+                    <a href="/nguoi-dung/{{user_info.ND_TAI_KHOAN}}/cua-hang" class="btn btn-darkblue">
                         <i class="fas fa-plus-square"></i>
                         Xem cửa hàng
                     </a>
                 </div>
                 <div class="tab-pane container active" id="menu-mua">
-                    <a href="/nguoi-dung/them-nhu-cau-mua" class="btn btn-success">
+                    <a href="/nguoi-dung/them-nhu-cau-mua" class="btn btn-darkblue">
                         <i class="fas fa-plus-square"></i>
                         Thêm nhu cầu mua
                     </a>
 
-                    <a href="/nguoi-dung/nhu-cau-mua" class="btn btn-success">
+                    <a href="/nguoi-dung/nhu-cau-mua" class="btn btn-darkblue">
                         <i class="fas fa-plus-square"></i>
                         Danh sách nhu cầu mua
                     </a>
