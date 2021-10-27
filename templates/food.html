@@ -16,6 +16,11 @@
 
                     <div class="col-md-8">
                         <div class="form-row">
+                            <div class="col-12">
+                                <label for="txtTenThucPham">Tên thực phẩm</label>
+                                <input type="text" class="form-control" id="txtTenThucPham" name="txtTenThucPham"
+                                    value="{{ food.TP_TEN }}" readonly>
+                            </div>
                             <div class="col-6">
                                 <label for="slLoaiThucPham">Danh mục thực phẩm</label>
                                 <input type="text" name="slLoaiThucPham" id="slLoaiThucPham" class="form-control"
@@ -50,9 +55,22 @@
                                     value="{{food.TP_NGAY_BAN}}" readonly>
                             </div>
                             <div class="col-6">
+                                <label for="numSoLuongBanSi">
+                                    Số lượng mỗi suất bán
+                                </label>
+
+                                <script>
+                                    const TP_SO_LUONG_BAN_SI = Number(`{{ food.TP_SO_LUONG_BAN_SI }}`);
+
+                                    document.write(`<input type="text" class="form-control" id="numSoLuongBanSi" name="numSoLuongBanSi"
+                                    step="0.1" value="${TP_SO_LUONG_BAN_SI ? String(TP_SO_LUONG_BAN_SI).replace(/\.0*/, '') : 'không giới hạn'}" readonly>`)
+                                </script>
+
+                            </div>
+                            <div class="col-12">
                                 <label for="txtViTriBanDo">Vị trí bán</label>
                                 <input type="text" name="txtViTriBanDo" id="txtViTriBanDo" class="form-control"
-                                    placeholder="Vị trí hiện tại của bạn">
+                                    value="{{ food.TP_DIA_CHI }}" readonly>
                             </div>
                         </div>
                     </div>

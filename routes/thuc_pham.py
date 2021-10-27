@@ -85,7 +85,6 @@ def post_them_thuc_pham():
     """
     try:
         query_string_dict = request.values
-
         file = request.files.get('fHinhAnh')
         file_ext = file.filename.split('.')[-1]
         file_path = os.path.join(
@@ -94,6 +93,7 @@ def post_them_thuc_pham():
         new_thuc_pham = {
             "ND_MA": request.cookies.get("ND_MA") or query_string_dict.get("ND_MA"),
             "DMTP_MA": query_string_dict.get("slLoaiThucPham"),
+            "TP_TEN": query_string_dict.get("txtTenThucPham"),
             "TP_MO_TA": query_string_dict.get("txtMoTa"),
             "TP_HINH_ANH": file_path,
             "TP_DON_GIA": query_string_dict.get("numDonGia"),
@@ -101,11 +101,12 @@ def post_them_thuc_pham():
             "DMDVT_MA": query_string_dict.get("slDonVi"),
             "TP_VI_TRI_BAN_DO": query_string_dict.get("txtViTriBanDo"),
             "TP_NGAY_BAN": query_string_dict.get("txtNgayBan"),
+            "TP_DIA_CHI": query_string_dict.get("txtAddress"),
+            "TP_SO_LUONG_BAN_SI": query_string_dict.get("numSoLuongBanSi"),
         }
         ThucPham.create(new_thuc_pham)
         file.save(file_path)
         print(new_thuc_pham)
-        print(query_string_dict)
         return redirect("/thuc-pham/them")
     except Exception as e:
         raise

@@ -153,6 +153,7 @@
         let productsHTML = toFoodString(foods);
 
         $("#product-presenter").html(productsHTML);
+        $("#btn-next-page").hide();
       }
     });
 
@@ -178,6 +179,7 @@
       let foods = response.data.foods;
       let productsHTML = toFoodString(foods);
       $("#product-presenter").html(productsHTML);
+      $("#btn-next-page").hide();
     });
 
     $("#btn-next-page").click(async function () {
