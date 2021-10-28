@@ -23,30 +23,47 @@ CONFIG_PATH = os.path.abspath("./config.ini")
 config.read(CONFIG_PATH)
 
 
+def get_user_info():
+    nguoi_dung_list = NguoiDung.get_all()
+    try:
+        # get user for template
+        user_info = list(
+            filter(lambda nd: str(nd.get('ND_MA')) ==
+                   request.cookies.get("ND_MA"), nguoi_dung_list)
+        )[0]
+
+        # get user for template
+        return user_info
+    except Exception as e:
+        return None
+
+
 @route.route('/<tp_ma>', methods=['GET'])
 @require_login()
 def tp_index(tp_ma):
     food_list = ThucPham.get_all()
-    nguoi_dung_list = NguoiDung.get_all()
-
-    query_string_dict = request.values
-    # tp_ma = query_string_dict.get("tp_ma")
+    registered_list = DangKyMua.get_all()
 
     food = list(
         filter(lambda food: food.get("TP_MA") == int(tp_ma), food_list)
     )[0]
 
-    # get user for template
-    _ = list(filter(lambda nd: str(nd.get('ND_MA')) ==
-                    request.cookies.get("ND_MA"), nguoi_dung_list))
+    user_info = get_user_info()
 
-    user_info = _[0]
-    # get user for template
+    is_registered = [
+        register
+        for register in registered_list
+        if str(register["TP_MA"]) == str(tp_ma) and str(register["ND_MA"]) == str(user_info["ND_MA"])
+    ]
+    is_registered = len(is_registered) == 1
+
+    role = "registered" if is_registered else "normal_customer"
 
     return render_template(
         "food.html",
         food=food,
-        user_info=user_info
+        user_info=user_info,
+        role=role,
     )
 
 
@@ -54,27 +71,13 @@ def tp_index(tp_ma):
 @require_login()
 def add_thuc_pham():
     food_list = DanhMucThucPham.get_all()
-    unit_list = DanhMucDonViTinh.get_all()
-    nguoi_dung_list = NguoiDung.get_all()
+    user_info = get_user_info()
 
-    current_user = list(filter(
-        lambda user: user["ND_TAI_KHOAN"] == request.cookies.get("ND_MA") or "", nguoi_dung_list))
-    current_user = current_user[0] if len(current_user) else None
-
-    # get user for template
-    _ = list(filter(lambda nd: str(nd.get('ND_MA')) ==
-                    request.cookies.get("ND_MA"), nguoi_dung_list))
-
-    ND_TAI_KHOAN = _[0].get("ND_TAI_KHOAN") if len(_) > 0 else None
-    user_info = {
-        "ND_TAI_KHOAN": ND_TAI_KHOAN,
-    }
     # get user for template
     return render_template(
         "add_thuc_pham.html",
         user_info=user_info,
         food_list=food_list,
-        user=current_user,
     )
 
 
@@ -123,8 +126,8 @@ def tp_dang_ky_mua():
         "DKM_THOI_GIAN": query_string_dict.get("txtThoiGian"),
         "DKM_SO_LUONG": query_string_dict.get("numSoLuongDangKy"),
         "DKM_GHI_CHU": query_string_dict.get("txtNote"),
+        "DKM_DIA_CHI": query_string_dict.get("txtAddress"),
+        "DKM_VI_TRI_BAN_DO": query_string_dict.get("txtViTriBanDo"),
     }
     DangKyMua.create(new_dang_ky_mua)
-    # return str(new_dang_ky_mua)
-    # print(new_dang_ky_mua)
     return redirect("/")

@@ -1,10 +1,32 @@
 {% extends 'base.html' %}
 
 
+{% block style %}
+<style>
+    #txtAddress__options .txtAddress__options__option {
+        outline: solid 0.5px lightgray !important;
+        padding: 0.5vw !important;
+        box-shadow: 0 0 0.1vw black !important;
+        cursor: pointer;
+    }
+
+    .txtAddress__options__option:hover {
+        background: rgba(240, 250, 250, 0.5);
+    }
+</style>
+{% endblock %}
+
+
 {% block main %}
 <div class="container">
     <div class="row mt-5">
         <div class="col-12">
+            {% if role == 'registered' %}
+            <div class="alert alert-success text-center font-weight-bold">
+                Yêu cầu mua Đang xử lý
+            </div>
+            {% endif %}
+
             <h2 class="section-header">Thông tin thực phẩm</h2>
             <form class="p-3 shadow" id="frmThongTinThucPham" name="frmThongTinThucPham" method="post"
                 action="/thuc-phan/them">
@@ -21,21 +43,30 @@
                                 <input type="text" class="form-control" id="txtTenThucPham" name="txtTenThucPham"
                                     value="{{ food.TP_TEN }}" readonly>
                             </div>
-                            <div class="col-6">
+                            <!-- <div class="col-6">
                                 <label for="slLoaiThucPham">Danh mục thực phẩm</label>
                                 <input type="text" name="slLoaiThucPham" id="slLoaiThucPham" class="form-control"
                                     value="{{food.DMTP_TEN}}" readonly>
-                            </div>
+                            </div> -->
                             <div class="col-6">
-                                <label for="numSoLuong">Số lượng</label>
-                                <input type="number" min="1" class="form-control" id="numSoLuong" name="numSoLuong"
-                                    value="{{food.TP_SO_LUONG}}" readonly>
+                                <label for="numSoLuong">Số lượng còn lại</label>
+                                <div class="input-group">
+
+                                    <input type="number" min="1" class="form-control" id="numSoLuong" name="numSoLuong"
+                                        value="{{food.TP_SO_LUONG}}" readonly />
+                                    <script>
+                                        document.querySelector("#numSoLuong").value = Number(`{{food.TP_SO_LUONG}}`).toLocaleString('vi');
+                                    </script>
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">{{ food.DMDVT_TEN }}</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-6">
+                            <!-- <div class="col-6">
                                 <label for="slDonVi">Đơn vị</label>
                                 <input type="text" name="slDonVi" id="slDonVi" class="form-control"
                                     value="{{food.DMDVT_TEN}}" readonly>
-                            </div>
+                            </div> -->
                             <div class="col-6">
                                 <label for="numDonGia">Đơn giá</label>
                                 <div class="input-group">
@@ -58,18 +89,21 @@
                                 <label for="numSoLuongBanSi">
                                     Số lượng mỗi suất bán
                                 </label>
+                                <div class="input-group">
+                                    <script>
+                                        const TP_SO_LUONG_BAN_SI = Number(`{{ food.TP_SO_LUONG_BAN_SI }}`);
 
-                                <script>
-                                    const TP_SO_LUONG_BAN_SI = Number(`{{ food.TP_SO_LUONG_BAN_SI }}`);
-
-                                    document.write(`<input type="text" class="form-control" id="numSoLuongBanSi" name="numSoLuongBanSi"
-                                    step="0.1" value="${TP_SO_LUONG_BAN_SI ? String(TP_SO_LUONG_BAN_SI).replace(/\.0*/, '') : 'không giới hạn'}" readonly>`)
-                                </script>
-
+                                        document.write(`<input type="text" class="form-control" id="numSoLuongBanSi" name="numSoLuongBanSi"
+                                    step="0.1" value="${TP_SO_LUONG_BAN_SI ? String(TP_SO_LUONG_BAN_SI).replace(/\.0*$/, '') : 'không giới hạn'}" readonly>`)
+                                    </script>
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">{{ food.DMDVT_TEN }}</span>
+                                    </div>
+                                </div>
                             </div>
                             <div class="col-12">
-                                <label for="txtViTriBanDo">Vị trí bán</label>
-                                <input type="text" name="txtViTriBanDo" id="txtViTriBanDo" class="form-control"
+                                <label for="txtViTriBanBanDo">Vị trí bán</label>
+                                <input type="text" name="txtViTriBanBanDo" id="txtViTriBanBanDo" class="form-control"
                                     value="{{ food.TP_DIA_CHI }}" readonly>
                             </div>
                         </div>
@@ -86,35 +120,48 @@
         </div>
     </div>
 
-
+    {% if role == 'normal_customer' %}
     <div class="row mt-3">
         <div class="col-12">
             <h2 class="section-header">Đặt mua</h2>
             <form action="/thuc-pham/dang-ky" class="bg-light p-5 shadow-lg rounded" method="post">
                 <input type="hidden" name="txtNDMa" value="{{user_info.ND_MA}}" />
                 <input type="hidden" name="txtTPMa" value="{{food.TP_MA}}" />
+                <input type="hidden" name="txtViTriBanDo" id="txtViTriBanDo" />
 
                 <div class="form-row">
-                    <div class="col-4">
-                        <div class="form-group">
-                            <label for="numDangKy">Số lượng</label>
-                            <input type="number" name="numSoLuongDangKy" id="numSoLuongDangKy" class="form-control"
-                                step="0.1" max="{{food.TP_SO_LUONG}}" />
-                        </div>
-                        <div class="form-group">
-                            <label for="txtThoiGian">Thời gian</label>
-                            <script
-                                src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment-with-locales.min.js"
-                                integrity="sha512-LGXaggshOkD/at6PFNcp2V2unf9LzFq6LE+sChH7ceMTDP0g2kn6Vxwgg7wkPP7AAtX+lmPqPdxB47A0Nz0cMQ=="
-                                crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-                            <script>
-                                var today = moment().format('YYYY-MM-DD');
-                                document.write(`<input type="date" name="txtThoiGian" id="txtThoiGian" class="form-control" value="${today}" />`)
-                            </script>
+                    <div class="col-12">
+                        <label for="txtAddress">Địa chỉ</label>
+                        <input type="text" name="txtAddress" id="txtAddress" class="form-control" autocomplete="off">
+                        <div id="txtAddress__options" class="w-100">
+
                         </div>
                     </div>
 
-                    <div class="col-8">
+                    <div class="col-12">
+                        <div class="form-row">
+                            <div class="col-6">
+                                <label for="numDangKy">Số lượng</label>
+                                <input type="number" name="numSoLuongDangKy" id="numSoLuongDangKy" class="form-control"
+                                    step="0.1" max="{{food.TP_SO_LUONG}}" />
+                            </div>
+
+                            <div class="col-6">
+                                <label for="txtThoiGian">Thời gian</label>
+                                <script
+                                    src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment-with-locales.min.js"
+                                    integrity="sha512-LGXaggshOkD/at6PFNcp2V2unf9LzFq6LE+sChH7ceMTDP0g2kn6Vxwgg7wkPP7AAtX+lmPqPdxB47A0Nz0cMQ=="
+                                    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+                                <script>
+                                    var today = moment().format('YYYY-MM-DD');
+                                    document.write(`<input type="date" name="txtThoiGian" id="txtThoiGian" class="form-control" value="${today}" />`)
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-12">
                         <label for="txtNote">Ghi chú</label>
                         <textarea name="txtNote" id="txtNote" cols="30" rows="5"
                             class="form-control position-relative"></textarea>
@@ -124,6 +171,9 @@
             </form>
         </div>
     </div>
+    {% endif %}
+
+
 </div>
 {% endblock %}
 
@@ -131,5 +181,41 @@
 <script src="/static/vendor/ckeditor/ckeditor.js"></script>
 <script type="text/javascript">
     CKEDITOR.replace('txtMoTa');
+</script>
+
+<script>
+    $(function () {
+        $("#txtAddress").change(function (e) {
+            geocoder = new google.maps.Geocoder();
+            var address = $("#txtAddress").val();
+
+            geocoder.geocode({ 'address': address }, function (results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    let location = results[0].geometry.location;
+                    let [lat, lng] = [location.lat(), location.lng()];
+
+                    $("#txtAddress__options").html(
+                        `<div class="txtAddress__options__option" data-value="${lat}|${lng}">${results[0].formatted_address}</div>`
+                    )
+                }
+
+                else {
+                    alert("Geocode was not successful for the following reason: " + status);
+                }
+            });
+        });
+
+
+        $(document).on('click', '.txtAddress__options__option', function () {
+            let val = $(this).attr("data-value");
+            // val format: "lat|long"
+            console.log(val);
+            $("#txtViTriBanDo").val(val);
+            $("#txtAddress").val($(this).html())
+            $(this).remove();
+            console.log(`set #txtViTriBanDo to ${val}`);
+        });
+
+    });
 </script>
 {% endblock %}
