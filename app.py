@@ -1,8 +1,10 @@
+import math
 from functools import wraps
 import configparser
 import os
 from flask import Flask, request, jsonify, url_for, render_template, redirect, flash, send_file, session
 import logging
+from models.dang_ky_mua import DangKyMua
 from pythonjsonlogger import jsonlogger
 from flask import g
 
@@ -163,5 +165,68 @@ app.register_blueprint(api_thuc_pham_route, url_prefix='/api/thuc-pham')
 app.register_blueprint(api_nguoi_dung_route, url_prefix='/api/nguoi-dung')
 
 
+def dev_recommend_func():
+    """
+        This func will call when one more food register created
+    """
+    from recommend_kits import recommend_buy_big_cube, get_onroad_distance, CustomGraph
+
+    food_list = ThucPham.get_all()
+    register_list = DangKyMua.get_all()
+
+    # get all food only buy the big cube
+    big_cube_food = [
+        food
+        for food in food_list
+        if food["TP_SO_LUONG_BAN_SI"]
+    ]
+
+    for bcf in big_cube_food:
+        # get all registered of the big cube food
+        filtered_register = [
+            register
+            for register in register_list
+            if str(register["TP_MA"]) == str(bcf["TP_MA"])
+        ]
+        # generate group
+        target = bcf["TP_SO_LUONG_BAN_SI"]
+        # group of the registered
+        groups = recommend_buy_big_cube(
+            registered_list=filtered_register, target=target
+        )
+        # init min
+        min_group_info = {
+            "cost": math.inf,
+            "members": []
+        }
+        for group in groups:
+            # print(f"group members: {group}")
+            # generate graph by add multi edges
+
+            def generateGraph():
+                G = CustomGraph()
+                for i in range(len(group)):
+                    for j in range(i+1, len(group)):
+                        # must get weight here
+                        coord_src = group[i]["DKM_VI_TRI_BAN_DO"].split("|")
+                        coord_dest = group[j]["DKM_VI_TRI_BAN_DO"].split("|")
+                        weight = get_onroad_distance(coord_src, coord_dest)
+                        G.add_edge(group[i], group[j], weight)
+                return G
+
+            G = generateGraph()
+            #  calc cost for ship this group (by on road distance)
+            ship_cost = G.calc_sale_path()
+
+            if ship_cost < min_group_info["cost"]:
+                min_group_info["cost"] = ship_cost
+                min_group_info["members"] = group
+
+        # find group has minimum cost
+        print(
+            f"""[Min cost]: {min_group_info["cost"]}, {min_group_info["members"]}""")
+
+
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0")
+    dev_recommend_func()
+    # app.run(debug=True, host="0.0.0.0")
