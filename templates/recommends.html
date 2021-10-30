@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block style %}
+<style>
+    a:hover {
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+<div class="container" style="min-height: 75vh;">
+    <div class="row">
+        <div class="col-12">
+            {%for alert in alerts %}
+            <a href="#">
+                <div class="alert alert-info alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    Thực phẩm <b>{{ alert.TP_TEN }}</b> bạn có thể mua chung với
+                </div>
+            </a>
+            {% endfor %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,15 +1,16 @@
 from flask import Blueprint, Flask, request,  jsonify, url_for, render_template, redirect, flash, send_file, session
+import configparser
+import uuid
+import os
 
 from models.danh_muc_thuc_pham import DanhMucThucPham
 from models.danh_muc_don_vi_tinh import DanhMucDonViTinh
 from models.nguoi_dung import NguoiDung
 from models.dang_ky_mua import DangKyMua
+from models.thuc_pham import ThucPham
 
 from middlewares.require_login import require_login
-from models.thuc_pham import ThucPham
-import configparser
-import uuid
-import os
+from utils import get_user_info
 
 
 route = Blueprint(
@@ -21,21 +22,6 @@ route = Blueprint(
 config = configparser.ConfigParser()
 CONFIG_PATH = os.path.abspath("./config.ini")
 config.read(CONFIG_PATH)
-
-
-def get_user_info():
-    nguoi_dung_list = NguoiDung.get_all()
-    try:
-        # get user for template
-        user_info = list(
-            filter(lambda nd: str(nd.get('ND_MA')) ==
-                   request.cookies.get("ND_MA"), nguoi_dung_list)
-        )[0]
-
-        # get user for template
-        return user_info
-    except Exception as e:
-        return None
 
 
 @route.route('/<tp_ma>', methods=['GET'])

@@ -9,6 +9,7 @@ from models.nguoi_dung import NguoiDung
 from models.danh_muc_thuc_pham import DanhMucThucPham
 from models.danh_muc_don_vi_tinh import DanhMucDonViTinh
 from models.nhu_cau_mua import NhuCauMua
+from utils import get_user_info
 
 route = Blueprint(
     'nguoi_dung',
@@ -194,4 +195,39 @@ def shop(nd_tai_khoan):
         "shop.html",
         user_info=user_info,
         food_list=food_list,
+    )
+
+
+@route.route('/goi-y-mua-chung', methods=['GET'])
+def recommend_page():
+    from recommend_kits import recommand_for_big_cube_food
+    food_list = ThucPham.get_all()
+    user_info = get_user_info()
+    # get all recommend for all big cube foods
+    recommends = recommand_for_big_cube_food()
+
+    def get_tp_by_tp_ma(tp_ma: int):
+        find = [
+            food
+            for food in food_list
+            if int(food["TP_MA"]) == int(tp_ma)
+        ]
+        return find[0] if len(find) == 1 else None
+
+    # consider the recommend contain current user as alert
+    alerts = []
+    for tp_ma, user_ids in recommends.items():
+        if int(user_info["ND_MA"]) not in user_ids:
+            continue
+
+        tp = get_tp_by_tp_ma(tp_ma=tp_ma)
+        alerts.append({
+            "TP_TEN": tp["TP_TEN"],
+        })
+    print("alerts", alerts)
+
+    return render_template(
+        "recommends.html",
+        user_info=user_info,
+        alerts=alerts,
     )

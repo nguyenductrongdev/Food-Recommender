@@ -1,8 +1,17 @@
+import math
 import json
 import networkx as nx
 from networkx.algorithms.approximation.traveling_salesman import traveling_salesman_problem
 import matplotlib.pyplot as plt
 import requests
+
+from models.chi_tiet_nhu_cau_mua import ChiTietNhuCauMua
+from models.nhu_cau_mua import NhuCauMua
+from models.danh_muc_don_vi_tinh import DanhMucDonViTinh
+from models.danh_muc_thuc_pham import DanhMucThucPham
+from models.nguoi_dung import NguoiDung
+from models.thuc_pham import ThucPham
+from models.dang_ky_mua import DangKyMua
 
 groups = []
 
@@ -26,6 +35,9 @@ def _subset_sum(registers: list, target: float, current_group: list = []) -> Non
 
 
 def recommend_buy_big_cube(registered_list, target) -> list:
+    """
+        Get groups that have sum equal the sale
+    """
     global groups
     groups = []
     _subset_sum(registered_list, target)
@@ -98,15 +110,84 @@ def get_onroad_distance(coord_src: list, coord_dest: list) -> float:
     return route["distance"]/1000
 
 
+def recommand_for_big_cube_food():
+    """
+        This func will call when one more food register created
+        result fomat: {TP_MA: int - ND_MA: list}
+    """
+
+    food_list = ThucPham.get_all()
+    register_list = DangKyMua.get_all()
+
+    recommand_dict = {}  # TP_MA: [ND_MA]
+
+    # get all food only buy the big cube
+    big_cube_food = [
+        food
+        for food in food_list
+        if food["TP_SO_LUONG_BAN_SI"]
+    ]
+
+    for bcf in big_cube_food:
+        # get all registered of the big cube food
+        filtered_register = [
+            register
+            for register in register_list
+            if str(register["TP_MA"]) == str(bcf["TP_MA"])
+        ]
+        # generate group
+        target = bcf["TP_SO_LUONG_BAN_SI"]
+        # group of the registered
+        groups = recommend_buy_big_cube(
+            registered_list=filtered_register, target=target
+        )
+        # init min
+        min_group_info = {
+            "cost": math.inf,
+            "members": []
+        }
+        for group in groups:
+            # print([u["ND_MA"] for u in group])
+            # generate graph by add multi edges
+            def generateGraph() -> CustomGraph:
+                """
+                    Generate graph that contain all user's registered (nodes) and road (edges)
+                """
+                G = CustomGraph()
+                for i in range(len(group)):
+                    for j in range(i+1, len(group)):
+                        try:
+                            # must get weight here
+                            coord_src = group[i]["DKM_VI_TRI_BAN_DO"].split(
+                                "|")
+                            coord_dest = group[j]["DKM_VI_TRI_BAN_DO"].split(
+                                "|")
+                            weight = get_onroad_distance(coord_src, coord_dest)
+                            G.add_edge(group[i], group[j], weight)
+                        except Exception as e:
+                            pass
+                return G
+
+            G = generateGraph()
+            #  calc cost for ship this group (by on road distance)
+            ship_cost = G.calc_sale_path()
+
+            if ship_cost < min_group_info["cost"]:
+                min_group_info["cost"] = ship_cost
+                min_group_info["members"] = group
+
+        # find group has minimum cost
+        min_usert_ids = [
+            user["ND_MA"]
+            for user in min_group_info["members"]
+        ]
+        # print(f"Recommend {bcf['TP_MA']} to users: {min_usert_ids}")
+        recommand_dict[bcf['TP_MA']] = min_usert_ids
+
+    return recommand_dict
+
+
 if __name__ == "__main__":
-    # G = CustomGraph()
-    # a = {"ND_MA": 1, "ND_TEN": "Test 1"}
-    # b = {"ND_MA": 2, "ND_TEN": "Test 2"}
-    # c = {"ND_MA": 3, "ND_TEN": "Test 3"}
-
-    # G.add_edge(a, b, 3)
-    # G.add_edge(a, c, 2)
-
-    # print(G.edges)
-
+    # result = dev_recommend_func()
+    # print(result)
     pass
