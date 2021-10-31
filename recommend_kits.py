@@ -147,8 +147,10 @@ def recommand_for_big_cube_food():
             "members": []
         }
         for group in groups:
-            # print([u["ND_MA"] for u in group])
+            print(
+                f"""group for food {bcf.get("TP_MA")} {[u["ND_MA"] for u in group]}""")
             # generate graph by add multi edges
+
             def generateGraph() -> CustomGraph:
                 """
                     Generate graph that contain all user's registered (nodes) and road (edges)
@@ -162,13 +164,24 @@ def recommand_for_big_cube_food():
                                 "|")
                             coord_dest = group[j]["DKM_VI_TRI_BAN_DO"].split(
                                 "|")
-                            weight = get_onroad_distance(coord_src, coord_dest)
-                            G.add_edge(group[i], group[j], weight)
+                            weight_1 = get_onroad_distance(
+                                coord_src, coord_dest)
+                            G.add_edge(group[i], group[j], weight_1)
+
+                            # add edges to food place to src/dest place
+                            coord_food = bcf.get("TP_VI_TRI_BAN_DO").split("|")
+                            weight_food_src = get_onroad_distance(
+                                coord_food, coord_src)
+                            weight_food_dest = get_onroad_distance(
+                                coord_food, coord_dest)
+                            G.add_edge(bcf, group[i], weight_food_src)
+                            G.add_edge(bcf, group[j], weight_food_dest)
                         except Exception as e:
                             pass
                 return G
 
             G = generateGraph()
+            G.show()
             #  calc cost for ship this group (by on road distance)
             ship_cost = G.calc_sale_path()
 
@@ -188,6 +201,6 @@ def recommand_for_big_cube_food():
 
 
 if __name__ == "__main__":
-    # result = dev_recommend_func()
+    # result = recommand_for_big_cube_food()
     # print(result)
     pass
