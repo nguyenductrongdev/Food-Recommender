@@ -1,3 +1,4 @@
+from models.dang_ky_mua import DangKyMua
 from models.thuc_pham import ThucPham
 from middlewares.require_login import require_login
 from flask import Blueprint, request, abort, jsonify, url_for, render_template, redirect, flash, send_file, session, make_response
@@ -98,15 +99,8 @@ def logout():
 @require_login()
 def add_request():
     nguoi_dung_list = NguoiDung.get_all()
-    # get user for template
-    _ = list(filter(lambda nd: str(nd.get('ND_MA')) ==
-                    request.cookies.get("ND_MA"), nguoi_dung_list))
+    user_info = get_user_info()
 
-    ND_TAI_KHOAN = _[0].get("ND_TAI_KHOAN") if len(_) > 0 else None
-    user_info = {
-        "ND_TAI_KHOAN": ND_TAI_KHOAN,
-    }
-    # get user for template
     food_type_list = DanhMucThucPham.get_all()
     unit_list = DanhMucDonViTinh.get_all()
     return render_template(
@@ -134,15 +128,7 @@ def nhu_cau_mua():
             "details": req_details,
         })
 
-    # get user for template
-    _ = list(filter(lambda nd: str(nd.get('ND_MA')) ==
-                    request.cookies.get("ND_MA"), nguoi_dung_list))
-
-    ND_TAI_KHOAN = _[0].get("ND_TAI_KHOAN") if len(_) > 0 else None
-    user_info = {
-        "ND_TAI_KHOAN": ND_TAI_KHOAN,
-    }
-    # get user for template
+    user_info = get_user_info()
 
     return render_template(
         "food_requests.html",
@@ -154,17 +140,8 @@ def nhu_cau_mua():
 @route.route('/<nd_tai_khoan>', methods=['GET'])
 @require_login()
 def private_page(nd_tai_khoan):
-    nguoi_dung_list = NguoiDung.get_all()
+    user_info = get_user_info()
 
-    # get user for template
-    _ = list(filter(lambda nd: str(nd.get('ND_TAI_KHOAN')) ==
-                    nd_tai_khoan, nguoi_dung_list))
-
-    ND_TAI_KHOAN = _[0].get("ND_TAI_KHOAN") if len(_) > 0 else None
-    user_info = {
-        "ND_TAI_KHOAN": ND_TAI_KHOAN,
-    }
-    # get user for template
     return render_template(
         "user.html",
         user_info=user_info,
@@ -174,23 +151,37 @@ def private_page(nd_tai_khoan):
 @route.route(r'/<nd_tai_khoan>/cua-hang', methods=['GET'])
 @require_login()
 def shop(nd_tai_khoan):
-    nguoi_dung_list = NguoiDung.get_all()
-    thuc_pham_list = ThucPham.get_all()
-    danh_muc_thuc_pham_list = DanhMucThucPham.get_all()
+    food_list = ThucPham.get_all()
+    registered_list = DangKyMua.get_all()
 
-    # get user for template
-    try:
-        ND_TAI_KHOAN = list(filter(lambda nd: str(nd.get('ND_MA')) ==
-                                   request.cookies.get("ND_MA"), nguoi_dung_list))[0].get("ND_TAI_KHOAN")
-        user_info = {
-            "ND_TAI_KHOAN": ND_TAI_KHOAN,
+    def get_ready_registered_count(food: dict) -> int:
+        """
+            Get all registered that ready for process
+        """
+        ready_registered_list = [
+            register
+            for register in registered_list
+            if int(register["TP_MA"]) == int(food["TP_MA"]) and
+            int(register["DKM_SO_LUONG"]) <= int(food["TP_SO_LUONG"]) and
+            int(register["DKM_SO_LUONG"]) % (
+                food["TP_SO_LUONG_BAN_SI"] or 1) == 0
+        ]
+        return len(ready_registered_list)
+
+    user_info = get_user_info()
+
+    food_list = [
+        {
+            **food,
+            "ready_registered_count": get_ready_registered_count(food)
         }
-    except:
-        user_info = None
-    # get user for template
+        for food in food_list
+        if food["ND_TAI_KHOAN"] == nd_tai_khoan
 
-    food_list = list(
-        filter(lambda food: food["ND_TAI_KHOAN"] == nd_tai_khoan, thuc_pham_list))
+    ]
+    # food_list = [*filter(lambda food: food["ND_TAI_KHOAN"]
+    #                      == nd_tai_khoan, thuc_pham_list)]
+
     return render_template(
         "shop.html",
         user_info=user_info,
@@ -202,15 +193,27 @@ def shop(nd_tai_khoan):
 def recommend_page():
     from recommend_kits import recommand_for_big_cube_food
     food_list = ThucPham.get_all()
+    user_list = NguoiDung.get_all()
+
     user_info = get_user_info()
     # get all recommend for all big cube foods
     recommends = recommand_for_big_cube_food()
 
-    def get_tp_by_tp_ma(tp_ma: int):
+    def get_register(nd_ma: int, tp_ma: int) -> dict:
+        register_list = DangKyMua.get_all()
         find = [
-            food
-            for food in food_list
-            if int(food["TP_MA"]) == int(tp_ma)
+            register
+            for register in register_list
+            if int(register["ND_MA"]) == int(nd_ma) and int(register["TP_MA"]) == int(tp_ma)
+        ]
+        print("get_register", find)
+        return find[0] if len(find) == 1 else None
+
+    def get_nd_by_nd_ma(nd_ma: int) -> dict:
+        find = [
+            user
+            for user in user_list
+            if int(user["ND_MA"]) == int(nd_ma)
         ]
         return find[0] if len(find) == 1 else None
 
@@ -219,11 +222,22 @@ def recommend_page():
     for tp_ma, user_ids in recommends.items():
         if int(user_info["ND_MA"]) not in user_ids:
             continue
-
-        tp = get_tp_by_tp_ma(tp_ma=tp_ma)
+        users = [
+            get_nd_by_nd_ma(user_id)
+            for user_id in user_ids
+            if int(user_id) != int(user_info["ND_MA"])
+        ]
+        tp = ThucPham.find(tp_ma=tp_ma)
+        print("tp", tp)
+        # get dang_ky_mua
+        register = get_register(nd_ma=user_info["ND_MA"], tp_ma=tp["TP_MA"])
+        print("register", register)
         alerts.append({
             "TP_TEN": tp["TP_TEN"],
+            "register": register,
+            "members": users,
         })
+
     print("alerts", alerts)
 
     return render_template(

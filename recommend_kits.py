@@ -181,7 +181,7 @@ def recommand_for_big_cube_food():
                 return G
 
             G = generateGraph()
-            G.show()
+            # G.show()
             #  calc cost for ship this group (by on road distance)
             ship_cost = G.calc_sale_path()
 

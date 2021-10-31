@@ -43,3 +43,39 @@ class ThucPham:
 
         cursor.execute(sql)
         return cursor.fetchall()
+
+    def find(**col_filter):
+        WHITE_LIST = ["TP_MA"]
+        WHITE_LIST += [*map(lambda e: e.lower(), WHITE_LIST)]
+
+        food_list = ThucPham.get_all()
+        # all filter target must into white list
+        assert all([
+            f in WHITE_LIST
+            for f in col_filter.keys()
+        ])
+        tp_ma = col_filter.get("tp_ma") or col_filter.get("TP_MA")
+        # filter for tp_ma (tp_ma is primary key)
+        if tp_ma:
+            find = [
+                food
+                for food in food_list
+                if int(food["TP_MA"]) == int(tp_ma)
+            ]
+            return find[0] if len(find) == 1 else None
+
+    def update(data):
+        tp_ma = data["TP_MA"]
+        del data["TP_MA"]
+
+        cols = data.keys()
+        params = [*data.values(), tp_ma]
+
+        sql = f"""
+            UPDATE thuc_pham
+            SET {" ".join([f"{col} = %s" for col in cols])}
+            WHERE TP_MA = %s
+        """
+        print(sql)
+        cursor.execute(sql, params)
+        db.commit()

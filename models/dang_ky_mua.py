@@ -4,7 +4,11 @@ from .db_utils import cursor, db
 class DangKyMua:
 
     def get_all():
-        sql = "SELECT * FROM dang_ky_mua"
+        sql = """
+        SELECT * 
+        FROM dang_ky_mua, nguoi_dung 
+        WHERE dang_ky_mua.ND_MA = nguoi_dung.ND_MA
+        """
         cursor.execute(sql)
         return cursor.fetchall()
 
@@ -26,4 +30,24 @@ class DangKyMua:
                DKM_GHI_CHU, DKM_DIA_CHI, DKM_VI_TRI_BAN_DO)
 
         cursor.execute(sql, val)
+        db.commit()
+
+    def update(data):
+        # record is identified by nd_ma and tp_ma
+        nd_ma = data["ND_MA"]
+        tp_ma = data["TP_MA"]
+        del data["ND_MA"]
+        del data["TP_MA"]
+
+        cols = data.keys()
+        _params = [*data.values()]
+        _conditions = [nd_ma, tp_ma]
+
+        sql = f"""
+            UPDATE dang_ky_mua
+            SET {" ".join([f"{col} = %s" for col in cols])}
+            WHERE ND_MA = %s AND TP_MA = %s
+        """
+        print(sql)
+        cursor.execute(sql, [*_params, *_conditions])
         db.commit()

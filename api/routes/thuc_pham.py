@@ -1,4 +1,5 @@
 import pandas as pd
+from models.dang_ky_mua import DangKyMua
 from schema import Schema, And, Use, Optional, SchemaError
 from functools import wraps
 import uuid
@@ -113,3 +114,26 @@ def recommend():
     except Exception as e:
         raise
         return {"message": str(e) or "Internal server error"}, 500
+
+
+@route.route('/<tp_ma>', methods=['PUT'])
+def sale(tp_ma):
+    query_string_dict = request.values
+    nd_ma = query_string_dict["nd_ma"]
+    payload = query_string_dict["payload"]
+    # get currebt food counts
+    current_food = ThucPham.find(TP_MA=tp_ma)
+    count = float(current_food["TP_SO_LUONG"]) - float(payload)
+    # # update food count to thuc_pham table
+    ThucPham.update({
+        "TP_MA": tp_ma,
+        "TP_SO_LUONG": count,
+    })
+    # update to set registered is done
+    DangKyMua.update({
+        "ND_MA": nd_ma,
+        "TP_MA": tp_ma,
+        "DKM_TRANG_THAI": 1,
+    })
+
+    return query_string_dict

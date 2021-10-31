@@ -28,7 +28,13 @@
     <div class="row">
         {% for food in food_list %}
         <div class="col-3 my-3">
-            <div class="card product">
+            <div class="card product position-relative">
+                {% if food.ready_registered_count %}
+                <div class="badge badge-danger position-absolute" style="bottom: 0; right: 0;">
+                    {{ food.ready_registered_count }}
+                </div>
+                {% endif %}
+
                 <img class="card-img-top product__image" src="/{{ food.TP_HINH_ANH }}" alt="Card image cap">
                 <div class="card-body">
                     <h5 class="card-title">

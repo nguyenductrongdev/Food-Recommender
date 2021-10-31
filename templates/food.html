@@ -173,11 +173,66 @@
     </div>
     {% endif %}
 
+    <!-- UI for owner -->
+    {% if role == 'owner' %}
+    <div class="row">
+        <div class="col-12">
+            <h1 class="section-header">
+                <i class="fas fa-users-cog"></i> Danh sách đặt mua
+            </h1>
+            <table class="table table-striped table-bordered table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Tài khoản</th>
+                        <th>Số lượng</th>
+                        <th>Địa chỉ</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for registered in ready_registered_list %}
+                    <tr data-nd-ma="{{ registered.ND_MA }}" data-count="{{ registered.DKM_SO_LUONG }}">
+                        <td>
+                            <span class="font-weight-bold">{{ registered.ND_TAI_KHOAN }}</span>
+                        </td>
+                        <td class="text-right">
+                            <script>
+                                document.write(String({{ registered.DKM_SO_LUONG }}).replace(/\.0*$/g, ''))
+                            </script>
+                        </td>
+                        <td>{{ registered.DKM_DIA_CHI }}</td>
+
+                        <td>
+                            <span class="badge badge-warning">Chờ xử lý</span>
+                        </td>
+
+                        <td>
+                            <button type="button" class="btn btn-success js-btn-done">
+                                <i class="fas fa-check"></i>
+                                Đánh dấu hoàn tất
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                    {% if ready_registered_list|length == 0 %}
+                    <tr>
+                        <td colspan="5" class="text-center">Không có yêu cầu nào</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
 
 </div>
 {% endblock %}
 
 {% block script %}
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="/static/vendor/ckeditor/ckeditor.js"></script>
 <script type="text/javascript">
     CKEDITOR.replace('txtMoTa');
@@ -216,6 +271,20 @@
             console.log(`set #txtViTriBanDo to ${val}`);
         });
 
+
+        $(".js-btn-done").click(async function () {
+            try {
+                let nd_ma = $(this).parents("tr").attr("data-nd-ma");
+                let payload = $(this).parents("tr").attr("data-count");
+                let tp_ma = `{{ food.TP_MA }}`;
+                let api_params = new URLSearchParams({ nd_ma, payload }).toString();
+                let response = await axios.put(`/api/thuc-pham/${tp_ma}?${api_params}`);
+                alert("Thao tác thành công")
+            } catch (e) {
+                alert("Thao tác không thành công")
+                console.log({ e });
+            }
+        });
     });
 </script>
 {% endblock %}

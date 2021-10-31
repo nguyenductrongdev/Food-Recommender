@@ -30,6 +30,7 @@ def tp_index(tp_ma):
     food_list = ThucPham.get_all()
     registered_list = DangKyMua.get_all()
 
+    # get current list
     food = list(
         filter(lambda food: food.get("TP_MA") == int(tp_ma), food_list)
     )[0]
@@ -42,19 +43,35 @@ def tp_index(tp_ma):
         if str(register["TP_MA"]) == str(tp_ma) and str(register["ND_MA"]) == str(user_info["ND_MA"])
     ]
     is_registered = len(is_registered) == 1
+    # get all register already to handle
+    ready_registered_list = [
+        register
+        for register in registered_list
+        if int(register["TP_MA"]) == int(tp_ma) and
+        not register["DKM_TRANG_THAI"] and
+        int(register["DKM_SO_LUONG"]) <= int(food["TP_SO_LUONG"]) and
+        int(register["DKM_SO_LUONG"]) % (food["TP_SO_LUONG_BAN_SI"] or 1) == 0
+    ]
+    if int(user_info["ND_MA"]) == int(food["ND_MA"]):
+        role = "owner"
+    elif is_registered:
+        role = "registered"
+    else:
+        role = "normal_customer"
 
-    role = "registered" if is_registered else "normal_customer"
+    print("ready_registered_list", ready_registered_list)
 
     return render_template(
         "food.html",
         food=food,
         user_info=user_info,
         role=role,
+        ready_registered_list=ready_registered_list
     )
 
 
-@route.route('/them', methods=['GET'])
-@require_login()
+@ route.route('/them', methods=['GET'])
+@ require_login()
 def add_thuc_pham():
     food_list = DanhMucThucPham.get_all()
     user_info = get_user_info()
@@ -67,7 +84,7 @@ def add_thuc_pham():
     )
 
 
-@route.route('/them', methods=['POST'])
+@ route.route('/them', methods=['POST'])
 def post_them_thuc_pham():
     """
         Create thuc pham
