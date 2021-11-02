@@ -2,11 +2,13 @@ from flask import Blueprint, Flask, request,  jsonify, url_for, render_template,
 import configparser
 import uuid
 import os
+import json
 
 from models.danh_muc_thuc_pham import DanhMucThucPham
 from models.danh_muc_don_vi_tinh import DanhMucDonViTinh
 from models.nguoi_dung import NguoiDung
 from models.dang_ky_mua import DangKyMua
+from models.chi_tiet_dang_ky_mua import ChiTietDangKyMua
 from models.thuc_pham import ThucPham
 
 from middlewares.require_login import require_login
@@ -25,41 +27,47 @@ config.read(CONFIG_PATH)
 
 
 @route.route('/<tp_ma>', methods=['GET'])
-@require_login()
 def tp_index(tp_ma):
     food_list = ThucPham.get_all()
-    registered_list = DangKyMua.get_all()
+    registered_detail_list = ChiTietDangKyMua.get_all()
 
     # get current list
     food = list(
         filter(lambda food: food.get("TP_MA") == int(tp_ma), food_list)
     )[0]
 
-    user_info = get_user_info()
-
-    is_registered = [
-        register
-        for register in registered_list
-        if str(register["TP_MA"]) == str(tp_ma) and str(register["ND_MA"]) == str(user_info["ND_MA"])
-    ]
-    is_registered = len(is_registered) == 1
+    role = "not_login"
     # get all register already to handle
     ready_registered_list = [
-        register
-        for register in registered_list
-        if int(register["TP_MA"]) == int(tp_ma) and
-        not register["DKM_TRANG_THAI"] and
-        int(register["DKM_SO_LUONG"]) <= int(food["TP_SO_LUONG"]) and
-        int(register["DKM_SO_LUONG"]) % (food["TP_SO_LUONG_BAN_SI"] or 1) == 0
+        register_detail
+        for register_detail in registered_detail_list
+        if int(register_detail["TP_MA"]) == int(tp_ma) and
+        not register_detail["DKM_TRANG_THAI"] and
+        int(register_detail["CTDKM_SO_LUONG"]) <= int(food["TP_SO_LUONG"]) and
+        int(register_detail["CTDKM_SO_LUONG"]) % (
+            food["TP_SUAT_BAN"] or 1) == 0
     ]
-    if int(user_info["ND_MA"]) == int(food["ND_MA"]):
-        role = "owner"
-    elif is_registered:
-        role = "registered"
-    else:
-        role = "normal_customer"
 
-    print("ready_registered_list", ready_registered_list)
+    try:
+        user_info = get_user_info()
+
+        is_registered = [
+            register
+            for register in registered_detail_list
+            if str(register["TP_MA"]) == str(tp_ma) and
+            str(register["ND_MA"]) == str(user_info["ND_MA"]) and
+            not register["DKM_TRANG_THAI"]
+        ]
+        is_registered = len(is_registered) == 1
+
+        if int(user_info["ND_MA"]) == int(food["ND_MA"]):
+            role = "owner"
+        elif is_registered:
+            role = "registered"
+        else:
+            role = "normal_customer"
+    except Exception as e:
+        pass
 
     return render_template(
         "food.html",
@@ -108,7 +116,7 @@ def post_them_thuc_pham():
             "TP_VI_TRI_BAN_DO": query_string_dict.get("txtViTriBanDo"),
             "TP_NGAY_BAN": query_string_dict.get("txtNgayBan"),
             "TP_DIA_CHI": query_string_dict.get("txtAddress"),
-            "TP_SO_LUONG_BAN_SI": query_string_dict.get("numSoLuongBanSi"),
+            "TP_SUAT_BAN": query_string_dict.get("numSoLuongBanSi"),
         }
         ThucPham.create(new_thuc_pham)
         file.save(file_path)
@@ -120,17 +128,27 @@ def post_them_thuc_pham():
 
 @route.route('/dang-ky', methods=['POST'])
 def tp_dang_ky_mua():
-    print("ok")
+    """
+        Add food register and details by form
+    """
     query_string_dict = request.values
     new_dang_ky_mua = {
         "ND_MA": query_string_dict.get("txtNDMa"),
-
         "TP_MA": query_string_dict.get("txtTPMa"),
         "DKM_THOI_GIAN": query_string_dict.get("txtThoiGian"),
-        "DKM_SO_LUONG": query_string_dict.get("numSoLuongDangKy"),
-        "DKM_GHI_CHU": query_string_dict.get("txtNote"),
         "DKM_DIA_CHI": query_string_dict.get("txtAddress"),
         "DKM_VI_TRI_BAN_DO": query_string_dict.get("txtViTriBanDo"),
     }
-    DangKyMua.create(new_dang_ky_mua)
+    # print(f"[DEBUG] new_dang_ky_mua {new_dang_ky_mua}")
+    REGISTER_CREATED = DangKyMua.create(new_dang_ky_mua)
+
+    new_chi_tiet_dang_ky_mua = {
+        "DKM_MA": REGISTER_CREATED["DKM_MA"],
+        "TP_MA": query_string_dict.get("txtTPMa"),
+        "CTDKM_SO_LUONG": query_string_dict.get("numSoLuongDangKy"),
+        "CTDKM_GHI_CHU": query_string_dict.get("txtNote"),
+    }
+    # print(f"[DEBUG] new_chi_tiet_dang_ky_mua {new_chi_tiet_dang_ky_mua}")
+    ChiTietDangKyMua.create(new_chi_tiet_dang_ky_mua)
+
     return redirect("/")

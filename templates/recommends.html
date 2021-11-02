@@ -20,14 +20,10 @@
             <a href="#">
                 <div class="alert alert-info alert-dismissible my-1" role="alert">
                     <button type="button" class="close" data-dismiss="alert">&times;</button>
-                    <i>
-                        (Ngày đăng ký {{ alert.register.DKM_THOI_GIAN }})
-                    </i>
                     Thực phẩm <b>{{ alert.TP_TEN }}</b> bạn có thể mua chung với
                     {%for user in alert.members %}
                     <b>{{ user.ND_TAI_KHOAN }} </b>
                     {% endfor %}
-
                 </div>
             </a>
             {% endfor %}

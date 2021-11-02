@@ -91,10 +91,10 @@
                                 </label>
                                 <div class="input-group">
                                     <script>
-                                        const TP_SO_LUONG_BAN_SI = Number(`{{ food.TP_SO_LUONG_BAN_SI }}`);
+                                        const TP_SUAT_BAN = Number(`{{ food.TP_SUAT_BAN }}`);
 
                                         document.write(`<input type="text" class="form-control" id="numSoLuongBanSi" name="numSoLuongBanSi"
-                                    step="0.1" value="${TP_SO_LUONG_BAN_SI ? String(TP_SO_LUONG_BAN_SI).replace(/\.0*$/, '') : 'không giới hạn'}" readonly>`)
+                                    step="0.1" value="${TP_SUAT_BAN ? String(TP_SUAT_BAN).replace(/\.0*$/, '') : 'không giới hạn'}" readonly>`)
                                     </script>
                                     <div class="input-group-append">
                                         <span class="input-group-text">{{ food.DMDVT_TEN }}</span>
@@ -278,6 +278,7 @@
                 let payload = $(this).parents("tr").attr("data-count");
                 let tp_ma = `{{ food.TP_MA }}`;
                 let api_params = new URLSearchParams({ nd_ma, payload }).toString();
+
                 let response = await axios.put(`/api/thuc-pham/${tp_ma}?${api_params}`);
                 alert("Thao tác thành công")
             } catch (e) {

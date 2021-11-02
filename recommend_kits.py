@@ -8,6 +8,7 @@ import requests
 from models.chi_tiet_nhu_cau_mua import ChiTietNhuCauMua
 from models.nhu_cau_mua import NhuCauMua
 from models.danh_muc_don_vi_tinh import DanhMucDonViTinh
+from models.chi_tiet_dang_ky_mua import ChiTietDangKyMua
 from models.danh_muc_thuc_pham import DanhMucThucPham
 from models.nguoi_dung import NguoiDung
 from models.thuc_pham import ThucPham
@@ -19,7 +20,7 @@ groups = []
 def _subset_sum(registers: list, target: float, current_group: list = []) -> None:
     global groups
 
-    s = sum([register["DKM_SO_LUONG"] for register in current_group])
+    s = sum([register["CTDKM_SO_LUONG"] for register in current_group])
 
     # check if the current_group sum is equals to target
     if s == target:
@@ -34,7 +35,7 @@ def _subset_sum(registers: list, target: float, current_group: list = []) -> Non
         _subset_sum(remaining, target, current_group + [n])
 
 
-def recommend_buy_big_cube(registered_list, target) -> list:
+def get_groups(registered_list, target) -> list:
     """
         Get groups that have sum equal the sale
     """
@@ -113,43 +114,41 @@ def get_onroad_distance(coord_src: list, coord_dest: list) -> float:
 def recommand_for_big_cube_food(nd_ma: int = None) -> dict:
     """
         This func will call when one more food register created
-        result fomat: {TP_MA: int - ND_MA: list}
+        result fomat: {DKM_NMA: int, TP_MA: int, ND_MA: list}
     """
 
     food_list = ThucPham.get_all()
-    register_list = DangKyMua.get_all()
+    register_detail_list = ChiTietDangKyMua.get_all()
 
     recommand_dict = {}  # TP_MA: [ND_MA]
 
-    # get all food only buy the big cube
-    big_cube_food = [
-        food
-        for food in food_list
-        if food["TP_SO_LUONG_BAN_SI"]
-    ]
+    # just recommend for big cube food
+    big_cube_food = [food for food in food_list if food["TP_SUAT_BAN"]]
 
     for bcf in big_cube_food:
         # get all registered of the big cube food
         filtered_register = [
             register
-            for register in register_list
-            if str(register["TP_MA"]) == str(bcf["TP_MA"])
+            for register in register_detail_list
+            if str(register["TP_MA"]) == str(bcf["TP_MA"]) and not register["DKM_TRANG_THAI"]
         ]
         # generate group
-        target = bcf["TP_SO_LUONG_BAN_SI"]
-        # group of the registered
-        groups = recommend_buy_big_cube(
+        target = bcf["TP_SUAT_BAN"]
+        # group of register-detail fit the target
+        groups = get_groups(
             registered_list=filtered_register, target=target
         )
-        # init min
+        print(
+            f"[DEBUG] target {target}, filtered_register {len(filtered_register)}")
+        # init result that mean best solution of dkm_ma - tp_ma is buy with member and cost is cost value
         min_group_info = {
             "cost": math.inf,
             "members": []
         }
         for group in groups:
             print(
-                f"""[DEBUG] group for food {bcf.get("TP_MA")} {[f"{u['ND_TAI_KHOAN']}({u['ND_MA']})" for u in group]}""")
-
+                f"""[DEBUG] group for food {bcf.get("TP_MA")}:{bcf.get("TP_SUAT_BAN")} {[f"{u['ND_TAI_KHOAN']}({u['ND_MA']}):{u['CTDKM_SO_LUONG']}" for u in group]}""")
+            # skip if user id param not in group
             if nd_ma and nd_ma not in [member["ND_MA"] for member in group]:
                 continue
             # generate graph by add multi edges

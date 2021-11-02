@@ -19,13 +19,13 @@ class ThucPham:
             TP_NGAY_BAN = fields["TP_NGAY_BAN"]
             TP_VI_TRI_BAN_DO = fields["TP_VI_TRI_BAN_DO"]
             TP_DIA_CHI = fields["TP_DIA_CHI"]
-            TP_SO_LUONG_BAN_SI = fields["TP_SO_LUONG_BAN_SI"] or None
+            TP_SUAT_BAN = fields["TP_SUAT_BAN"] or None
             sql = """
-                INSERT INTO thuc_pham(ND_MA, DMTP_MA, TP_TEN, TP_MO_TA, TP_HINH_ANH, TP_DON_GIA, DMDVT_MA, TP_SO_LUONG, TP_NGAY_BAN, TP_VI_TRI_BAN_DO, TP_DIA_CHI, TP_SO_LUONG_BAN_SI) 
+                INSERT INTO thuc_pham(ND_MA, DMTP_MA, TP_TEN, TP_MO_TA, TP_HINH_ANH, TP_DON_GIA, DMDVT_MA, TP_SO_LUONG, TP_NGAY_BAN, TP_VI_TRI_BAN_DO, TP_DIA_CHI, TP_SUAT_BAN) 
                 VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             pram = (ND_MA, DMTP_MA, TP_TEN, TP_MO_TA, TP_HINH_ANH,
-                    TP_DON_GIA, DMDVT_MA, TP_SO_LUONG, TP_NGAY_BAN, TP_VI_TRI_BAN_DO, TP_DIA_CHI, TP_SO_LUONG_BAN_SI)
+                    TP_DON_GIA, DMDVT_MA, TP_SO_LUONG, TP_NGAY_BAN, TP_VI_TRI_BAN_DO, TP_DIA_CHI, TP_SUAT_BAN)
             cursor.execute(sql, pram)
             db.commit()
         except Exception as e:

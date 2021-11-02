@@ -167,7 +167,7 @@ def shop(nd_tai_khoan):
             not register["DKM_TRANG_THAI"] and
             int(register["DKM_SO_LUONG"]) <= int(food["TP_SO_LUONG"]) and
             int(register["DKM_SO_LUONG"]) % (
-                food["TP_SO_LUONG_BAN_SI"] or 1) == 0
+                food["TP_SUAT_BAN"] or 1) == 0
         ]
         return len(ready_registered_list)
 
@@ -211,15 +211,15 @@ def recommend_page():
         tp = ThucPham.find(tp_ma=tp_ma)
 
         # get dang_ky_mua
-        register = DangKyMua.find(nd_ma=user_info["ND_MA"], tp_ma=tp["TP_MA"])
+        # register = DangKyMua.find(nd_ma=user_info["ND_MA"], tp_ma=tp["TP_MA"])
 
         alerts.append({
             "TP_TEN": tp["TP_TEN"],
-            "register": register,
+            # "register": register,
             "members": users,
         })
 
-    print("alerts", alerts)
+    print("[DEBUG] alerts", alerts)
 
     return render_template(
         "recommends.html",

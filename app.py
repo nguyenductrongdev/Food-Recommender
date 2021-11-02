@@ -166,5 +166,4 @@ app.register_blueprint(api_nguoi_dung_route, url_prefix='/api/nguoi-dung')
 
 
 if __name__ == "__main__":
-    # dev_recommend_func()
     app.run(debug=True, host="0.0.0.0")

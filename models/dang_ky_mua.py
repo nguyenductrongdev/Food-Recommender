@@ -6,57 +6,46 @@ class DangKyMua:
     def get_all():
         sql = """
         SELECT * 
-        FROM dang_ky_mua, nguoi_dung 
+        FROM dang_ky_mua, chi_tiet_dang_ky_mua, nguoi_dung, thuc_pham 
         WHERE dang_ky_mua.ND_MA = nguoi_dung.ND_MA
+            AND dang_ky_mua.DKM_MA = chi_tiet_dang_ky_mua.DKM_MA
+            AND chi_tiet_dang_ky_mua.TP_MA = thuc_pham.TP_MA
         """
         cursor.execute(sql)
         return cursor.fetchall()
 
     def create(fields):
         ND_MA = fields["ND_MA"]
-        TP_MA = fields["TP_MA"]
-        DKM_SO_LUONG = fields["DKM_SO_LUONG"]
-        DKM_GHI_CHU = fields["DKM_GHI_CHU"]
         DKM_THOI_GIAN = fields["DKM_THOI_GIAN"]
-
         DKM_DIA_CHI = fields["DKM_DIA_CHI"]
         DKM_VI_TRI_BAN_DO = fields["DKM_VI_TRI_BAN_DO"]
 
         sql = """
-            INSERT INTO dang_ky_mua(ND_MA, TP_MA, DKM_SO_LUONG, DKM_THOI_GIAN, DKM_GHI_CHU, DKM_DIA_CHI, DKM_VI_TRI_BAN_DO) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO dang_ky_mua(ND_MA, DKM_THOI_GIAN, DKM_DIA_CHI, DKM_VI_TRI_BAN_DO) 
+            VALUES (%s, %s, %s, %s)
         """
-        val = (ND_MA, TP_MA, DKM_SO_LUONG, DKM_THOI_GIAN,
-               DKM_GHI_CHU, DKM_DIA_CHI, DKM_VI_TRI_BAN_DO)
+        val = (ND_MA, DKM_THOI_GIAN, DKM_DIA_CHI, DKM_VI_TRI_BAN_DO)
 
         cursor.execute(sql, val)
         db.commit()
+        return {
+            "DKM_MA": cursor.lastrowid,
+        }
 
-    def update(data):
+    def update(**data):
         # record is identified by nd_ma and tp_ma
-        nd_ma = data["ND_MA"]
-        tp_ma = data["TP_MA"]
-        del data["ND_MA"]
-        del data["TP_MA"]
+        dkm_ma = data["DKM_MA"]
+        del data["DKM_MA"]
 
         cols = data.keys()
-        _params = [*data.values()]
-        _conditions = [nd_ma, tp_ma]
+        _params = data.values()
+
+        cols = data.keys()
 
         sql = f"""
             UPDATE dang_ky_mua
             SET {" ".join([f"{col} = %s" for col in cols])}
-            WHERE ND_MA = %s AND TP_MA = %s
+            WHERE DKM_MA = %s
         """
         print(sql)
-        cursor.execute(sql, [*_params, *_conditions])
-        db.commit()
-
-    def find(nd_ma: int, tp_ma: int) -> dict:
-        register_list = DangKyMua.get_all()
-        find = [
-            register
-            for register in register_list
-            if int(register["ND_MA"]) == int(nd_ma) and int(register["TP_MA"]) == int(tp_ma)
-        ]
-        return find[0] if len(find) == 1 else None
+        cursor.execute(sql, [*_params, dkm_ma])
