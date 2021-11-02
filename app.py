@@ -144,10 +144,10 @@ def get_unit():
     DMTP_MA = request.args.get("dmtp_ma")
     sql = f"""
         SELECT danh_muc_don_vi_tinh.DMDVT_MA, DMDVT_TEN
-        FROM danh_muc_thuc_pham, danh_muc_don_vi_tinh, dmtp_dmdvt
+        FROM danh_muc_thuc_pham, danh_muc_don_vi_tinh, dm_don_vi_tinh_dm_thuc_pham
         WHERE danh_muc_thuc_pham.DMTP_MA = {DMTP_MA}
-            AND danh_muc_thuc_pham.DMTP_MA = dmtp_dmdvt.DMTP_MA
-            AND dmtp_dmdvt.DMDVT_MA = danh_muc_don_vi_tinh.DMDVT_MA
+            AND danh_muc_thuc_pham.DMTP_MA = dm_don_vi_tinh_dm_thuc_pham.DMTP_MA
+            AND dm_don_vi_tinh_dm_thuc_pham.DMDVT_MA = danh_muc_don_vi_tinh.DMDVT_MA
     """
     cursor.execute(sql)
     units = cursor.fetchall()

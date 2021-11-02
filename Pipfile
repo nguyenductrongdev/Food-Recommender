@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flask = "==2.0.1"
+python-json-logger = "*"
+mysqlclient = "*"
+mysql = "*"
+mysql-connector-python = "*"
+networkx = "==2.6.3"
+matplotlib = "*"
+requests = "==2.24.0"
+pandas = "*"
+schema = "==0.7.4"
+
+[dev-packages]
+
+[requires]
+python_version = "3.8"

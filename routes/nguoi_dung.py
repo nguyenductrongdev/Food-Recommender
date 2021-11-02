@@ -1,3 +1,4 @@
+from models.chi_tiet_dang_ky_mua import ChiTietDangKyMua
 from models.dang_ky_mua import DangKyMua
 from models.thuc_pham import ThucPham
 from middlewares.require_login import require_login
@@ -165,8 +166,8 @@ def shop(nd_tai_khoan):
             for register in registered_list
             if int(register["TP_MA"]) == int(food["TP_MA"]) and
             not register["DKM_TRANG_THAI"] and
-            int(register["DKM_SO_LUONG"]) <= int(food["TP_SO_LUONG"]) and
-            int(register["DKM_SO_LUONG"]) % (
+            int(register["CTDKM_SO_LUONG"]) <= int(food["TP_SO_LUONG"]) and
+            int(register["CTDKM_SO_LUONG"]) % (
                 food["TP_SUAT_BAN"] or 1) == 0
         ]
         return len(ready_registered_list)
