@@ -10,6 +10,8 @@ from models.nguoi_dung import NguoiDung
 from models.danh_muc_thuc_pham import DanhMucThucPham
 from models.danh_muc_don_vi_tinh import DanhMucDonViTinh
 from models.nhu_cau_mua import NhuCauMua
+
+from recommend_kits import recommand_for_big_cube_food
 from utils import get_user_info
 
 route = Blueprint(
@@ -192,31 +194,9 @@ def shop(nd_tai_khoan):
 
 @route.route('/goi-y-mua-chung', methods=['GET'])
 def recommend_page():
-    from recommend_kits import recommand_for_big_cube_food
-    food_list = ThucPham.get_all()
-    user_list = NguoiDung.get_all()
-
     user_info = get_user_info()
-    # get all recommend for all big cube foods
-    recommends = recommand_for_big_cube_food()
-
-    def get_register(nd_ma: int, tp_ma: int) -> dict:
-        register_list = DangKyMua.get_all()
-        find = [
-            register
-            for register in register_list
-            if int(register["ND_MA"]) == int(nd_ma) and int(register["TP_MA"]) == int(tp_ma)
-        ]
-        print("get_register", find)
-        return find[0] if len(find) == 1 else None
-
-    def get_nd_by_nd_ma(nd_ma: int) -> dict:
-        find = [
-            user
-            for user in user_list
-            if int(user["ND_MA"]) == int(nd_ma)
-        ]
-        return find[0] if len(find) == 1 else None
+    # get all recommend for current user
+    recommends = recommand_for_big_cube_food(nd_ma=int(user_info["ND_MA"]))
 
     # consider the recommend contain current user as alert
     alerts = []
@@ -224,15 +204,15 @@ def recommend_page():
         if int(user_info["ND_MA"]) not in user_ids:
             continue
         users = [
-            get_nd_by_nd_ma(user_id)
+            NguoiDung.find_by_id(nd_ma=user_id)
             for user_id in user_ids
             if int(user_id) != int(user_info["ND_MA"])
         ]
         tp = ThucPham.find(tp_ma=tp_ma)
-        print("tp", tp)
+
         # get dang_ky_mua
-        register = get_register(nd_ma=user_info["ND_MA"], tp_ma=tp["TP_MA"])
-        print("register", register)
+        register = DangKyMua.find(nd_ma=user_info["ND_MA"], tp_ma=tp["TP_MA"])
+
         alerts.append({
             "TP_TEN": tp["TP_TEN"],
             "register": register,

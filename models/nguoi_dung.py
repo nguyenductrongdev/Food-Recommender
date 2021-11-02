@@ -38,3 +38,11 @@ class NguoiDung:
         except Exception as e:
             logging.getLogger("__main__").exception(e)
             raise
+
+    def find_by_id(nd_ma: int) -> dict:
+        find = [
+            user
+            for user in NguoiDung.get_all()
+            if int(user["ND_MA"]) == int(nd_ma)
+        ]
+        return find[0] if len(find) == 1 else None

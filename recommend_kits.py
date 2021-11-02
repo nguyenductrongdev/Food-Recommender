@@ -110,7 +110,7 @@ def get_onroad_distance(coord_src: list, coord_dest: list) -> float:
     return route["distance"]/1000
 
 
-def recommand_for_big_cube_food():
+def recommand_for_big_cube_food(nd_ma: int = None) -> dict:
     """
         This func will call when one more food register created
         result fomat: {TP_MA: int - ND_MA: list}
@@ -148,7 +148,10 @@ def recommand_for_big_cube_food():
         }
         for group in groups:
             print(
-                f"""group for food {bcf.get("TP_MA")} {[u["ND_MA"] for u in group]}""")
+                f"""[DEBUG] group for food {bcf.get("TP_MA")} {[f"{u['ND_TAI_KHOAN']}({u['ND_MA']})" for u in group]}""")
+
+            if nd_ma and nd_ma not in [member["ND_MA"] for member in group]:
+                continue
             # generate graph by add multi edges
 
             def generateGraph() -> CustomGraph:

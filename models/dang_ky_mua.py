@@ -51,3 +51,12 @@ class DangKyMua:
         print(sql)
         cursor.execute(sql, [*_params, *_conditions])
         db.commit()
+
+    def find(nd_ma: int, tp_ma: int) -> dict:
+        register_list = DangKyMua.get_all()
+        find = [
+            register
+            for register in register_list
+            if int(register["ND_MA"]) == int(nd_ma) and int(register["TP_MA"]) == int(tp_ma)
+        ]
+        return find[0] if len(find) == 1 else None
