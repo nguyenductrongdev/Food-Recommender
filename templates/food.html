@@ -21,9 +21,9 @@
 {% endblock %}
 
 {% block main %}
-<div class="container">
-    <div class="row mt-5">
-        <div class="col-12">
+<div class="container-fluid">
+    <div class="row mt-5 d-flex justify-content-center">
+        <div class="col-md-10">
 
             {% if role == 'registered' %}
             <div class="alert alert-success text-center font-weight-bold">
@@ -65,7 +65,7 @@
                                 <input type="text" name="slDonVi" id="slDonVi" class="form-control"
                                     value="{{food.DMDVT_TEN}}" readonly>
                             </div> -->
-                            <div class="col-6">
+                            <div class="col-md-6">
                                 <label for="numDonGia">Đơn giá</label>
                                 <div class="input-group">
                                     <input type="text" name="numDonGia" id="numDonGia" class="form-control"
@@ -78,7 +78,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-6">
+                            <div class="col-md-6">
                                 <label for="numSoLuongBanSi">
                                     Số lượng mỗi suất bán
                                 </label>
@@ -94,13 +94,13 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-6">
+                            <div class="col-md-6">
                                 <label for="txtNgayBan">Ngày bắt đầu bán</label>
                                 <input type="date" name="txtNgayBan" id="txtNgayBan" class="form-control"
                                     value="{{food.TP_NGAY_BAN}}" readonly>
                             </div>
 
-                            <div class="col-6">
+                            <div class="col-md-6">
                                 <label for="numSoLuong">Số lượng còn lại</label>
                                 <div class="input-group">
 
@@ -131,6 +131,22 @@
                 </div>
             </form>
         </div>
+
+        {% if unready_registered_list %}
+        <div class="col-md-2 border">
+            <h2>Đã đặt:</h2>
+            <ul style="list-style-type: none">
+                {% for register in unready_registered_list %}
+                <li>
+                    <script>
+                        document.write(String({{ register.CTDKM_SO_LUONG }}).replace(/\.0*$/g, ''))
+                    </script>
+                    <span class="font-weight-bold badge badge-info">{{ register.ND_TAI_KHOAN }}</span>:
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
     </div>
 
     {% if role == 'normal_customer' %}

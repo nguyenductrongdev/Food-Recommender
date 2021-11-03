@@ -48,6 +48,20 @@ def tp_index(tp_ma):
             food["TP_SUAT_BAN"] or 1) == 0
     ]
 
+    unready_registered_list = [
+        register_detail
+        for register_detail in registered_detail_list
+        # match tp_ma
+        if int(register_detail["TP_MA"]) == int(tp_ma) and
+        # status not buy
+        not register_detail["DKM_TRANG_THAI"] and
+        # cannot buy cause number of
+        (int(register_detail["CTDKM_SO_LUONG"]) %
+         (food["TP_SUAT_BAN"] or 1) != 0)
+    ]
+    # print("[DEBUG] unready_registered_list",
+    #       unready_registered_list[0])
+
     try:
         user_info = get_user_info()
 
@@ -69,12 +83,17 @@ def tp_index(tp_ma):
     except Exception as e:
         pass
 
+    unready_registered_list = [
+        *map(lambda x: {**x, }, unready_registered_list)]
+
     return render_template(
         "food.html",
         food=food,
         user_info=user_info,
         role=role,
-        ready_registered_list=ready_registered_list
+        ready_registered_list=ready_registered_list,
+        # just display List da dang ky for bcf
+        unready_registered_list=unready_registered_list if food["TP_SUAT_BAN"] else None,
     )
 
 
