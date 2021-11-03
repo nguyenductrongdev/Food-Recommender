@@ -14,8 +14,10 @@
         background: rgba(240, 250, 250, 0.5);
     }
 
-    input[readonly] {
+    input[readonly],
+    textarea[readonly] {
         background: transparent !important;
+        resize: none;
     }
 </style>
 {% endblock %}
@@ -135,13 +137,16 @@
         {% if unready_registered_list %}
         <div class="col-md-2 border">
             <h2>Đã đặt:</h2>
-            <ul style="list-style-type: none">
+            <ul style="list-style-type: none; padding-left: 0;">
                 {% for register in unready_registered_list %}
-                <li>
-                    <script>
-                        document.write(String({{ register.CTDKM_SO_LUONG }}).replace(/\.0*$/g, ''))
-                    </script>
-                    <span class="font-weight-bold badge badge-info">{{ register.ND_TAI_KHOAN }}</span>:
+                <li class="d-flex">
+                    <span class="font-weight-bold" style="flex-basis: 60%;">{{ register.ND_TAI_KHOAN }}</span>
+                    <span>
+                        đã đặt
+                        <script>
+                            document.write(String({{ register.CTDKM_SO_LUONG }}).replace(/\.0*$/g, ''))
+                        </script>
+                    </span>
                 </li>
                 {% endfor %}
             </ul>
@@ -216,6 +221,7 @@
                         <th>Số lượng</th>
                         <th>Địa chỉ</th>
                         <th>Trạng thái</th>
+                        <th>Ghi chú</th>
                         <th>Thao tác</th>
                     </tr>
                 </thead>
@@ -227,7 +233,7 @@
                         </td>
                         <td class="text-right">
                             <script>
-                                document.write(String({{ registered.DKM_SO_LUONG }}).replace(/\.0*$/g, ''))
+                                document.write(String({{ registered.CTDKM_SO_LUONG }}).replace(/\.0*$/g, ''))
                             </script>
                         </td>
                         <td>{{ registered.DKM_DIA_CHI }}</td>
@@ -235,6 +241,8 @@
                         <td>
                             <span class="badge badge-warning">Chờ xử lý</span>
                         </td>
+
+                        <td>{{ registered.CTDKM_GHI_CHU }}</td>
 
                         <td>
                             <button type="button" class="btn btn-success js-btn-done">
@@ -262,10 +270,6 @@
 
 {% block script %}
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="/static/vendor/ckeditor/ckeditor.js"></script>
-<script type="text/javascript">
-    CKEDITOR.replace('txtMoTa');
-</script>
 
 <script>
     $(function () {

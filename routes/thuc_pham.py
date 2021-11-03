@@ -28,13 +28,10 @@ config.read(CONFIG_PATH)
 
 @route.route('/<tp_ma>', methods=['GET'])
 def tp_index(tp_ma):
-    food_list = ThucPham.get_all()
     registered_detail_list = ChiTietDangKyMua.get_all()
 
     # get current list
-    food = list(
-        filter(lambda food: food.get("TP_MA") == int(tp_ma), food_list)
-    )[0]
+    food = ThucPham.find(tp_ma=int(tp_ma))
 
     role = "not_login"
     # get all register already to handle
