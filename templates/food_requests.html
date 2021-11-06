@@ -18,7 +18,7 @@
     </div>
     <div class="row">
         {% for req in food_requests %}
-        <div class="col-4 my-3 btn btn-light shadow">
+        <div class="card col-4 my-3 mx-1 btn btn-light shadow">
             <div>
                 <span class="badge badge-pill badge-danger">3</span>
 
@@ -57,8 +57,8 @@
                     </tbody>
                 </table>
             </div>
-            {% endfor %}
         </div>
+        {% endfor %}
     </div>
 </main>
 {% endblock %}

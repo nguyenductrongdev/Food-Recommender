@@ -15,7 +15,8 @@ class DangKyMua:
         return cursor.fetchall()
 
     def create(fields):
-        ND_MA = fields["ND_MA"]
+        # ND_MA move to optional for khach van lai
+        ND_MA = fields.get("ND_MA")
         DKM_THOI_GIAN = fields["DKM_THOI_GIAN"]
         DKM_DIA_CHI = fields["DKM_DIA_CHI"]
         DKM_VI_TRI_BAN_DO = fields["DKM_VI_TRI_BAN_DO"]

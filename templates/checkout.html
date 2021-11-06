@@ -1,0 +1,362 @@
+{% extends 'base.html' %}
+
+
+{% block style %}
+<style>
+    .btn-del-cart-item {
+        display: inline-block;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 1.5rem;
+        margin-right: 1rem;
+    }
+
+    .btn-del-cart-item:hover {
+        color: red;
+    }
+
+    #txtAddress__options .txtAddress__options__option {
+        outline: solid 0.5px lightgray !important;
+        padding: 0.5vw !important;
+        box-shadow: 0 0 0.1vw black !important;
+        cursor: pointer;
+    }
+
+    .txtAddress__options__option:hover {
+        background: rgba(240, 250, 250, 0.5);
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1 class="section-header">Thanh toán</h1>
+        </div>
+    </div>
+
+
+    <div class="row mb-5">
+        <div class="col-9">
+
+            <table class="table table-striped table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>Giá (VND)</th>
+                        <th>Số lượng</th>
+                        <th>Tạm tính (VND)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- generate table body -->
+                    <script>
+                        const CART_KEY = "project-x-cart";
+
+                        let cart = localStorage.getItem(CART_KEY);
+                        cart = cart ? JSON.parse(cart) : {};
+                        console.log({ cart });
+                        // check cart item count
+                        if (Object.keys(cart).length) {
+                            let presentHTML = "";
+                            for (const tp_ma in cart) {
+                                presentHTML += `
+                                    <tr>
+                                        <td>
+                                            <span class="btn-del-cart-item" data-tp-ma=${tp_ma}>&times;</span> 
+                                            ${cart[tp_ma].name}
+                                        </td>
+                                        <td class="text-right">${Number(cart[tp_ma].unit_cost).toLocaleString('vi')}</td>
+                                        <td style="width: 10%">
+                                            <input type="text" class="form-control" name="num-${tp_ma}" value="${cart[tp_ma].num}" min="0"/>
+                                        </td>
+                                        <td class="text-right total-cost">${Number(+cart[tp_ma].num * +cart[tp_ma].unit_cost).toLocaleString("vi")}</td>
+                                    </tr>
+                                `
+                            }
+                            document.write(presentHTML);
+                        } else {
+                            document.write('<td colspan="4" class="text-center">Giỏ hàng trống</td>')
+                        }
+                    </script>
+                </tbody>
+            </table>
+
+            <hr />
+
+
+            <div class="d-flex justify-content-end">
+                <a href="/" class="btn btn-lg btn-dark mx-1">
+                    <i class="fas fa-arrow-left"></i>
+                    Quay về
+                </a>
+
+                <button class="btn btn-lg btn-success ml-1" id="js-btn-checkout">
+                    <i class="far fa-check-circle"></i>
+                    Thanh toán
+                </button>
+            </div>
+        </div>
+
+        <div class="col-3">
+            <h4>
+                Tổng tiền:
+                <br />
+                <b class="text-danger">
+                    <span id="finish-cost">
+                        <script>
+                            // get cart
+                            cart = localStorage.getItem(CART_KEY);
+                            cart = cart ? JSON.parse(cart) : {};
+                            // calc total cost
+                            let totalCost = 0;
+                            for (const tp_ma in cart) {
+                                totalCost += Number(cart[tp_ma].num) * Number(cart[tp_ma].unit_cost);
+                            }
+                            // show to UI
+                            document.write(`${totalCost.toLocaleString("vi")}`);
+                        </script>
+                    </span>
+                    VND
+                </b>
+            </h4>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- outside code start -->
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary d-none" data-toggle="modal" data-target="#register-popup">
+    Launch demo modal
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="register-popup" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Thông báo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Quick checkout start-->
+                <form action="#" name="frmQuickCheckOut" id="frmQuickCheckOut">
+                    <!-- this hidden field for store geo address -> recommend feature -->
+                    <input type="hidden" name="txtViTriBanDo" id="txtViTriBanDo" />
+
+                    <div class="form-group">
+                        <label for="txtAddress">Địa chỉ</label>
+                        <input type="text" name="txtAddress" id="txtAddress" class="form-control" autocomplete="off" />
+                        <div id="txtAddress__options" class="w-100">
+
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telPhone">Số điện thoại</label>
+                        <input type="tel" class="form-control" name="telPhone" id="telPhone" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="txtNote">Ghi chú đơn hàng</label>
+                        <textarea name="txtNote" id="txtNote" cols="30" rows="5" class="form-control"
+                            placeholder="Ghi chú về đơn hàng, ví dụ: thời gian hay chỉ dẫn địa điểm giao hàng chi tiết hơn."></textarea>
+                    </div>
+
+                </form>
+                <!-- Quick checkout end -->
+
+
+                <!-- Advice login/register start -->
+                <span>
+                    <i class="fas fa-info-circle"></i>
+                    <a href="/nguoi-dung/dang-nhap" target="_blank" class="text-success"
+                        onclick="$('#js-btn-close-popup').click()">
+                        Đăng nhập
+                    </a>
+                    để có trải nghiệm tốt hơn!
+                </span>
+                <br />
+                <i>
+                    <i class="fas fa-question-circle"></i>
+                    Bạn chưa có tài khoản? click
+                    <a href="/nguoi-dung/dang-ky" target="_blank" onclick="$('#js-btn-close-popup').click()">vào đây</a>
+                    để đăng ký
+                </i>
+                <!-- Advice login/register end -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                    id="js-btn-close-popup">Close</button>
+                <button type="button" class="btn btn-success" id="js-btn-quick-checkout">Hoàn tất</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- outside code end -->
+
+{% endblock %}
+
+{% block script %}
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src=" https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js " defer></script>
+
+<script>
+    function isLogin() {
+        let x = Cookies.get("ND_MA");
+        console.log("Check result nd_ma", x);
+        return x ? true : false;
+    }
+
+    $(function () {
+        $(document).on('keyup', "input[name^='num-']", function (e) {
+            // selector: name like num-% (num-<tp_ma>)
+            let { value, name } = e.target;
+            let newCount = Number(value);
+            if (value < 0) {
+                alert(`Giá trị ${value} không hợp lệ`);
+                return;
+            }
+            // change localStorage
+            const tp_ma = Number(name.split('-').slice(-1));
+
+            cart = localStorage.getItem(CART_KEY);
+            cart = cart ? JSON.parse(cart) : {};
+            let oldCartItem = cart[tp_ma];
+            cart = {
+                ...cart,
+                [tp_ma]: {
+                    num: newCount,
+                    name: oldCartItem.name,
+                    unit_cost: oldCartItem.unit_cost,
+                }
+            }
+            localStorage.setItem(CART_KEY, JSON.stringify(cart));
+            // change UI
+            let newTotalCost = newCount * Number(cart[tp_ma].unit_cost);
+            console.log({ newTotalCost: cart[tp_ma].unit_cost });
+            $(this).parents("td").siblings(".total-cost").html(`${newTotalCost.toLocaleString("vi")}`);
+            // update finished cost
+            let finishCost = 0;
+            for (const tp_ma in cart) {
+                finishCost += Number(cart[tp_ma].num) * Number(cart[tp_ma].unit_cost);
+            }
+            $("#finish-cost").html(`${finishCost.toLocaleString("vi")}`);
+        });
+
+        // del cart item 
+        $(".btn-del-cart-item").click(function (e) {
+            // remove from localStorage
+            cart = localStorage.getItem(CART_KEY);
+            cart = cart ? JSON.parse(cart) : {};
+
+            let tp_ma_delete = Number($(this).attr("data-tp-ma"));
+            delete cart[tp_ma_delete]
+            localStorage.setItem(CART_KEY, JSON.stringify(cart));
+
+            // remove from UI
+            $(this).parents("tr").remove();
+
+            // update finished cost
+            let finishCost = 0;
+            for (const tp_ma in cart) {
+                finishCost += Number(cart[tp_ma].num) * Number(cart[tp_ma].unit_cost);
+            }
+            $("#finish-cost").html(`${finishCost.toLocaleString("vi")}`);
+        })
+
+        // click to show finish popup
+        $("#js-btn-checkout").click(function (e) {
+            console.log("Check out!!!");
+            if (isLogin()) {
+                // call API
+                alert("Call API")
+            } else {
+                // show quick checkout popup
+                $("*[data-target='#register-popup']").click();
+            }
+        });
+
+        // handle quick checkout
+        $("#js-btn-quick-checkout").click(async function (e) {
+            try {
+                // get cart as object
+                cart = localStorage.getItem(CART_KEY);
+                cart = cart ? JSON.parse(cart) : {};
+                // build api
+                let cartAsarray = [];
+                for (const tp_ma in cart) {
+                    cartAsarray = cartAsarray.concat({
+                        tp_ma: tp_ma,
+                        count: cart[tp_ma].num,
+                    });
+                }
+                // validation form
+                if (!$("#txtAddress").val()) {
+                    alert("Địa chỉ không được để trống");
+                    return;
+                }
+                if (!$("#telPhone").val()) {
+                    alert("Số điện thoại không được để trống");
+                    return;
+                }
+                // get quick checkout api endpoint params
+                let apiParams = $("#frmQuickCheckOut").serialize() + "&details=" + JSON.stringify(cartAsarray);
+                // send api
+                console.log(`API endpoint: /api/thuc-pham/quick-check-out?${apiParams}`);
+                await axios.post(`/api/thuc-pham/quick-check-out?${apiParams}`);
+                alert("Thanh toán thành công");
+            } catch (err) {
+                alert("Thanh toán không thành công");
+            }
+        });
+
+
+
+
+        /*
+            Code below for gg map api
+        */
+        $("#txtAddress").change(function (e) {
+            geocoder = new google.maps.Geocoder();
+            var address = $("#txtAddress").val();
+            if (address.length === 0) return;
+            geocoder
+                .geocode({ 'address': address, region: "vi" }, (results, status) => {
+                    try {
+                        if (status == google.maps.GeocoderStatus.OK) {
+                            let location = results[0].geometry.location;
+                            let [lat, lng] = [location.lat(), location.lng()];
+                            $("#txtAddress__options").html(
+                                `<div class="txtAddress__options__option" data-value="${lat}|${lng}">${results[0].formatted_address}</div>`
+                            )
+                        }
+                        else {
+                            alert("Geocode was not successful for the following reason: " + status);
+                        }
+                    } catch (e) {
+                        console.log({ e });
+                    }
+                })
+                .catch(e => {
+                    console.log({ e });
+                });
+        });
+        // click address list
+        $(document).on('click', '.txtAddress__options__option', function () {
+            let val = $(this).attr("data-value");
+            // val format: "lat|long"
+            console.log(val);
+            $("#txtViTriBanDo").val(val);
+            $("#txtAddress").val($(this).html())
+            $(this).remove();
+            console.log(`set #txtViTriBanDo to ${val}`);
+        });
+    });
+</script>
+{% endblock %}

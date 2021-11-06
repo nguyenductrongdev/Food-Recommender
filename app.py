@@ -22,6 +22,8 @@ from models.nguoi_dung import NguoiDung
 from models.danh_muc_thuc_pham import DanhMucThucPham
 from models.thuc_pham import ThucPham
 
+from utils import get_user_info
+
 
 app = Flask(__name__)
 
@@ -44,38 +46,40 @@ def index():
     nguoi_dung_list = NguoiDung.get_all()
     thuc_pham_list = ThucPham.get_all()
     danh_muc_thuc_pham_list = DanhMucThucPham.get_all()
+    print(danh_muc_thuc_pham_list)
 
-    # get user for template
-    try:
-        ND_TAI_KHOAN = list(filter(lambda nd: str(nd.get('ND_MA')) ==
-                                   request.cookies.get("ND_MA"), nguoi_dung_list))[0].get("ND_TAI_KHOAN")
-        user_info = {
-            "ND_TAI_KHOAN": ND_TAI_KHOAN,
-        }
-    except:
-        user_info = None
-    # get user for template
+    def dmtp_is_leaf(dmtp):
+        # print(dmtp)
+        parent_list = [
+            *map(lambda item: item["DMTP_MA_DMTM_CHA"], danh_muc_thuc_pham_list)
+        ]
+        print("parent_list", parent_list, dmtp["DMTP_MA_DMTM_CHA"])
+        # leaf is not parent anywhere and have parent
+        return dmtp["DMTP_MA"] not in parent_list and dmtp["DMTP_MA_DMTM_CHA"]
+
+    # filter dmtp, just get leaf node
+    dmtp_leaf = [
+        *filter(dmtp_is_leaf, danh_muc_thuc_pham_list)
+    ]
+
+    user_info = get_user_info()
 
     return render_template(
         "index.html",
         user_info=user_info,
         food_list=thuc_pham_list[:20],
         user_list=nguoi_dung_list,
-        danh_muc_thuc_pham_list=danh_muc_thuc_pham_list
+        danh_muc_thuc_pham_list=dmtp_leaf
     )
 
 
-@app.route('/utils/nguoi-dung', methods=['GET'])
-def nd():
-    nguoi_dung_list = NguoiDung.get_all()
-    nguoi_dung_list = list(map(lambda user:
-                           {
-                               "nd_ma": user.get('ND_MA'),
-                               "nd_tai_khoan": user.get('ND'),
-                           }, nguoi_dung_list))
-    return {
-        "users": nguoi_dung_list,
-    }
+@app.route('/checkout', methods=['GET'])
+def checkout():
+    user_info = get_user_info()
+    return render_template(
+        'checkout.html',
+        user_info=user_info,
+    )
 
 
 @app.route('/food-map', methods=['GET'])
@@ -119,16 +123,7 @@ def food_map():
             "DMDVT_TEN": DMDVT_TEN,
         })
 
-    # get user for template
-    try:
-        ND_TAI_KHOAN = list(filter(lambda nd: str(nd.get('ND_MA')) ==
-                                   request.cookies.get("ND_MA"), nguoi_dung_list))[0].get("ND_TAI_KHOAN")
-        user_info = {
-            "ND_TAI_KHOAN": ND_TAI_KHOAN,
-        }
-    except:
-        user_info = None
-    # get user for template
+    user_info = get_user_info()
 
     return render_template(
         "food_map.html",

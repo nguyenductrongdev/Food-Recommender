@@ -28,3 +28,23 @@ class ChiTietDangKyMua:
 
         cursor.execute(sql, val)
         db.commit()
+
+    def update(**data):
+        # ND_MA and TP_MA is primary key
+        assert "DKM_MA" in data.keys()
+        assert "TP_MA" in data.keys()
+
+        cols = data.keys()
+        _params = data.values()
+        _condition = [data["DKM_MA"], data["TP_MA"]]
+
+        # update by condition
+        sql = f"""
+            UPDATE chi_tiet_dang_ky_mua
+            SET {", ".join([f"{col} = %s" for col in cols])}
+            WHERE DKM_MA = %s AND TP_MA = %s
+        """
+        print(sql)
+
+        cursor.execute(sql, [*_params, *_condition])
+        db.commit()

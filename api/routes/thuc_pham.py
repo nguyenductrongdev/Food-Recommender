@@ -1,5 +1,5 @@
+from datetime import datetime
 import pandas as pd
-from models.dang_ky_mua import DangKyMua
 from schema import Schema, And, Use, Optional, SchemaError
 from functools import wraps
 import uuid
@@ -12,6 +12,8 @@ from flask import Blueprint, Flask, json, request,  jsonify, url_for, render_tem
 from models.thuc_pham import ThucPham
 from models.danh_muc_thuc_pham import DanhMucThucPham
 from models.nguoi_dung import NguoiDung
+from models.chi_tiet_dang_ky_mua import ChiTietDangKyMua
+from models.dang_ky_mua import DangKyMua
 
 
 route = Blueprint(
@@ -116,24 +118,61 @@ def recommend():
         return {"message": str(e) or "Internal server error"}, 500
 
 
+@route.route('/quick-check-out', methods=['POST'])
+def quick_check_out():
+    """
+        Quick check out, case checkout without login
+    """
+    query_string_dict = request.values
+    print(f"[DEBUG] {query_string_dict}")
+    # insert register
+    new_register = {
+        "DKM_THOI_GIAN": datetime.now().strftime("%Y-%m-%d"),
+        "DKM_DIA_CHI": query_string_dict["txtAddress"],
+        "DKM_VI_TRI_BAN_DO": query_string_dict["txtViTriBanDo"],
+    }
+    print(f"[DEBUG] new_register {new_register}")
+    REGISTER_CREATED = DangKyMua.create(new_register)
+    # insert to register details
+    register_detail_list = json.loads(query_string_dict["details"])
+    for item in register_detail_list:
+        # buid register_detail
+        register_detail = {
+            "TP_MA": item["tp_ma"],
+            "DKM_MA": REGISTER_CREATED["DKM_MA"],
+
+            "CTDKM_SO_LUONG": item["count"],
+            "CTDKM_GHI_CHU": query_string_dict.get("txtNote"),
+        }
+        ChiTietDangKyMua.create(register_detail)
+
+    return {}, 200
+
+
 @route.route('/<tp_ma>', methods=['PUT'])
 def sale(tp_ma):
+    """
+        !!! in progress: for sure shipping complete
+    """
     query_string_dict = request.values
-    nd_ma = query_string_dict["nd_ma"]
     payload = query_string_dict["payload"]
-    # get currebt food counts
+    dkm_ma = query_string_dict["dkm_ma"]
+
+    print(f"[DEBUG] payload {payload}")
+    # get current food counts
     current_food = ThucPham.find(TP_MA=tp_ma)
     count = float(current_food["TP_SO_LUONG"]) - float(payload)
-    # # update food count to thuc_pham table
+    # update food count to thuc_pham table
     ThucPham.update({
         "TP_MA": tp_ma,
         "TP_SO_LUONG": count,
     })
     # update to set registered is done
-    DangKyMua.update({
-        "ND_MA": nd_ma,
+    ChiTietDangKyMua.update(**{
+        "DKM_MA": dkm_ma,
         "TP_MA": tp_ma,
-        "DKM_TRANG_THAI": 1,
+
+        "CTDKM_TRANG_THAI": 1,
     })
 
     return query_string_dict

@@ -13,27 +13,36 @@
     height: 45%;
     object-fit: cover;
   }
+
+  .card-title__unit {
+    font-size: 1rem;
+  }
 </style>
 {% endblock %}
 
 
 
 {% block main %}
-<div class="container">
+<div class="container-fluid">
   <h2 class="section-header">Thực phẩm đang bán</h2>
   <div class="row">
 
+    <!-- filter for nd_ma -->
     <div class="col-md-3">
       <input type="text" id="txtFilter-nd-ma" class="form-control" placeholder="Lọc theo tên người dùng">
-      <div id="user-list" class="position-absolute w-100" style="z-index: 1;">
+      <div id="user-list" class="position-absolute w-100" style="z-index: 100;">
         <!-- <div data-nd-ma="" class="bg-white w-100 shadow user-list__item d-none">Tất cả</div> -->
         {% for user in user_list %}
-        <div data-nd-ma="{{ user.ND_MA }}" class="bg-white w-100 shadow d-none user-list__item">{{ user.ND_TAI_KHOAN }}
+        <div data-nd-ma="{{ user.ND_MA }}" class="bg-white w-100 shadow d-none user-list__item p-1 rounded"
+          style="background-color: #eee; cursor: pointer;">{{
+          user.ND_TAI_KHOAN
+          }}
         </div>
         {% endfor %}
       </div>
     </div>
 
+    <!-- filter for dmtp_ma -->
     <div class="col-md-3">
       <select name="slFilter-dmtp-ma" class="form-control" id="slFilter-dmtp-ma">
         <option data-dmtp-ma="" class="bg-white w-100 shadow" value="">
@@ -45,12 +54,80 @@
       </select>
     </div>
 
+    <!-- cart -->
+    <div class="col-md-6">
+      <button type="button" data-toggle="modal" data-target="#cart-modal" class="btn btn-lg btn-success d-block ml-auto"
+        id="js-btn-view-cart">
+        <i class="fas fa-shopping-cart"></i>
+        Giỏ hàng
+      </button>
+
+      <!-- add cart modal -->
+      <div class="modal fade" id="cart-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLongTitle">
+                Giỏ hàng
+              </h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <table class="table table-striped">
+                <thead class="thead-dark">
+                  <tr>
+                    <th>Sản phẩm</th>
+                    <th>Giá (VND)</th>
+                    <th>Số lượng</th>
+                    <th>Tạm tính (VND)</th>
+                  </tr>
+                </thead>
+                <tbody id="cart-body">
+                  <!-- generate table body -->
+                  <script>
+                    const CART_KEY = "project-x-cart";
+
+                    let cart = localStorage.getItem(CART_KEY);
+                    cart = cart ? JSON.parse(cart) : {};
+                    console.log({ cart });
+                    if (cart) {
+                      let presentHTML = "";
+                      for (const tp_ma in cart) {
+                        presentHTML += `
+                        <tr>
+                          <td>${cart[tp_ma].name}</td>
+                          <td class="text-right">${Number(cart[tp_ma].unit_cost).toLocaleString('vi')}</td>
+                          <td>${cart[tp_ma].num}</td>
+                          <td class="text-right">${Number(+cart[tp_ma].num * +cart[tp_ma].unit_cost).toLocaleString("vi")}</td>
+                        </tr>
+                        `
+                      }
+                      document.write(presentHTML);
+                    } else {
+                      document.write('<td colspan="4">Giỏ hàng trống</td>')
+                    }
+                  </script>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+              <a href="/checkout" class="btn btn-primary">Thanh toán</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- add cart modal -->
+    </div>
+
   </div>
   <div class="row">
     <div class="col-12">
       <div class="row" id="product-presenter">
         {% for food in food_list %}
-        <div class="col-3 my-3">
+        <div class="col-sm-6 col-md-4 col-lg-3 my-3">
           <div class="card product">
             <img class="card-img-top product__image" src="{{ food.TP_HINH_ANH }}" alt="Card image cap">
             <div class="card-body">
@@ -61,11 +138,11 @@
                 {{ food.DMDVT_TEN}}
 
                 <br />
-
-                <script>
-
-                  document.write("(" + Number(String({{ food.TP_DON_GIA }}).replace(/\.0*$/g, '')).toLocaleString('vi') + "đ/1 {{food.DMDVT_TEN }})")
-                </script>
+                <span class="card-title__unit">
+                  <script>
+                    document.write("(" + Number(String({{ food.TP_DON_GIA }}).replace(/\.0*$/g, '')).toLocaleString('vi') + "đ/1 {{food.DMDVT_TEN }})")
+                  </script>
+                </span>
               </h5>
               <div class="card-text">
                 <p class="text-truncate"><i class="fas fa-file-medical-alt"></i> {{ food.TP_MO_TA }}</p>
@@ -74,7 +151,51 @@
                 </p>
               </div>
 
-              <a href="/thuc-pham/{{food.TP_MA}}" class="btn btn-primary stretched-link">Xem chi tiết</a>
+              <a href="/thuc-pham/{{food.TP_MA}}" class="btn btn-outline-success">
+                <i class="far fa-eye"></i>
+                Chi tiết
+              </a>
+              <button type="button" class="btn btn-outline-success" data-toggle="modal"
+                data-target="#add-cart-{{ food.TP_MA }}">
+                <i class="fas fa-cart-plus"></i>
+                Giỏ hàng
+              </button>
+              <!-- add cart modal -->
+              <div class="modal fade" id="add-cart-{{ food.TP_MA }}" tabindex="-1" role="dialog"
+                aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLongTitle">Thêm <b class="text-success">{{ food.TP_TEN
+                          }}</b> vào giỏ hàng</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <form action="#" id="frm-add-cart-{{ food.TP_MA }}" name="frm-add-cart-{{ food.TP_MA }}">
+                        <input type="hidden" name="tp_ma" value="{{ food.TP_MA }}">
+                        <input type="hidden" name="tp_don_gia" value="{{ food.TP_DON_GIA }}">
+                        <input type="hidden" name="tp_ten" value="{{ food.TP_TEN }}">
+
+                        <div class="from-group">
+                          <label for="numAddCart">Số lượng</label>
+                          <input type="number" id="numAddCart" name="numAddCart" class="form-control" />
+                        </div>
+                      </form>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-primary" data-dismiss="modal"
+                        data-form-target="frm-add-cart-{{ food.TP_MA }}">
+                        Thêm vào giỏ
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- add cart modal -->
+
+
             </div>
           </div>
         </div>
@@ -108,27 +229,76 @@
   var currentPage = 1;
 
   $(function () {
+    const CART_KEY = "project-x-cart";
+
+    // init cart
+    if (!localStorage.getItem(CART_KEY)) {
+      localStorage.setItem(CART_KEY, '{}');
+    }
+
+
     function toFoodString(foods) {
       return foods.map(food => {
         return `
             <div class="col-3 my-3">
-                  <div class="card product">
-                    <img class="card-img-top product__image" src="${food.TP_HINH_ANH}" alt="Card image cap">
-                    <div class="card-body">
-                      <h5 class="card-title">
-                        ${food.DMTP_TEN} ${food.TP_SO_LUONG} ${food.DMDVT_TEN} <br />
-                        (${Number(food.TP_DON_GIA).toLocaleString('vi')}đ/1 ${food.DMDVT_TEN})
-</h5>
-<div class="card-text">
-  <p class="text-truncate"><i class="fas fa-file-medical-alt"></i> ${food.TP_MO_TA}</p>
-  <p><i class="fas fa-user"></i> Người bán: <a href="#" class="text-success">${food.ND_TAI_KHOAN}</a>
-  </p>
-</div>
-<a href="/thuc-pham/${food.TP_MA}" class="btn btn-primary stretched-link">Xem chi tiết</a>
-</div>
-</div>
-</div>
-`;
+              <div class="card product">
+                <img class="card-img-top product__image" src="${food.TP_HINH_ANH}" alt="Card image cap">
+                <div class="card-body">
+                  <h5 class="card-title">
+                    ${food.DMTP_TEN} ${food.TP_SO_LUONG} ${food.DMDVT_TEN} <br />
+                    (${Number(food.TP_DON_GIA).toLocaleString('vi')}đ/1 ${food.DMDVT_TEN})
+                  </h5>
+                  <div class="card-text">
+                    <p class="text-truncate"><i class="fas fa-file-medical-alt"></i> ${food.TP_MO_TA}</p>
+                    <p><i class="fas fa-user"></i> Người bán: <br /> <a href="#" class="text-success">${food.ND_TAI_KHOAN}</a>
+                    </p>
+                  </div>
+                  <a href="/thuc-pham/${food.TP_MA}" class="btn btn-outline-success">
+                    <i class="far fa-eye"></i>
+                    Chi tiết
+                  </a>
+                  <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#add-cart-${food.TP_MA}">
+                    <i class="fas fa-cart-plus"></i>
+                    Giỏ hàng
+                  </button>
+
+
+                  <div class="modal fade" id="add-cart-${food.TP_MA}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLongTitle">
+                            Thêm <b class="text-success">${food.TP_TEN}</b> vào giỏ hàng</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <form action="#" id="frm-add-cart-${food.TP_MA}" name="frm-add-cart-${food.TP_MA}">
+                            <input type="hidden" name="tp_ma" value="${food.TP_MA}">
+                            <input type="hidden" name="tp_don_gia" value="${food.TP_DON_GIA}">
+                            <input type="hidden" name="tp_ten" value="${food.TP_TEN}">
+
+                            <div class="from-group">
+                              <label for="numAddCart">Số lượng</label>
+                              <input type="number" id="numAddCart" name="numAddCart" class="form-control" />
+                            </div>
+                          </form>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-primary" data-dismiss="modal"
+                            data-form-target="frm-add-cart-${food.TP_MA}">
+                            Thêm vào giỏ
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          `;
       });
     }
 
@@ -182,7 +352,7 @@
       $("#btn-next-page").hide();
     });
 
-    $("#btn-next-page").click(async function () {
+    $(document).on('click', '#btn-next-page', async function () {
       let api = `/api/thuc-pham?page=${currentPage + 1}&limit=${LIMIT}`;
       currentPage++;
       let response = await axios.get(api);
@@ -194,7 +364,80 @@
         $("#product-presenter").append(itemsHTML);
       }
     });
+
+
+    // handle for update cart
+    $(document).on('click', "button[data-form-target^='frm-add-cart-']", function () {
+      // $("button[data-form-target^='frm-add-cart-']").click(function (e) {
+      let dataFormTarget = $(this).attr("data-form-target");
+      var data = {};
+      $.each($(`form#${dataFormTarget}`).serializeArray(), function (_, kv) {
+        data[kv.name] = kv.value;
+      });
+
+      let { tp_ma, numAddCart: new_number, tp_don_gia, tp_ten } = data;
+      console.log({ data });
+      let cart = localStorage.getItem(CART_KEY);
+
+      console.log("current cart", cart);
+
+      // get cart, cart schema : {tp_ma: sl: float, tp_don_gia: number}
+      cart = JSON.parse(cart);
+
+      // get pre number of this food id
+      pre_number = cart[tp_ma]?.num || 0;
+
+      // set up for update cart
+      cart = {
+        ...cart,
+        [tp_ma]: {
+          // update name
+          "name": tp_ten,
+          // update num
+          "num": Number(pre_number) + Number(new_number),
+          // set unit cost
+          "unit_cost": tp_don_gia,
+        }
+      };
+
+      // update cart
+      localStorage.setItem(CART_KEY, JSON.stringify(cart));
+
+      console.log(`Pre num: ${pre_number}`);
+      console.log("new cart", cart);
+    });
+
+
+    // onclick view cart -> update cart content based on localStorage0
+    $("#js-btn-view-cart").click(function (e) {
+      const CART_KEY = "project-x-cart";
+
+      let cart = localStorage.getItem(CART_KEY);
+      cart = cart ? JSON.parse(cart) : {};
+      console.log({ cart });
+      if (Object.keys(cart).length) {
+        let presentHTML = "";
+        for (const tp_ma in cart) {
+          presentHTML += `
+            <tr>
+              <td>${cart[tp_ma].name}</td>
+              <td class="text-right">${Number(cart[tp_ma].unit_cost).toLocaleString('vi')}</td>
+              <td>${cart[tp_ma].num}</td>
+              <td class="text-right">${Number(+cart[tp_ma].num * +cart[tp_ma].unit_cost).toLocaleString("vi")}</td>
+            </tr>
+          `
+        }
+        // update cart HTML
+        $("#cart-body").html(presentHTML);
+      } else {
+        $("#cart-body").html('<td colspan="4" class="text-center">Giỏ hàng trống</td>')
+      }
+
+    });
   });
+
+
+
 
 </script>
 {% endblock %}

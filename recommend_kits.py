@@ -14,6 +14,8 @@ from models.nguoi_dung import NguoiDung
 from models.thuc_pham import ThucPham
 from models.dang_ky_mua import DangKyMua
 
+import time
+
 groups = []
 
 
@@ -23,7 +25,7 @@ def _subset_sum(registers: list, target: float, current_group: list = []) -> Non
     s = sum([register["CTDKM_SO_LUONG"] for register in current_group])
 
     # check if the current_group sum is equals to target
-    if s == target:
+    if s % target == 0:
         # append 1D current_group group to 2D groups list
         groups += [current_group]
     if s >= target:

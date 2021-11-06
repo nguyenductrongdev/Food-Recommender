@@ -27,11 +27,11 @@
     <div class="row mt-5 d-flex justify-content-center">
         <div class="col-md-10">
 
-            {% if role == 'registered' %}
+            <!-- {% if role == 'registered' %}
             <div class="alert alert-success text-center font-weight-bold">
                 Yêu cầu mua Đang xử lý
             </div>
-            {% endif %}
+            {% endif %} -->
 
             <h2 class="section-header">Thông tin thực phẩm</h2>
 
@@ -135,7 +135,7 @@
         </div>
 
         {% if unready_registered_list %}
-        <div class="col-md-2 border">
+        <div class="col-md-2 border" style="max-height: 100vh; overflow: auto">
             <h2>Đã đặt:</h2>
             <ul style="list-style-type: none; padding-left: 0;">
                 {% for register in unready_registered_list %}
@@ -154,7 +154,7 @@
         {% endif %}
     </div>
 
-    {% if role == 'normal_customer' %}
+    {% if role != 'owner' %}
     <div class="row mt-3">
         <div class="col-12">
             <h2 class="section-header">Đặt mua</h2>
@@ -201,7 +201,7 @@
                             class="form-control position-relative"></textarea>
                     </div>
                 </div>
-                <button class="btn btn-primary form-control mt-3" type="submit">Đặt</button>
+                <button class="btn btn-primary form-control mt-3" id="js-btn-register" type="submit">Đặt</button>
             </form>
         </div>
     </div>
@@ -227,7 +227,8 @@
                 </thead>
                 <tbody>
                     {% for registered in ready_registered_list %}
-                    <tr data-nd-ma="{{ registered.ND_MA }}" data-count="{{ registered.DKM_SO_LUONG }}">
+                    <tr data-dkm-ma="{{ registered.DKM_MA }}" data-nd-ma="{{ registered.ND_MA }}"
+                        data-count="{{ registered.CTDKM_SO_LUONG }}">
                         <td>
                             <span class="font-weight-bold">{{ registered.ND_TAI_KHOAN }}</span>
                         </td>
@@ -255,7 +256,7 @@
 
                     {% if ready_registered_list|length == 0 %}
                     <tr>
-                        <td colspan="5" class="text-center">Không có yêu cầu nào</td>
+                        <td colspan="6" class="text-center">Không có yêu cầu nào</td>
                     </tr>
                     {% endif %}
                 </tbody>
@@ -270,27 +271,36 @@
 
 {% block script %}
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src=" https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js " defer></script>
 
 <script>
     $(function () {
         $("#txtAddress").change(function (e) {
             geocoder = new google.maps.Geocoder();
             var address = $("#txtAddress").val();
+            if (address.length === 0) return;
+            geocoder
+                .geocode({ 'address': address, region: "vi" }, (results, status) => {
+                    try {
+                        if (status == google.maps.GeocoderStatus.OK) {
+                            let location = results[0].geometry.location;
+                            console.table(results);
+                            let [lat, lng] = [location.lat(), location.lng()];
+                            $("#txtAddress__options").html(
+                                `<div class="txtAddress__options__option" data-value="${lat}|${lng}">${results[0].formatted_address}</div>`
+                            )
+                        }
 
-            geocoder.geocode({ 'address': address }, function (results, status) {
-                if (status == google.maps.GeocoderStatus.OK) {
-                    let location = results[0].geometry.location;
-                    let [lat, lng] = [location.lat(), location.lng()];
-
-                    $("#txtAddress__options").html(
-                        `<div class="txtAddress__options__option" data-value="${lat}|${lng}">${results[0].formatted_address}</div>`
-                    )
-                }
-
-                else {
-                    alert("Geocode was not successful for the following reason: " + status);
-                }
-            });
+                        else {
+                            alert("Geocode was not successful for the following reason: " + status);
+                        }
+                    } catch (e) {
+                        console.log({ e });
+                    }
+                })
+                .catch(e => {
+                    console.log({ e });
+                });
         });
 
 
@@ -308,9 +318,10 @@
         $(".js-btn-done").click(async function () {
             try {
                 let nd_ma = $(this).parents("tr").attr("data-nd-ma");
+                let dkm_ma = $(this).parents("tr").attr("data-dkm-ma");
                 let payload = $(this).parents("tr").attr("data-count");
                 let tp_ma = `{{ food.TP_MA }}`;
-                let api_params = new URLSearchParams({ nd_ma, payload }).toString();
+                let api_params = new URLSearchParams({ payload, dkm_ma }).toString();
 
                 let response = await axios.put(`/api/thuc-pham/${tp_ma}?${api_params}`);
                 alert("Thao tác thành công")
@@ -319,6 +330,23 @@
                 console.log({ e });
             }
         });
+
+        // function isLogin() {
+        //     let x = Cookies.get("ND_MA");
+        //     console.log("Check result nd_ma", x);
+        //     return x ? true : false;
+        // }
+
+        // // new feature
+        // $("#js-btn-register").click(function (e) {
+        //     e.preventDefault();
+        //     try {
+        //         let userIsLogin = isLogin();
+        //         console.log({ userIsLogin });
+        //     } catch (err) {
+        //         console.log({ err });
+        //     }
+        // });
     });
 </script>
 {% endblock %}

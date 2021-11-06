@@ -39,7 +39,7 @@ def tp_index(tp_ma):
         register_detail
         for register_detail in registered_detail_list
         if int(register_detail["TP_MA"]) == int(tp_ma) and
-        not register_detail["DKM_TRANG_THAI"] and
+        not register_detail["CTDKM_TRANG_THAI"] and
         int(register_detail["CTDKM_SO_LUONG"]) <= int(food["TP_SO_LUONG"]) and
         int(register_detail["CTDKM_SO_LUONG"]) % (
             food["TP_SUAT_BAN"] or 1) == 0
@@ -51,7 +51,7 @@ def tp_index(tp_ma):
         # match tp_ma
         if int(register_detail["TP_MA"]) == int(tp_ma) and
         # status not buy
-        not register_detail["DKM_TRANG_THAI"] and
+        not register_detail["CTDKM_TRANG_THAI"] and
         # cannot buy cause number of
         (int(register_detail["CTDKM_SO_LUONG"]) %
          (food["TP_SUAT_BAN"] or 1) != 0)
@@ -155,6 +155,8 @@ def tp_dang_ky_mua():
         "DKM_DIA_CHI": query_string_dict.get("txtAddress"),
         "DKM_VI_TRI_BAN_DO": query_string_dict.get("txtViTriBanDo"),
     }
+    print(new_dang_ky_mua)
+    # return new_dang_ky_mua
     # print(f"[DEBUG] new_dang_ky_mua {new_dang_ky_mua}")
     REGISTER_CREATED = DangKyMua.create(new_dang_ky_mua)
 
