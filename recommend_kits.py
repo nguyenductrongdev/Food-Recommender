@@ -1,3 +1,5 @@
+from numpy import ndenumerate
+import pandas as pd
 import math
 import json
 import networkx as nx
@@ -15,8 +17,16 @@ from models.thuc_pham import ThucPham
 from models.dang_ky_mua import DangKyMua
 
 import time
+import collections
+
+from typing import List, Dict
+
+from models.db_utils import mongo_db
+
 
 groups = []
+
+CLUSTERS_OF_FOOD_COLLECTION = "clusters_of_food"
 
 
 def _subset_sum(registers: list, target: float, current_group: list = []) -> None:
@@ -37,14 +47,15 @@ def _subset_sum(registers: list, target: float, current_group: list = []) -> Non
         _subset_sum(remaining, target, current_group + [n])
 
 
-def get_groups(registered_list, target) -> list:
+def get_groups(registere_detail_list, target) -> list:
     """
         Get groups that have sum equal the sale
     """
     global groups
     groups = []
-    _subset_sum(registered_list, target)
-    return groups
+    _subset_sum(registere_detail_list, target)
+    # return by ignore empty list at head
+    return groups[1:]
 
 
 class CustomGraph(nx.Graph):
@@ -113,98 +124,219 @@ def get_onroad_distance(coord_src: list, coord_dest: list) -> float:
     return route["distance"]/1000
 
 
-def recommand_for_big_cube_food(nd_ma: int = None) -> dict:
+def recommand_for_big_cube_food(tp_ma: int) -> dict:
     """
         This func will call when one more food register created
-        result fomat: {DKM_NMA: int, TP_MA: int, ND_MA: list}
+        return format: {"cost": int, "register_detail_list": list}
     """
 
-    food_list = ThucPham.get_all()
-    register_detail_list = ChiTietDangKyMua.get_all()
+    # check food is need recommend
+    if tp_ma not in [
+        food["TP_MA"]
+        for food in ThucPham.get_all() if food["TP_SUAT_BAN"]
+    ]:
+        print("[WARNING] Food not sale by bcf")
+        return
 
-    recommand_dict = {}  # TP_MA: [ND_MA]
+    # get register details contain THIS FOOD ID and not done
+    register_details_df = pd.DataFrame(ChiTietDangKyMua.get_all())
+    register_details_df = register_details_df[
+        (register_details_df["TP_MA"] == tp_ma) & (
+            register_details_df["CTDKM_TRANG_THAI"].isin([float("nan"), 0]))
+    ]
 
-    # just recommend for big cube food
-    big_cube_food = [food for food in food_list if food["TP_SUAT_BAN"]]
+    # get all clusters fit target value
+    raw_data = register_details_df.to_dict('records')
+    target = ThucPham.find(TP_MA=tp_ma)["TP_SUAT_BAN"]
+    clusters = get_groups(registere_detail_list=raw_data, target=target)
 
-    for bcf in big_cube_food:
-        # get all registered of the big cube food
-        filtered_register = [
-            register
-            for register in register_detail_list
-            if str(register["TP_MA"]) == str(bcf["TP_MA"]) and not register["DKM_TRANG_THAI"]
+    def generateGraph(food: dict, cluster: list) -> CustomGraph:
+        """
+            Generate graph that contain all user's registered (nodes) and road (edges)
+        """
+        G = CustomGraph()
+        for i in range(len(cluster)):
+            for j in range(i+1, len(cluster)):
+                try:
+                    # must get weight here
+                    coord_src = cluster[i]["DKM_VI_TRI_BAN_DO"].split(
+                        "|")
+                    coord_dest = cluster[j]["DKM_VI_TRI_BAN_DO"].split(
+                        "|")
+                    weight_1 = get_onroad_distance(
+                        coord_src, coord_dest)
+                    G.add_edge(cluster[i], cluster[j], weight_1)
+
+                    # add edges to food place to src/dest place
+                    coord_food = food.get("TP_VI_TRI_BAN_DO").split("|")
+                    weight_food_src = get_onroad_distance(
+                        coord_food, coord_src)
+                    weight_food_dest = get_onroad_distance(
+                        coord_food, coord_dest)
+                    G.add_edge(food, cluster[i], weight_food_src)
+                    G.add_edge(food, cluster[j], weight_food_dest)
+                except Exception as e:
+                    pass
+        return G
+
+    # find the cluster that have min cost
+    food_info = ThucPham.find(TP_MA=tp_ma)
+    # define min callback
+
+    def get_cost_callback(cluster: list) -> float:
+        G = generateGraph(food=food_info, cluster=cluster)
+        # calc code: cost calc by on road distance. Can define more here
+        cost = G.calc_sale_path()
+        return cost
+
+    # append cost field for clusters
+    clusters = [
+        *map(lambda cluster: {"register_detail_list": cluster, "cost": get_cost_callback(cluster)}, clusters)
+    ]
+
+    return clusters
+
+
+def update_recommend_data(tp_ma: int) -> None:
+    """
+        Update recommend data into MongoDB
+        (*notice: each cluster identify by list of DKM_MA)
+    """
+    calc_clusters = recommand_for_big_cube_food(tp_ma=tp_ma)
+
+    # # sample data
+    # calc_clusters = [
+    #     {
+    #         "cost": 10,
+    #         "register_detail_list": [
+    #             {
+    #                 "TP_MA": 10,
+    #                 "DKM_MA": 99,
+    #                 "CTDKM_SO_LUONG": 20,
+    #                 "ND_MA": 99,
+    #             }
+    #         ],
+    #     },
+    # ]
+
+    try:
+        # get old document
+        old_mongo_document = list(mongo_db[CLUSTERS_OF_FOOD_COLLECTION].find(
+            {"TP_MA": tp_ma}
+        ))[0]
+
+        # list of dkm_ma dai dien cho cluster
+        old_cluster_dkm_ma_list = [
+            sorted([*map(lambda node: node["detail"]["DKM_MA"], cluster["nodes"])])
+            for cluster in old_mongo_document["clusters"]
         ]
-        # generate group
-        target = bcf["TP_SUAT_BAN"]
-        # group of register-detail fit the target
-        groups = get_groups(
-            registered_list=filtered_register, target=target
-        )
-        print(
-            f"[DEBUG] target {target}, filtered_register {len(filtered_register)}")
-        # init result that mean best solution of dkm_ma - tp_ma is buy with member and cost is cost value
-        min_group_info = {
-            "cost": math.inf,
-            "members": []
+
+        calc_cluster_dkm_ma_list = [
+            sorted([
+                item["DKM_MA"] for item in cluster["register_detail_list"]
+            ])
+            for cluster in calc_clusters
+        ]
+
+        # find new clusters need to update
+        # print(old_cluster_dkm_ma_list, "\n", calc_cluster_dkm_ma_list)
+
+        new_clusters_of_dkm_ma = []
+        for items_1 in calc_cluster_dkm_ma_list:
+            # append when the cluster not exist any cluster
+            if all([collections.Counter(items_1) != collections.Counter(items_2) for items_2 in old_cluster_dkm_ma_list]):
+                new_clusters_of_dkm_ma += [items_1]
+
+        print(f"the new {new_clusters_of_dkm_ma}")
+
+        # update new clusters
+        def _find_cluster_by_dkm_ma_list(filter_list: List[int]) -> List[dict]:
+            # filter_list: list of dkm_ma to filter
+            for cluster in calc_clusters:
+                # get dkm_ma list of current cluster
+                cluster_dkm_ma_list = sorted([
+                    item["DKM_MA"]
+                    for item in cluster["register_detail_list"]
+                ])
+                # find and return cluster info
+                if collections.Counter(sorted(cluster_dkm_ma_list)) == collections.Counter(sorted(filter_list)):
+                    return cluster
+            return None
+
+        for dkm_ma_list in new_clusters_of_dkm_ma:
+            cluster_info = _find_cluster_by_dkm_ma_list(dkm_ma_list)
+            new_cluster = {
+                "host": None,
+                "cost": cluster_info["cost"],
+                "nodes": [{
+                    "approve": False,
+                    "detail": cluster_info["register_detail_list"]
+                }]
+            }
+            # important handle
+            # old_mongo_document["clusters"].push(new_cluster)
+
+            mongo_db[CLUSTERS_OF_FOOD_COLLECTION].update_one(
+                {"TP_MA": tp_ma},
+                {
+                    "$push": {"clusters": new_cluster}
+                }
+            )
+    except IndexError:
+        print("[INFO] Create new mongodb document")
+        new_mongo_document = {
+            "TP_MA": tp_ma,
+            "clusters": [
+                {
+                    "host": None,
+                    "cost": cluster["cost"],
+                    "nodes": [
+                        {"approve": False, "detail": detail}
+                        for detail in cluster["register_detail_list"]
+                    ]
+                }
+                for cluster in calc_clusters
+            ]
         }
-        for group in groups:
-            print(
-                f"""[DEBUG] group for food {bcf.get("TP_MA")}:{bcf.get("TP_SUAT_BAN")} {[f"{u['ND_TAI_KHOAN']}({u['ND_MA']}):{u['CTDKM_SO_LUONG']}" for u in group]}""")
-            # skip if user id param not in group
-            if nd_ma and nd_ma not in [member["ND_MA"] for member in group]:
-                continue
-            # generate graph by add multi edges
+        mongo_db[CLUSTERS_OF_FOOD_COLLECTION].insert_one(new_mongo_document)
+    except Exception:
+        print(f"[ERROR] bug")
 
-            def generateGraph() -> CustomGraph:
-                """
-                    Generate graph that contain all user's registered (nodes) and road (edges)
-                """
-                G = CustomGraph()
-                for i in range(len(group)):
-                    for j in range(i+1, len(group)):
-                        try:
-                            # must get weight here
-                            coord_src = group[i]["DKM_VI_TRI_BAN_DO"].split(
-                                "|")
-                            coord_dest = group[j]["DKM_VI_TRI_BAN_DO"].split(
-                                "|")
-                            weight_1 = get_onroad_distance(
-                                coord_src, coord_dest)
-                            G.add_edge(group[i], group[j], weight_1)
 
-                            # add edges to food place to src/dest place
-                            coord_food = bcf.get("TP_VI_TRI_BAN_DO").split("|")
-                            weight_food_src = get_onroad_distance(
-                                coord_food, coord_src)
-                            weight_food_dest = get_onroad_distance(
-                                coord_food, coord_dest)
-                            G.add_edge(bcf, group[i], weight_food_src)
-                            G.add_edge(bcf, group[j], weight_food_dest)
-                        except Exception as e:
-                            pass
-                return G
+def get_recommend_data(nd_ma: int) -> list:
+    """
+        Get all mongo documents that include the specified user
+    """
+    cluster_result = []
+    data_list = list(
+        mongo_db[CLUSTERS_OF_FOOD_COLLECTION].find(
+            {}, {"_id": 0}
+        )
+    )
 
-            G = generateGraph()
-            # G.show()
-            #  calc cost for ship this group (by on road distance)
-            ship_cost = G.calc_sale_path()
+    for document in data_list:
+        print(f"document for {document['TP_MA']}")
+        # get clusters that include specified user in current document
+        valid_clusters = []
+        for cluster in document["clusters"]:
 
-            if ship_cost < min_group_info["cost"]:
-                min_group_info["cost"] = ship_cost
-                min_group_info["members"] = group
+            if nd_ma in [int(node["detail"]["ND_MA"]) for node in cluster["nodes"]]:
+                valid_clusters.append(cluster)
 
-        # find group has minimum cost
-        min_usert_ids = [
-            user["ND_MA"]
-            for user in min_group_info["members"]
-        ]
-        # print(f"Recommend {bcf['TP_MA']} to users: {min_usert_ids}")
-        recommand_dict[bcf['TP_MA']] = min_usert_ids
+        if len(valid_clusters):
+            # concat valid_clusters to result
+            cluster_result += valid_clusters
 
-    return recommand_dict
+    return cluster_result
 
 
 if __name__ == "__main__":
-    # result = recommand_for_big_cube_food()
-    # print(result)
+    start_time = time.time()
+    update_recommend_data(tp_ma=12)
+    print(f"Run {time.time() - start_time} seconds")
+
+    # CLUSTERS_OF_FOOD_COLLECTION = "clusters_of_food"
+    # x = mongo_db[CLUSTERS_OF_FOOD_COLLECTION].find({"TP_MA": 12})
+    # print(list(x))
+
     pass

@@ -15,6 +15,7 @@ from models.nguoi_dung import NguoiDung
 from models.chi_tiet_dang_ky_mua import ChiTietDangKyMua
 from models.dang_ky_mua import DangKyMua
 
+from recommend_kits import recommand_for_big_cube_food
 
 route = Blueprint(
     'api_thuc_pham',
@@ -124,7 +125,15 @@ def quick_check_out():
         Quick check out, case checkout without login
     """
     query_string_dict = request.values
+
     print(f"[DEBUG] {query_string_dict}")
+    """
+        Handle and store data to MongoDB database
+    """
+
+    """
+        Insert into MYSQL database
+    """
     # insert register
     new_register = {
         "DKM_THOI_GIAN": datetime.now().strftime("%Y-%m-%d"),

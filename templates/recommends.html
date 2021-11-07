@@ -9,25 +9,40 @@
 {% endblock %}
 
 {% block main %}
-
-
-<div class="container" style="min-height: 75vh;">
+<div class="container" style="min-height: 90vh !important;">
     <div class="row">
         <div class="col-12">
             <h1 class="section-header">Các gợi ý mua chung</h1>
 
             {%for alert in alerts %}
-            <a href="#">
-                <div class="alert alert-info alert-dismissible my-1" role="alert">
-                    <button type="button" class="close" data-dismiss="alert">&times;</button>
-                    Thực phẩm <b>{{ alert.TP_TEN }}</b> bạn có thể mua chung với
-                    {%for user in alert.members %}
-                    <b>{{ user.ND_TAI_KHOAN }} </b>
-                    {% endfor %}
-                </div>
-            </a>
-            {% endfor %}
+            <button class="btn btn-info my-1" data-toggle="collapse" data-target="#{{ alert.alert_id }}">
+                Thực phẩm <b>{{ alert.TP_TEN }}</b> bạn có thể mua chung với
+                {%for user in alert.members %}
+                <b>{{ user.ND_TAI_KHOAN }} </b>
+                {% endfor %}
+            </button>
 
+            <div id="{{ alert.alert_id }}" class="collapse">
+                {%for user in alert.members %}
+                <table class="table table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Tài khoản</th>
+                            <th>Số điện thoại</th>
+                            <th>Số lượng mua</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ user.ND_TAI_KHOAN }}</td>
+                            <td>{{ user.ND_SO_DIEN_THOAI }}</td>
+                            <td>{{ user.CTDKM_SO_LUONG }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                {% endfor %}
+            </div>
+            {% endfor %}
         </div>
     </div>
 </div>

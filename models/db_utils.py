@@ -1,3 +1,4 @@
+import pymongo
 import logging
 import mysql.connector
 import configparser
@@ -8,23 +9,19 @@ CONFIG_PATH = os.path.abspath(f"{__file__}/../../config.ini")
 config = configparser.ConfigParser()
 config.read(CONFIG_PATH)
 
+# MYSQL section config
 db = mysql.connector.connect(
-    host=config['DATABASE']['HOST'],
-    user=config['DATABASE']['USER'],
-    password=config['DATABASE']['PASSWORD'],
-    database=config['DATABASE']['DATABASE']
+    host=config['MYSQL']['HOST'],
+    user=config['MYSQL']['USER'],
+    password=config['MYSQL']['PASSWORD'],
+    database=config['MYSQL']['NAME']
 )
-
 cursor = db.cursor(dictionary=True)
 
+# MONGODB section config
+mongo_db_client = pymongo.MongoClient("mongodb://localhost:27017/")
+mongo_db = mongo_db_client[config["MONGODB"]["NAME"]]
 
-# def query(query_string: str, param=None):
-#     try:
-#         logging.getLogger("__main__").debug(f"query_string: {query_string}")
-#         cursor.execute(query_string, param)
-#         if param:
-#             db.commit()
-#         return cursor.fetchall()
-#     except Exception as e:
-#         logging.getLogger("__main__").exception(e)
-#         raise
+if __name__ == "__main__":
+    # mongo_db.insert_one({"Hello", "world"})
+    pass

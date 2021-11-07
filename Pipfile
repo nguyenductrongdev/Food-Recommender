@@ -14,6 +14,7 @@ matplotlib = "*"
 requests = "==2.24.0"
 pandas = "*"
 schema = "==0.7.4"
+pymongo = "*"
 
 [dev-packages]
 

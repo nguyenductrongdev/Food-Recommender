@@ -1,19 +1,24 @@
+from middlewares.require_login import require_login
+from flask import Blueprint, request, abort, jsonify, url_for, render_template, redirect, flash, send_file, session, make_response
+from uuid import uuid4
+from jinja2 import TemplateNotFound
+import logging
+import pandas as pd
+
+
 from models.chi_tiet_dang_ky_mua import ChiTietDangKyMua
 from models.dang_ky_mua import DangKyMua
 from models.thuc_pham import ThucPham
-from middlewares.require_login import require_login
-from flask import Blueprint, request, abort, jsonify, url_for, render_template, redirect, flash, send_file, session, make_response
-from jinja2 import TemplateNotFound
-import logging
-
 from models.chi_tiet_nhu_cau_mua import ChiTietNhuCauMua
 from models.nguoi_dung import NguoiDung
 from models.danh_muc_thuc_pham import DanhMucThucPham
 from models.danh_muc_don_vi_tinh import DanhMucDonViTinh
 from models.nhu_cau_mua import NhuCauMua
 
-from recommend_kits import recommand_for_big_cube_food
+from recommend_kits import update_recommend_data, get_recommend_data
 from utils import get_user_info
+
+from models.db_utils import mongo_db
 
 route = Blueprint(
     'nguoi_dung',
@@ -195,35 +200,37 @@ def shop(nd_tai_khoan):
 
 @route.route('/goi-y-mua-chung', methods=['GET'])
 def recommend_page():
+    """
+        Show clusters from mongo db
+    """
     user_info = get_user_info()
-    # get all recommend for current user
-    recommends = recommand_for_big_cube_food(nd_ma=int(user_info["ND_MA"]))
+    # get recommend row data
+    row_recommend_data = get_recommend_data(nd_ma=user_info["ND_MA"])
 
-    # consider the recommend contain current user as alert
+    # filter to get all ready register detail of current user as dataframe
+    ready_registerr_detail_df = pd.DataFrame(ChiTietDangKyMua.get_all())
+    ready_registerr_detail_df = ready_registerr_detail_df[
+        (ready_registerr_detail_df["ND_MA"] == user_info["ND_MA"]) & (
+            ready_registerr_detail_df["CTDKM_TRANG_THAI"].isin([float("nan"), 0]))
+    ]
+
+    # get row recommend data (mongo db) as dataframe
+    # print(row_recommend_data)
+
     alerts = []
-    for tp_ma, user_ids in recommends.items():
-        if int(user_info["ND_MA"]) not in user_ids:
-            continue
-        users = [
-            NguoiDung.find_by_id(nd_ma=user_id)
-            for user_id in user_ids
-            if int(user_id) != int(user_info["ND_MA"])
+    for cluster in row_recommend_data:
+        nd_ma_in_cluster = list(
+            set([node["detail"]["ND_MA"] for node in cluster["nodes"]])
+        )
+        # get list of NguoiDung in current cluster
+        list_of_NguoiDung = [
+            NguoiDung.find_by_id(nd_ma=_nd_ma)
+            for _nd_ma in nd_ma_in_cluster
         ]
-        tp = ThucPham.find(tp_ma=tp_ma)
-
-        # get dang_ky_mua
-        # register = DangKyMua.find(nd_ma=user_info["ND_MA"], tp_ma=tp["TP_MA"])
-
-        alerts.append({
-            "TP_TEN": tp["TP_TEN"],
-            # "register": register,
-            "members": users,
-        })
-
-    print("[DEBUG] alerts", alerts)
+        print(list_of_NguoiDung)
 
     return render_template(
         "recommends.html",
         user_info=user_info,
-        alerts=alerts,
+        alerts=[],
     )

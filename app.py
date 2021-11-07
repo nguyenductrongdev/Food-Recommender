@@ -46,14 +46,13 @@ def index():
     nguoi_dung_list = NguoiDung.get_all()
     thuc_pham_list = ThucPham.get_all()
     danh_muc_thuc_pham_list = DanhMucThucPham.get_all()
-    print(danh_muc_thuc_pham_list)
+    # print(danh_muc_thuc_pham_list)
 
     def dmtp_is_leaf(dmtp):
         # print(dmtp)
         parent_list = [
             *map(lambda item: item["DMTP_MA_DMTM_CHA"], danh_muc_thuc_pham_list)
         ]
-        print("parent_list", parent_list, dmtp["DMTP_MA_DMTM_CHA"])
         # leaf is not parent anywhere and have parent
         return dmtp["DMTP_MA"] not in parent_list and dmtp["DMTP_MA_DMTM_CHA"]
 

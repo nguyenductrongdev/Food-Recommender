@@ -14,6 +14,7 @@ from models.thuc_pham import ThucPham
 from middlewares.require_login import require_login
 from utils import get_user_info
 
+from recommend_kits import update_recommend_data
 
 route = Blueprint(
     'thuc_pham',
@@ -145,28 +146,41 @@ def post_them_thuc_pham():
 @route.route('/dang-ky', methods=['POST'])
 def tp_dang_ky_mua():
     """
-        Add food register and details by form
+        Add food register and details by form, add just one ctncm
     """
     query_string_dict = request.values
+
+    """
+        UPDATE MySQL database:
+        - Read from browser
+        - Update into MySQL database
+    """
     new_dang_ky_mua = {
         "ND_MA": query_string_dict.get("txtNDMa"),
-        "TP_MA": query_string_dict.get("txtTPMa"),
+
         "DKM_THOI_GIAN": query_string_dict.get("txtThoiGian"),
         "DKM_DIA_CHI": query_string_dict.get("txtAddress"),
         "DKM_VI_TRI_BAN_DO": query_string_dict.get("txtViTriBanDo"),
     }
-    print(new_dang_ky_mua)
-    # return new_dang_ky_mua
-    # print(f"[DEBUG] new_dang_ky_mua {new_dang_ky_mua}")
+
     REGISTER_CREATED = DangKyMua.create(new_dang_ky_mua)
 
     new_chi_tiet_dang_ky_mua = {
-        "DKM_MA": REGISTER_CREATED["DKM_MA"],
         "TP_MA": query_string_dict.get("txtTPMa"),
+        "DKM_MA": REGISTER_CREATED["DKM_MA"],
+
         "CTDKM_SO_LUONG": query_string_dict.get("numSoLuongDangKy"),
         "CTDKM_GHI_CHU": query_string_dict.get("txtNote"),
     }
     # print(f"[DEBUG] new_chi_tiet_dang_ky_mua {new_chi_tiet_dang_ky_mua}")
     ChiTietDangKyMua.create(new_chi_tiet_dang_ky_mua)
+
+    """
+        UPDATE MONGODB:
+        - Read from MySQL database and generate cluster
+        - Update cluster into MongoDB database
+    """
+    tp_ma = int(query_string_dict["txtTPMa"])
+    update_recommend_data(tp_ma=tp_ma)
 
     return redirect("/")
