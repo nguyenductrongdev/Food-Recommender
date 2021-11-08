@@ -6,4 +6,6 @@ static/images/*
 
 config.ini
 
+just_for_test.json
+
 __pycache__

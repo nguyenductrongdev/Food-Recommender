@@ -318,12 +318,16 @@ def get_recommend_data(nd_ma: int) -> list:
         # print(f"document for {document['TP_MA']}")
         # get clusters that include specified user in current document
         valid_clusters = []
-        for cluster in document["clusters"]:
+        # for cluster in document["clusters"]:
+        for cluster_index, cluster in enumerate(document["clusters"]):
             if nd_ma in [int(node["detail"]["ND_MA"]) for node in cluster["nodes"]]:
-                valid_clusters.append(cluster)
+                valid_clusters.append({
+                    "cluster_index": cluster_index,
+                    "cluster": cluster,
+                })
 
         if len(valid_clusters):
-            # concat valid_clusters to result
+            # concat valid_clusters of current document to result
             cluster_result += valid_clusters
 
     return cluster_result

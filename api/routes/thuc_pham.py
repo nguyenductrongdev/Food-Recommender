@@ -1,3 +1,4 @@
+import math
 from datetime import datetime
 import pandas as pd
 from schema import Schema, And, Use, Optional, SchemaError
@@ -90,8 +91,10 @@ def recommend():
         assert check(api_schema, recommend_request)
         # get all dmtp_ma from db
         db_dmtp_ma_list = [
-            *map(lambda db_thuc_pham: db_thuc_pham["DMTP_MA"], thuc_pham_list)
+            *map(lambda db_dmtp: db_dmtp["DMTP_MA"], DanhMucThucPham.get_all())
         ]
+        print(db_dmtp_ma_list)
+
         # make sure all ncm_dmtp is valid value
         assert all([
             int(req["ncm_dmtp"]) in db_dmtp_ma_list
@@ -102,14 +105,29 @@ def recommend():
         ncm_dmtm_ma = [
             *map(lambda req: int(req["ncm_dmtp"]), recommend_request)
         ]
+        # get all tp in requested tp as list
         data = [
             *filter(lambda db_thuc_pham: int(db_thuc_pham["DMTP_MA"]) in ncm_dmtm_ma, thuc_pham_list)
         ]
+        print(data, "*"*500)
+        recommend_result = []
+        if len(data):
+            cost_order_df = pd.DataFrame(data).sort_values(
+                by=["DMTP_MA", "TP_DON_GIA"],
+            )
+            recommend_result = cost_order_df.to_dict('records')
 
-        cost_order_df = pd.DataFrame(data).sort_values(
-            by=["DMTP_MA", "TP_DON_GIA"],
-        )
-        recommend_result = cost_order_df.to_dict('records')
+            for index, food in enumerate(recommend_result):
+                for k, v in food.items():
+                    try:
+                        if math.isnan(v):
+                            recommend_result[index][k] = None
+                    except TypeError:
+                        pass
+
+            with open("just_for_test.json", "w") as f:
+                json.dump(recommend_result, f)
+
         return {
             "shop": recommend_result,
         }

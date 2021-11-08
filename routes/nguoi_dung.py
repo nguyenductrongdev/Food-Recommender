@@ -109,12 +109,26 @@ def add_request():
     nguoi_dung_list = NguoiDung.get_all()
     user_info = get_user_info()
 
-    food_type_list = DanhMucThucPham.get_all()
+    danh_muc_thuc_pham_list = DanhMucThucPham.get_all()
     unit_list = DanhMucDonViTinh.get_all()
+
+    def dmtp_is_leaf(dmtp):
+        # print(dmtp)
+        parent_list = [
+            *map(lambda item: item["DMTP_MA_DMTM_CHA"], danh_muc_thuc_pham_list)
+        ]
+        # leaf is not parent anywhere and have parent
+        return dmtp["DMTP_MA"] not in parent_list and dmtp["DMTP_MA_DMTM_CHA"]
+
+    # filter dmtp, just get leaf node
+    dmtp_leaf = [
+        *filter(dmtp_is_leaf, danh_muc_thuc_pham_list)
+    ]
+
     return render_template(
         "add_request.html",
         user_info=user_info,
-        food_type_list=food_type_list,
+        food_type_list=dmtp_leaf,
         unit_list=unit_list,
         user_list=nguoi_dung_list,
     )

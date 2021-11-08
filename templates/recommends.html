@@ -17,6 +17,8 @@
 {% endblock %}
 
 {% block main %}
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
 <div class="container" style="min-height: 90vh !important;">
     <div class="row">
         <div class="col-12">
@@ -28,42 +30,37 @@
 
             <script>
                 (async function () {
-                    let response = await fetch("/api/nguoi-dung/goi-y-mua-chung", {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                    })
-                    let data = await response.json();
-                    let recommendData = data.recommend_data;
+                    let response = await axios.get("/api/nguoi-dung/goi-y-mua-chung");
+                    let recommendData = response.data.recommend_data;
+
+                    const get_uuid = (function () {
+                        let uniKeyCount = 0;
+                        return () => `uuid-${++uniKeyCount}`;
+                    })();
 
                     let presentHTML = "";
                     console.log({ recommendData });
                     let uniKeyCount = 0;
                     for (const tp_ma in recommendData) {
-                        console.log(`Generate for ${tp_ma}`);
-
-                        presentHTML += `<h4>TP_MA: ${tp_ma}</h4>`;
+                        const tp_ten = recommendData[tp_ma][0]["nodes"][0]["detail"]["TP_TEN"]
+                        presentHTML += `<h4>${tp_ten} (mã thực phẩm: ${tp_ma})</h4>`;
                         // show cluster one by one
-                        for (let cluster_index = 0; cluster_index < recommendData[tp_ma].length; cluster_index++) {
-                            const clsuters = recommendData[tp_ma][cluster_index];
-                            // cluster item is ctdkm
-                            console.log(`clsuters`, clsuters);
+                        for (const cluster of recommendData[tp_ma]) {
+                            const nodes = cluster["nodes"];
+                            let uuid = get_uuid()
 
-                            _id = `uuid-${++uniKeyCount}`;
+                            presentHTML += `<div class='bg-light p-3 rounded shadow-sm d-flex justify-content-start align-items-center recommend-cluster' data-toggle='modal' data-target='#${uuid}'>`;
 
-
-                            presentHTML += `<div class='bg-light p-3 rounded shadow-sm d-flex justify-content-start align-items-center recommend-cluster' data-toggle='modal' data-target='#${_id}'>`;
-
-                            presentHTML += clsuters.map(node => `
+                            presentHTML += nodes.map(node => `
                                 <span class="d-inline-block p-2 m-2 w-25 border">${node.detail.ND_TAI_KHOAN}</span>
                             `).join('');
+
 
                             presentHTML += "</div>";
 
                             // add modal head
                             presentHTML += `
-                            <div class="modal fade" id="${_id}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                            <div class="modal fade" id="${uuid}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -75,14 +72,14 @@
 
                             // add modal body
                             presentHTML += `<div class="modal-body">`;
-                            presentHTML += `<div>Bạn đồng ý mua chung với ${clsuters.map(node => '<b>' + node.detail.ND_TAI_KHOAN + '</b>').join(', ')}?</div>`
+                            presentHTML += `<div>Bạn đồng ý mua chung với ${nodes.map(node => '<b>' + node.detail.ND_TAI_KHOAN + '</b>').join(', ')}?</div>`
                             presentHTML += `</div>`;
 
                             // add model foot
                             presentHTML += `
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                            <button type="button" class="btn btn-primary" data-tp_ma="${tp_ma}" data-cluster_index=${cluster_index}>Đồng ý</button>
+                                            <button type="button" class="btn btn-primary" data-tp_ma="${tp_ma}" data-cluster_index=${cluster.cluster_index}>Đồng ý</button>
                                         </div>
                                     </div>
                                 </div>

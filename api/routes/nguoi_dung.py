@@ -61,47 +61,41 @@ def recommend_page():
     # get all clustur in mongo db database of current user as list
     list_of_clusters = get_recommend_data(nd_ma=user_info["ND_MA"])
 
+    list_of_clusters = sorted(
+        list_of_clusters, key=lambda data: data["cluster"]["cost"]
+    )
+
     # sort cluster by cost
-    cluster_df = pd.DataFrame(list_of_clusters).sort_values(by=["cost"])
+    cluster_df = pd.DataFrame(list_of_clusters)
     print(cluster_df)
 
-    tp_ma_of_clusters = {}
-    for i, cluster in cluster_df.iterrows():
-        tp_ma = cluster["nodes"][0]["detail"]["TP_MA"]
+    response_dict = {}
+    for _, data in cluster_df.iterrows():
+        tp_ma = data["cluster"]["nodes"][0]["detail"]["TP_MA"]
+        if tp_ma not in response_dict:
+            response_dict[tp_ma] = []
 
-        # map Nan to None
-        for node_index in range(len(cluster["nodes"])):
-            if math.isnan(cluster["nodes"][node_index]["detail"]["CTDKM_TRANG_THAI"]):
-                cluster["nodes"][node_index]["detail"]["CTDKM_TRANG_THAI"] = None
+        # replaced nan by None
+        for node in data["cluster"]["nodes"]:
+            if math.isnan(node["detail"]["CTDKM_TRANG_THAI"]):
+                node["detail"]["CTDKM_TRANG_THAI"] = None
 
-        # append cluster["nodes"] to cluster of tp_ma
-        if tp_ma in tp_ma_of_clusters.keys():
-            tp_ma_of_clusters[tp_ma].append(
-                cluster["nodes"]
-            )
-        else:
-            tp_ma_of_clusters[tp_ma] = [cluster["nodes"]]
+        response_dict[tp_ma].append({
+            "cluster_index": data["cluster_index"],
+            "nodes": data["cluster"]["nodes"],
+        })
 
     with open("just_for_test.json", "w") as f:
-        json.dump(tp_ma_of_clusters, f)
+        json.dump(response_dict, f)
 
     # tp_ma_of_clusters explain
     """
         {
             tp_ma: [
-                clusters [],
-                clusters [],
+                {"cluster_index": 1, nodes: []}
             ]
-        }
-
-        new:
-        {
-            tp_ma: {
-                cluster_index: [nodes],
-                cluster_index: [nodes],
-            }
         }
     """
     return {
-        "recommend_data": tp_ma_of_clusters
+        "recommend_data": response_dict
     }
