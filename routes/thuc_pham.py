@@ -29,70 +29,72 @@ config.read(CONFIG_PATH)
 
 @route.route('/<tp_ma>', methods=['GET'])
 def tp_index(tp_ma):
-    registered_detail_list = ChiTietDangKyMua.get_all()
-
-    # get current list
-    food = ThucPham.find(tp_ma=int(tp_ma))
-
-    role = "not_login"
-    # get all register already to handle
-    ready_registered_list = [
-        register_detail
-        for register_detail in registered_detail_list
-        if int(register_detail["TP_MA"]) == int(tp_ma) and
-        not register_detail["CTDKM_TRANG_THAI"] and
-        int(register_detail["CTDKM_SO_LUONG"]) <= int(food["TP_SO_LUONG"]) and
-        int(register_detail["CTDKM_SO_LUONG"]) % (
-            food["TP_SUAT_BAN"] or 1) == 0
-    ]
-
-    unready_registered_list = [
-        register_detail
-        for register_detail in registered_detail_list
-        # match tp_ma
-        if int(register_detail["TP_MA"]) == int(tp_ma) and
-        # status not buy
-        not register_detail["CTDKM_TRANG_THAI"] and
-        # cannot buy cause number of
-        (int(register_detail["CTDKM_SO_LUONG"]) %
-         (food["TP_SUAT_BAN"] or 1) != 0)
-    ]
-    # print("[DEBUG] unready_registered_list",
-    #       unready_registered_list[0])
-
     try:
-        user_info = get_user_info()
+        registered_detail_list = ChiTietDangKyMua.get_all()
+        # get current list
+        food = ThucPham.find(TP_MA=int(tp_ma))
 
-        is_registered = [
-            register
-            for register in registered_detail_list
-            if str(register["TP_MA"]) == str(tp_ma) and
-            str(register["ND_MA"]) == str(user_info["ND_MA"]) and
-            not register["DKM_TRANG_THAI"]
+        role = "not_login"
+        # get all register already to handle
+        ready_registered_list = [
+            register_detail
+            for register_detail in registered_detail_list
+            if int(register_detail["TP_MA"]) == int(tp_ma) and
+            not register_detail["CTDKM_TRANG_THAI"] and
+            int(register_detail["CTDKM_SO_LUONG"]) <= int(food["TP_SO_LUONG"]) and
+            int(register_detail["CTDKM_SO_LUONG"]) % (
+                food["TP_SUAT_BAN"] or 1) == 0
         ]
-        is_registered = len(is_registered) == 1
 
-        if int(user_info["ND_MA"]) == int(food["ND_MA"]):
-            role = "owner"
-        elif is_registered:
-            role = "registered"
-        else:
-            role = "normal_customer"
+        unready_registered_list = [
+            register_detail
+            for register_detail in registered_detail_list
+            # match tp_ma
+            if int(register_detail["TP_MA"]) == int(tp_ma) and
+            # status not buy
+            not register_detail["CTDKM_TRANG_THAI"] and
+            # cannot buy cause number of
+            (int(register_detail["CTDKM_SO_LUONG"]) %
+             (food["TP_SUAT_BAN"] or 1) != 0)
+        ]
+        # print("[DEBUG] unready_registered_list",
+        #       unready_registered_list[0])
+
+        try:
+            user_info = get_user_info()
+
+            is_registered = [
+                register
+                for register in registered_detail_list
+                if str(register["TP_MA"]) == str(tp_ma) and
+                str(register["ND_MA"]) == str(user_info["ND_MA"]) and
+                not register["DKM_TRANG_THAI"]
+            ]
+            is_registered = len(is_registered) == 1
+
+            if int(user_info["ND_MA"]) == int(food["ND_MA"]):
+                role = "owner"
+            elif is_registered:
+                role = "registered"
+            else:
+                role = "normal_customer"
+        except Exception as e:
+            pass
+
+        unready_registered_list = [
+            *map(lambda x: {**x, }, unready_registered_list)]
+
+        return render_template(
+            "food.html",
+            food=food,
+            user_info=user_info,
+            role=role,
+            ready_registered_list=ready_registered_list,
+            # just display List da dang ky for bcf
+            unready_registered_list=unready_registered_list if food["TP_SUAT_BAN"] else None,
+        )
     except Exception as e:
         pass
-
-    unready_registered_list = [
-        *map(lambda x: {**x, }, unready_registered_list)]
-
-    return render_template(
-        "food.html",
-        food=food,
-        user_info=user_info,
-        role=role,
-        ready_registered_list=ready_registered_list,
-        # just display List da dang ky for bcf
-        unready_registered_list=unready_registered_list if food["TP_SUAT_BAN"] else None,
-    )
 
 
 @ route.route('/them', methods=['GET'])

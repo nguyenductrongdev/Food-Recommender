@@ -15,7 +15,7 @@ from models.danh_muc_thuc_pham import DanhMucThucPham
 from models.danh_muc_don_vi_tinh import DanhMucDonViTinh
 from models.nhu_cau_mua import NhuCauMua
 
-from recommend_kits import update_recommend_data, get_recommend_data
+from recommend_kits import update_recommend_data, get_recommend_data, join_cluster
 from utils import get_user_info
 
 from models.db_utils import mongo_db
@@ -204,33 +204,29 @@ def recommend_page():
         Show clusters from mongo db
     """
     user_info = get_user_info()
-    # get recommend row data
-    row_recommend_data = get_recommend_data(nd_ma=user_info["ND_MA"])
-
-    # filter to get all ready register detail of current user as dataframe
-    ready_registerr_detail_df = pd.DataFrame(ChiTietDangKyMua.get_all())
-    ready_registerr_detail_df = ready_registerr_detail_df[
-        (ready_registerr_detail_df["ND_MA"] == user_info["ND_MA"]) & (
-            ready_registerr_detail_df["CTDKM_TRANG_THAI"].isin([float("nan"), 0]))
-    ]
-
-    # get row recommend data (mongo db) as dataframe
-    # print(row_recommend_data)
-
-    alerts = []
-    for cluster in row_recommend_data:
-        nd_ma_in_cluster = list(
-            set([node["detail"]["ND_MA"] for node in cluster["nodes"]])
-        )
-        # get list of NguoiDung in current cluster
-        list_of_NguoiDung = [
-            NguoiDung.find_by_id(nd_ma=_nd_ma)
-            for _nd_ma in nd_ma_in_cluster
-        ]
-        print(list_of_NguoiDung)
 
     return render_template(
         "recommends.html",
         user_info=user_info,
-        alerts=[],
     )
+
+
+@route.route('/approve-join-cluster', methods=['POST'])
+def approve_join_cluster():
+    """
+        Approve join cluster by set node of user: node.approve = true in MongoDB
+    """
+
+    query_string_dict = request.values
+    user_info = get_user_info()
+
+    tp_ma = query_string_dict["tp_ma"]
+    cluster_index = query_string_dict["cluster_index"]
+    nd_ma = user_info["ND_MA"]
+    # tp_ma = 10
+    # cluster_index = 0
+    # nd_ma = 6
+    print(tp_ma, cluster_index, nd_ma)
+    # join_cluster(tp_ma=tp_ma, cluster_index=cluster_index, nd_ma=nd_ma)
+
+    return redirect("/nguoi-dung/goi-y-mua-chung")

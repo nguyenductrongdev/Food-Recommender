@@ -315,11 +315,10 @@ def get_recommend_data(nd_ma: int) -> list:
     )
 
     for document in data_list:
-        print(f"document for {document['TP_MA']}")
+        # print(f"document for {document['TP_MA']}")
         # get clusters that include specified user in current document
         valid_clusters = []
         for cluster in document["clusters"]:
-
             if nd_ma in [int(node["detail"]["ND_MA"]) for node in cluster["nodes"]]:
                 valid_clusters.append(cluster)
 
@@ -328,6 +327,55 @@ def get_recommend_data(nd_ma: int) -> list:
             cluster_result += valid_clusters
 
     return cluster_result
+
+
+def join_cluster(tp_ma, cluster_index, nd_ma):
+    """
+        [Notice] This function communicate with MongoDB
+        Execute join cluster behavior and select host
+    """
+
+    # get MongoDB document
+    mongodb_document = mongo_db[CLUSTERS_OF_FOOD_COLLECTION].find_one({
+        "TP_MA": tp_ma
+    })
+
+    # find node index
+    node_index = -1
+    for i, node in enumerate(mongodb_document["clusters"][cluster_index]["nodes"]):
+        if int(node["detail"]["ND_MA"]) == int(nd_ma):
+            node_index = i
+
+    print(f"[DEBUG] {tp_ma} > {cluster_index} > {node_index}")
+    # set approve of specified user is True
+    mongo_db[CLUSTERS_OF_FOOD_COLLECTION].update_one(
+        {"TP_MA": tp_ma},
+        {
+            "$set": {
+                f"clusters.{cluster_index}.nodes.{node_index}.approve": True,
+            }
+        }
+    )
+
+    # check to set host of cluster if can, the cluster is ready when all approve
+    is_ready_cluster = all([
+        node["approve"] for node in mongodb_document["clusters"][cluster_index]["nodes"]
+    ])
+    if is_ready_cluster:
+        host_node = max(
+            mongodb_document["clusters"][cluster_index]["nodes"],
+            key=lambda node: node["detail"]["CTDKM_SO_LUONG"]
+        )
+        # host value is nd_ma if
+        host_value = host_node["detail"]["ND_MA"]
+        mongo_db[CLUSTERS_OF_FOOD_COLLECTION].update_one(
+            {"TP_MA": tp_ma},
+            {
+                "$set": {
+                    f"clusters.{cluster_index}.host": host_value
+                }
+            }
+        )
 
 
 if __name__ == "__main__":
