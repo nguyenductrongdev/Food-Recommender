@@ -322,6 +322,9 @@
                 console.log(`API endpoint: /api/thuc-pham/quick-check-out?${apiParams}`);
                 await axios.post(`/api/thuc-pham/quick-check-out?${apiParams}`);
                 alert("Thanh toán thành công");
+
+                localStorage.setItem(CART_KEY, "{}");
+                window.location.href = "/";
             } catch (err) {
                 alert("Thanh toán không thành công");
             }

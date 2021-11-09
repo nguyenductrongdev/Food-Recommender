@@ -128,7 +128,9 @@ def food_map():
         "food_map.html",
         user_info=user_info,
         geo_location_list=geo_location_list,
-        lengthLocation=len(geo_location_list), information_in_location=info_in_location
+        lengthLocation=len(geo_location_list),
+        information_in_location=info_in_location,
+        food_list=food_list,
     )
 
 

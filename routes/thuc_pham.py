@@ -214,6 +214,7 @@ def tp_dang_ky_mua():
         - Update cluster into MongoDB database
     """
     tp_ma = int(query_string_dict["txtTPMa"])
-    update_recommend_data(tp_ma=tp_ma)
+    if ThucPham.find(TP_MA=tp_ma).get("TP_SUAT_BAN"):
+        update_recommend_data(tp_ma=tp_ma)
 
     return redirect("/")

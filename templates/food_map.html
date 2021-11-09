@@ -69,12 +69,16 @@
         .setLngLat([{{ geo_location_list[local].latitude }}, {{ geo_location_list[local].longitude }}])
         .setPopup(new mapboxgl.Popup({ offset: 25 }) // add popups
             .setHTML(
-                `<div>
-                    <h6>Thông tin</h6>
-                    <p>Danh mục: {{ information_in_location[local].DMTP_TEN }}<p>
-                    <p>Số lượng: {{ information_in_location[local].TP_SO_LUONG}} {{ information_in_location[local].DMDVT_TEN}}</p>
-                    <p>Ngày bán: {{ information_in_location[local].TP_NGAY_BAN }}<p>
-                </div>`
+                `
+                <a href="/thuc-pham/{{food_list[local].TP_MA}}" style="text-decoration: none">
+                    <div>
+                        <h6>Thông tin</h6>
+                        <p>Danh mục: {{ information_in_location[local].DMTP_TEN }}<p>
+                        <p>Số lượng: {{ information_in_location[local].TP_SO_LUONG}} {{ information_in_location[local].DMDVT_TEN}}</p>
+                        <p>Ngày bán: {{ information_in_location[local].TP_NGAY_BAN }}<p>
+                    </div>
+                </a>
+                `
             ))
         .addTo(map);
     {% endfor %}
