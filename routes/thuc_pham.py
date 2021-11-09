@@ -145,6 +145,24 @@ def post_them_thuc_pham():
         raise
 
 
+@route.route('/cap-nhat/<int:tp_ma>', methods=['GET'])
+def food_update_ui(tp_ma):
+    user_info = get_user_info()
+    food = ThucPham.find(TP_MA=int(tp_ma))
+    return render_template(
+        "food_update.html",
+        user_info=user_info,
+        food=food,
+    )
+
+
+@route.route('/cap-nhat/<int:tp_ma>', methods=['POST'])
+def food_update(tp_ma):
+    # modify in MySQL database here
+
+    return redirect(f"/thuc-pham/{tp_ma}")
+
+
 @route.route('/dang-ky', methods=['POST'])
 def tp_dang_ky_mua():
     """

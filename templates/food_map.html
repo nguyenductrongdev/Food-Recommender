@@ -66,7 +66,7 @@
         {%for local in range(0, lengthLocation) %}
         var marker{{ local+1
     }} = new mapboxgl.Marker()
-        .setLngLat([{{ geo_location_list[local].longitude }}, {{ geo_location_list[local].latitude }}])
+        .setLngLat([{{ geo_location_list[local].latitude }}, {{ geo_location_list[local].longitude }}])
         .setPopup(new mapboxgl.Popup({ offset: 25 }) // add popups
             .setHTML(
                 `<div>

@@ -209,6 +209,16 @@
 
     <!-- UI for owner -->
     {% if role == 'owner' %}
+    <div class="row border p-3 my-2 bg-light rounded w-50 mx-auto">
+        <div class="col d-flex justify-content-between align-items-center">
+            <h5><i class="fas fa-users-cog"></i> Chức năng:</h5>
+            </h1>
+            <a href="/thuc-pham/cap-nhat/{{ food.TP_MA }}" type="button" class="btn btn-warning shadow">
+                <i class="fas fa-pen"></i>
+            </a>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-12">
             <h1 class="section-header">
