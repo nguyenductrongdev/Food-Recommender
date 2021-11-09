@@ -29,7 +29,8 @@
             <h2 class="section-header">Đăng bán thực phẩm</h2>
             <form class="p-3 shadow needs-validation" id="frmCapNhatThucPham" name="frmCapNhatThucPham" method="post"
                 action="/thuc-pham/cap-nhat/{{ food.TP_MA }}" enctype="multipart/form-data" novalidate>
-                <input type="text" name="txtViTriBanDo" id="txtViTriBanDo" class="d-none">
+                <input type="text" name="txtViTriBanDo" id="txtViTriBanDo" class="d-none"
+                    value="{{ food.TP_VI_TRI_BAN_DO }}">
 
                 <div class="row">
                     <div class="col-md-4">
@@ -163,7 +164,7 @@
         });
 
 
-        // Other handle
+        // Choose food image handle
         $("#fHinhAnh").change(function (e) {
             const { name, value } = e.target;
             let reader = new FileReader()
@@ -171,6 +172,11 @@
                 $('#hinhanh').attr('src', e.target.result);
             }
             reader.readAsDataURL($(this)[0].files[0]);
+        });
+
+        // Send form handle
+        $("#frmCapNhatThucPham").submit(async function (e) {
+            // can validate here
         });
     });
 </script>

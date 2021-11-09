@@ -149,6 +149,7 @@ def post_them_thuc_pham():
 def food_update_ui(tp_ma):
     user_info = get_user_info()
     food = ThucPham.find(TP_MA=int(tp_ma))
+
     return render_template(
         "food_update.html",
         user_info=user_info,
@@ -158,8 +159,20 @@ def food_update_ui(tp_ma):
 
 @route.route('/cap-nhat/<int:tp_ma>', methods=['POST'])
 def food_update(tp_ma):
-    # modify in MySQL database here
-
+    # Get new value from BE
+    query_string_dict = request.values
+    update_data = {
+        "TP_TEN": query_string_dict["txtTenThucPham"],
+        "TP_SO_LUONG": query_string_dict["numSoLuong"],
+        "TP_DON_GIA": query_string_dict["numDonGia"],
+        "TP_DIA_CHI": query_string_dict["txtAddress"],
+        "TP_MO_TA": query_string_dict["txtMoTa"],
+        "TP_VI_TRI_BAN_DO": query_string_dict["txtViTriBanDo"],
+    }
+    ThucPham.update({
+        "TP_MA": tp_ma,
+        **update_data
+    })
     return redirect(f"/thuc-pham/{tp_ma}")
 
 

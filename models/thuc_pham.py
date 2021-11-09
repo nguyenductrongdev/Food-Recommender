@@ -73,7 +73,7 @@ class ThucPham:
 
         sql = f"""
             UPDATE thuc_pham
-            SET {" ".join([f"{col} = %s" for col in cols])}
+            SET {", ".join([f"{col} = %s" for col in cols])}
             WHERE TP_MA = %s
         """
         print(sql)
