@@ -6,7 +6,7 @@
     .product {
         display: flex;
         flex-direction: column;
-        height: 55vh;
+        height: 40vh;
     }
 
     .product__image {
@@ -25,7 +25,15 @@
             <h1 class="section-header">Thực phẩm đang bán</h1>
         </div>
     </div>
+
     <div class="row">
+        <div class="col-12">
+            <input type="text" name="txtFilterByName" class="form-control w-25" id="txtFilterByName"
+                placeholder="Tìm kiếm theo tên" />
+        </div>
+    </div>
+
+    <div class="row" id="food-presenter" style="min-height: 90vh;">
         {% for food in food_list %}
         <div class="col-3 my-3">
             <div class="card product position-relative">
@@ -39,20 +47,18 @@
                 <div class="card-body">
                     <h5 class="card-title">
                         {{ food.DMTP_TEN }}
-                        <script>document.write(String({{ food.TP_SO_LUONG }}).replace(/\.0*$/g, ''))</script>
-                        {{ food.DMDVT_TEN}}
-                        <br />
-                        <script>
-                            document.write("(" + Number(String({{ food.TP_DON_GIA }}).replace(/\.0*$/g, '')).toLocaleString('vi') + "đ/1 {{food.DMDVT_TEN }})")
-                        </script>
                     </h5>
-                    <div class="card-text">
-                        <p class="text-truncate"><i class="fas fa-file-medical-alt"></i> {{ food.TP_MO_TA }}</p>
-                        <p><i class="fas fa-user"></i> Người bán: <br /> <a href="#" class="text-success">{{
-                                food.ND_TAI_KHOAN
-                                }}</a>
-                        </p>
-                    </div>
+                    <p class="card-text">
+                        <i>Còn lại:
+                            <script>document.write(String({{ food.TP_SO_LUONG }}).replace(/\.0*$/g, ''))</script>
+                        </i>
+                        <br />
+                        <i>
+                            <script>
+                                document.write("(" + Number(String({{ food.TP_DON_GIA }}).replace(/\.0*$/g, '')).toLocaleString('vi') + "đ/1 {{food.DMDVT_TEN }})")
+                            </script>
+                        </i>
+                    </p>
 
                     <a href="/thuc-pham/{{food.TP_MA}}" class="btn btn-primary stretched-link">
                         Xem chi tiết
@@ -63,4 +69,54 @@
         {% endfor %}
     </div>
 </div>
+{% endblock %}
+
+{% block script %}
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<script type="text/javascript">
+    function foodToHTML(food) {
+        return `
+            <div class="col-3 my-3">
+                <div class="card product position-relative">
+                    <img class="card-img-top product__image" src="/${food.TP_HINH_ANH}" alt="Card image cap">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            ${food.DMTP_TEN}
+                        </h5>
+                        <p class="card-text">
+                            <i>Còn lại:
+                                ${String(food.TP_SO_LUONG).replace(/\.0*$/g, '')}
+                            </i>
+                            <br />
+                            <i>
+                                ${Number(String(food.TP_DON_GIA).replace(/\.0*$/g, '')).toLocaleString('vi')} đ/1 ${food.DMDVT_TEN})
+                            </i>
+                        </p>
+
+                        <a href="/thuc-pham/${food.TP_MA}" class="btn btn-primary stretched-link">
+                            Xem chi tiết
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `
+    }
+
+    $(function () {
+        $("#txtFilterByName").keyup(async function (e) {
+            let { value } = e.target;
+            let response = await axios.get(`/api/thuc-pham/shop/{{ user_info.ND_MA }}`)
+            let foods = response.data.food_list;
+            let presentHTML = foods
+                .filter(food => food.TP_TEN.includes(value))
+                .map(food => foodToHTML(food))
+                .join("");
+            if (presentHTML === "") {
+                presentHTML = `<p class="text-center w-100">Không có thực phẩm nào khớp với tìm kiếm</p>`;
+            }
+            $("#food-presenter").html(presentHTML);
+        });
+    });
+</script>
 {% endblock %}

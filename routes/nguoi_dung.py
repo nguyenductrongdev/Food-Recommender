@@ -1,3 +1,6 @@
+import json
+import math
+import datetime
 from middlewares.require_login import require_login
 from flask import Blueprint, request, abort, jsonify, url_for, render_template, redirect, flash, send_file, session, make_response
 from uuid import uuid4
@@ -209,6 +212,8 @@ def shop(nd_tai_khoan):
         "shop.html",
         user_info=user_info,
         food_list=food_list,
+
+        data=json.dumps(food_list),
     )
 
 
@@ -248,3 +253,28 @@ def approve_join_cluster():
     )
 
     return redirect("/nguoi-dung/goi-y-mua-chung")
+
+
+@route.route("/danh-sach-dang-ky-mua/<int:nd_ma>", methods=['GET'])
+def list_of_ctncm(nd_ma):
+    user_info = get_user_info()
+    list_of_ctncm = ChiTietDangKyMua.get_all()
+    # sort near to far
+    list_of_ctncm = sorted(
+        list_of_ctncm, key=lambda ctncm: datetime.datetime(
+            *[int(val) for val in ctncm["DKM_THOI_GIAN"].split("-")]
+        ), reverse=True)
+
+    df = pd.DataFrame(list_of_ctncm)
+    df = df[df["ND_MA"] == int(nd_ma)]
+    df["CTDKM_TRANG_THAI"] = df["CTDKM_TRANG_THAI"].map(
+        lambda val: not math.isnan(val)
+    )
+    df["order"] = list(range(1, len(df)+1))
+    print(df.columns)
+
+    return render_template(
+        "list_of_ctdkm.html",
+        user_info=user_info,
+        data_list=df.to_dict('records'),
+    )

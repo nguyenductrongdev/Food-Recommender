@@ -16,7 +16,7 @@
 <div class="container">
     <div class="row">
         <div class="col-12">
-            <h1 class="text-center">Welcome {{ user_info.ND_TAI_KHOAN }}</h1>
+            <h1 class="text-center py-3 border">Xin chào {{ user_info.ND_TAI_KHOAN }}</h1>
         </div>
     </div>
 
@@ -116,6 +116,22 @@
                                 </h5>
                                 <i class="card-text text-justify">
                                     Nhận gợi ý mua chung các thực phẩm chỉ bán số lượng lớn mà bạn đã đăng ký.
+                                </i>
+                            </div>
+                        </span>
+                    </a>
+
+
+                    <a href="/nguoi-dung/danh-sach-dang-ky-mua/{{ user_info.ND_MA }}" class="d-inline-block mx-2"
+                        style="text-decoration: none">
+                        <span class="card text-white bg-dark mb-3" style="width: 18rem; height: 12rem;">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="fas fa-list-ul"></i>
+                                    Theo dõi đăng ký mua
+                                </h5>
+                                <i class="card-text text-justify">
+                                    Theo dõi các đăng ký mua của bạn.
                                 </i>
                             </div>
                         </span>

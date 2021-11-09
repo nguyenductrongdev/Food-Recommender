@@ -1,3 +1,4 @@
+from utils import get_user_info
 import math
 from datetime import datetime
 import pandas as pd
@@ -143,6 +144,7 @@ def quick_check_out():
         Quick check out, case checkout without login
     """
     query_string_dict = request.values
+    user_info = get_user_info()
 
     print(f"[DEBUG] {query_string_dict}")
     """
@@ -154,6 +156,7 @@ def quick_check_out():
     """
     # insert register
     new_register = {
+        "ND_MA": user_info.get("ND_MA"),
         "DKM_THOI_GIAN": datetime.now().strftime("%Y-%m-%d"),
         "DKM_DIA_CHI": query_string_dict["txtAddress"],
         "DKM_VI_TRI_BAN_DO": query_string_dict["txtViTriBanDo"],
@@ -203,3 +206,16 @@ def sale(tp_ma):
     })
 
     return query_string_dict
+
+
+@route.route('/shop/<int:nd_ma>', methods=['GET'])
+def api_get_shop(nd_ma):
+    food_df = pd.DataFrame(ThucPham.get_all())
+    food_df = food_df[food_df["ND_MA"] == nd_ma]
+
+    food_df["TP_SUAT_BAN"] = food_df["TP_SUAT_BAN"].map(
+        lambda val: None if math.isnan(val) else val
+    )
+    return {
+        "food_list": food_df.to_dict('records')
+    }

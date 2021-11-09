@@ -51,7 +51,7 @@
                             const nodes = cluster["nodes"];
                             let uuid = get_uuid()
 
-                            presentHTML += `<div class='bg-light p-3 rounded shadow-sm d-flex flex-wrap justify-content-start align-items-center recommend-cluster' data-toggle='modal' data-target='#${uuid}'>`;
+                            presentHTML += `<div class='bg-light p-3 rounded border shadow-sm d-flex flex-wrap justify-content-start align-items-center recommend-cluster' data-toggle='modal' data-target='#${uuid}'>`;
 
                             const max_of_CTDKM_SO_LUONG = Math.max(...nodes.map(node => node.detail.CTDKM_SO_LUONG))
                             const host_ND_MA = nodes.find(node => node.detail.CTDKM_SO_LUONG == max_of_CTDKM_SO_LUONG).detail.ND_MA;
@@ -74,7 +74,7 @@
                                     isHost = true;
 
                                 return `
-                                    <span class="p-2 text-center border rounded ${tagClasses.join(' ')}" style="flex-basis: 20%">${loginUser ? "Bạn" : node.detail.ND_TAI_KHOAN} (mua ${node.detail.CTDKM_SO_LUONG})
+                                    <span class="p-2 m-2 text-center border rounded ${tagClasses.join(' ')}" style="flex-basis: 33%">${loginUser ? "Bạn" : node.detail.ND_TAI_KHOAN} (mua ${node.detail.CTDKM_SO_LUONG})
                                     ${isHost ? `<span class="badge badge-danger">host</span>` : ''}
                                     </span>
                                 `

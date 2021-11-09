@@ -6,10 +6,11 @@ class ChiTietDangKyMua:
     def get_all():
         sql = """
         SELECT * 
-        FROM chi_tiet_dang_ky_mua, dang_ky_mua, thuc_pham, nguoi_dung
+        FROM chi_tiet_dang_ky_mua, dang_ky_mua, thuc_pham, nguoi_dung, danh_muc_don_vi_tinh
         WHERE chi_tiet_dang_ky_mua.DKM_MA = dang_ky_mua.DKM_MA
             AND dang_ky_mua.ND_MA = nguoi_dung.ND_MA
             AND chi_tiet_dang_ky_mua.TP_MA = thuc_pham.TP_MA
+            AND thuc_pham.DMDVT_MA = danh_muc_don_vi_tinh.DMDVT_MA
         """
         cursor.execute(sql)
         return cursor.fetchall()

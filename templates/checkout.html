@@ -273,15 +273,10 @@
 
         // click to show finish popup
         $("#js-btn-checkout").click(function (e) {
-            console.log("Check out!!!");
-            if (isLogin()) {
-                // call API
-                alert("Call API")
-            } else {
-                // show quick checkout popup
-                $("*[data-target='#register-popup']").click();
-            }
+            $("*[data-target='#register-popup']").click();
         });
+
+
 
         // handle quick checkout
         $("#js-btn-quick-checkout").click(async function (e) {
