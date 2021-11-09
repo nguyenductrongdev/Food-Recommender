@@ -17,6 +17,11 @@
   .card-title__unit {
     font-size: 1rem;
   }
+
+
+  .user-list__item:hover {
+    background-color: #eee !important;
+  }
 </style>
 {% endblock %}
 
@@ -24,19 +29,16 @@
 
 {% block main %}
 <div class="container-fluid">
-  <h2 class="section-header">Thực phẩm đang bán</h2>
-  <div class="row">
-
+  <div class="row border shadow-sm bg-light p-3 mb-1">
     <!-- filter for nd_ma -->
-    <div class="col-md-3">
+    <div class="col-md-3 ">
       <input type="text" id="txtFilter-nd-ma" class="form-control" placeholder="Lọc theo tên người dùng">
       <div id="user-list" class="position-absolute w-100" style="z-index: 100;">
         <!-- <div data-nd-ma="" class="bg-white w-100 shadow user-list__item d-none">Tất cả</div> -->
         {% for user in user_list %}
-        <div data-nd-ma="{{ user.ND_MA }}" class="bg-white w-100 shadow d-none user-list__item p-1 rounded"
-          style="background-color: #eee; cursor: pointer;">{{
-          user.ND_TAI_KHOAN
-          }}
+        <div data-nd-ma="{{ user.ND_MA }}" class="bg-white w-100 shadow d-none user-list__item py-2 pl-3 border rounded"
+          style="cursor: pointer;">
+          {{ user.ND_TAI_KHOAN }}
         </div>
         {% endfor %}
       </div>
@@ -125,7 +127,7 @@
   </div>
   <div class="row">
     <div class="col-12">
-      <div class="row" id="product-presenter">
+      <div class="row" id="product-presenter" style="min-height: 90vh;">
         {% for food in food_list %}
         <div class="col-sm-6 col-md-4 col-lg-3 my-3">
           <div class="card product">
@@ -146,8 +148,8 @@
               </h5>
               <div class="card-text">
                 <p class="text-truncate"><i class="fas fa-file-medical-alt"></i> {{ food.TP_MO_TA }}</p>
-                <p><i class="fas fa-user"></i> Người bán: <br /> <a href="#" class="text-success">{{ food.ND_TAI_KHOAN
-                    }}</a>
+                <p><i class="fas fa-user"></i> Người bán: <br />
+                  <a href="#" class="text-success">{{ food.ND_TAI_KHOAN }}</a>
                 </p>
               </div>
 
@@ -348,6 +350,9 @@
       });
       let foods = response.data.foods;
       let productsHTML = toFoodString(foods);
+      if (productsHTML.length === 0) {
+        productsHTML = "<p class='w-100 p-5 text-center'>Không có thực phẩm nào</p>"
+      }
       $("#product-presenter").html(productsHTML);
       $("#btn-next-page").hide();
     });

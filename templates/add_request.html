@@ -103,10 +103,10 @@
                     </select>
                 </div>
 
-                <button type="button" class="btn btn-success form-control mb-1" id="btn-add-require-list">Thêm vào
-                    danhsách
+                <button type="button" class="btn btn-success form-control mb-1" id="btn-add-require-list">
+                    Thêm vào danh sách
                 </button>
-                <button class="btn btn-primary form-control">Gửi yêu cầu</button>
+                <!-- <button class="btn btn-primary form-control">Gửi yêu cầu</button> -->
             </form>
         </div>
     </div>
@@ -125,7 +125,6 @@
                         <tr>
                             <th class="th-sm">Người bán</th>
                             <th class="th-sm">Đơn giá</th>
-                            <th class="th-sm">Phí ship</th>
                             <th class="th-sm">Tổng tiền (VNĐ)</th>
                         </tr>
                     </thead>
@@ -244,7 +243,6 @@
                 const recommendToTableRow = recommend => `<tr data-dmtp-ma="${recommend.DMTP_MA}">
                     <td><a href="/thuc-pham/${recommend.TP_MA}" target="_blank" class="badge badge-primary">${recommend.ND_TAI_KHOAN}</a></td>
                     <td class="text-right">${Number(recommend.TP_DON_GIA).toLocaleString('vi')}</td>
-                    <td class="text-right">${recommend.TP_DON_GIA}</td>
                     <td class="text-right">${Number(recommend.TP_DON_GIA).toLocaleString('vi')}</td>
                 </tr>`;
 
