@@ -34,12 +34,18 @@ def _subset_sum(registers: list, target: float, current_group: list = []) -> Non
 
     s = sum([register["CTDKM_SO_LUONG"] for register in current_group])
 
+    # print("[DEBUG]", [
+    #     f"{ctdkm['ND_TAI_KHOAN']} ({ctdkm['CTDKM_SO_LUONG']})"
+    #     for ctdkm in current_group
+    # ], f"---> sum={s}")
+
     # check if the current_group sum is equals to target
     if s % target == 0:
         # append 1D current_group group to 2D groups list
         groups += [current_group]
-    if s >= target:
-        return  # if we reach the number why bother to continue
+
+        if s >= target:
+            return
 
     for i in range(len(registers)):
         n = registers[i]
@@ -47,13 +53,13 @@ def _subset_sum(registers: list, target: float, current_group: list = []) -> Non
         _subset_sum(remaining, target, current_group + [n])
 
 
-def get_groups(registere_detail_list, target) -> list:
+def get_groups(register_detail_list, target) -> list:
     """
         Get groups that have sum equal the sale
     """
     global groups
     groups = []
-    _subset_sum(registere_detail_list, target)
+    _subset_sum(register_detail_list, target)
     # return by ignore empty list at head
     return groups[1:]
 
@@ -141,14 +147,16 @@ def recommand_for_big_cube_food(tp_ma: int) -> dict:
     # get register details contain THIS FOOD ID and not done
     register_details_df = pd.DataFrame(ChiTietDangKyMua.get_all())
     register_details_df = register_details_df[
-        (register_details_df["TP_MA"] == tp_ma) & (
+        (register_details_df["TP_MA"] == int(tp_ma)) & (
             register_details_df["CTDKM_TRANG_THAI"].isin([float("nan"), 0]))
     ]
 
     # get all clusters fit target value
     raw_data = register_details_df.to_dict('records')
-    target = ThucPham.find(TP_MA=tp_ma)["TP_SUAT_BAN"]
-    clusters = get_groups(registere_detail_list=raw_data, target=target)
+    target = ThucPham.find(TP_MA=int(tp_ma))["TP_SUAT_BAN"]
+    print(f"[DEBUG/target] {target}")
+    clusters = get_groups(register_detail_list=raw_data, target=target)
+    print(f"[DEBUG/clusters] {len(clusters)}")
 
     def generateGraph(food: dict, cluster: list) -> CustomGraph:
         """
@@ -199,6 +207,7 @@ def recommand_for_big_cube_food(tp_ma: int) -> dict:
 
 def update_recommend_data(tp_ma: int) -> None:
     """
+        MAIN FUNC
         Update recommend data into MongoDB
         (*notice: each cluster identify by list of DKM_MA)
     """
@@ -268,10 +277,13 @@ def update_recommend_data(tp_ma: int) -> None:
             new_cluster = {
                 "host": None,
                 "cost": cluster_info["cost"],
-                "nodes": [{
-                    "approve": False,
-                    "detail": cluster_info["register_detail_list"]
-                }]
+                "nodes": [
+                    {
+                        "approve": False,
+                        "detail": ctdkm,
+                    }
+                    for ctdkm in cluster_info["register_detail_list"]
+                ]
             }
             # important handle
             # old_mongo_document["clusters"].push(new_cluster)
@@ -320,7 +332,15 @@ def get_recommend_data(nd_ma: int) -> list:
         valid_clusters = []
         # for cluster in document["clusters"]:
         for cluster_index, cluster in enumerate(document["clusters"]):
-            if nd_ma in [int(node["detail"]["ND_MA"]) for node in cluster["nodes"]]:
+            user_ids = [
+                int(node["detail"]["ND_MA"])
+                for node in cluster["nodes"]
+
+            ]
+            # not do group for anonymous user
+            if None in user_ids:
+                continue
+            if nd_ma in user_ids:
                 valid_clusters.append({
                     "cluster_index": cluster_index,
                     "cluster": cluster,
@@ -333,7 +353,7 @@ def get_recommend_data(nd_ma: int) -> list:
     return cluster_result
 
 
-def join_cluster(tp_ma, cluster_index, nd_ma):
+def join_cluster(tp_ma: int, cluster_index: int, nd_ma: int) -> None:
     """
         [Notice] This function communicate with MongoDB
         Execute join cluster behavior and select host
@@ -349,6 +369,8 @@ def join_cluster(tp_ma, cluster_index, nd_ma):
     for i, node in enumerate(mongodb_document["clusters"][cluster_index]["nodes"]):
         if int(node["detail"]["ND_MA"]) == int(nd_ma):
             node_index = i
+
+    assert node_index != -1
 
     print(f"[DEBUG] {tp_ma} > {cluster_index} > {node_index}")
     # set approve of specified user is True
@@ -383,12 +405,30 @@ def join_cluster(tp_ma, cluster_index, nd_ma):
 
 
 if __name__ == "__main__":
-    start_time = time.time()
-    update_recommend_data(tp_ma=12)
-    print(f"Run {time.time() - start_time} seconds")
+    # start_time = time.time()
+    # update_recommend_data(tp_ma=12)
+    # print(f"Run {time.time() - start_time} seconds")
 
-    # CLUSTERS_OF_FOOD_COLLECTION = "clusters_of_food"
-    # x = mongo_db[CLUSTERS_OF_FOOD_COLLECTION].find({"TP_MA": 12})
-    # print(list(x))
+    ctdkm_filtered = [
+        ctdkm
+        for ctdkm in ChiTietDangKyMua.get_all()
+        if ctdkm["TP_MA"] == 10
+    ]
+    print(
+        "valid ctdkm:",
+        [f"{ctdkm['ND_TAI_KHOAN']} {ctdkm['CTDKM_SO_LUONG']}" for ctdkm in ctdkm_filtered])
+    groups = get_groups(register_detail_list=ctdkm_filtered,
+                        target=ThucPham.find(TP_MA=10)["TP_SUAT_BAN"])
+    for g in groups:
+        print([f"""{mem["ND_TAI_KHOAN"]} ({mem["CTDKM_SO_LUONG"]})"""for mem in g])
+
+    # res = recommand_for_big_cube_food(tp_ma=10)
+    # for item in res:
+    #     print(
+    #         [ctdkm["ND_TAI_KHOAN"]
+    #             for ctdkm in item["register_detail_list"]], f"cost: {item['cost']}"
+    #     )
+
+    # clusters = get_groups(register_detail_list=raw_data, target=target)
 
     pass

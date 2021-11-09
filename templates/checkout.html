@@ -234,6 +234,7 @@
                     num: newCount,
                     name: oldCartItem.name,
                     unit_cost: oldCartItem.unit_cost,
+                    size: oldCartItem.size,
                 }
             }
             localStorage.setItem(CART_KEY, JSON.stringify(cart));
@@ -294,9 +295,11 @@
                     cartAsarray = cartAsarray.concat({
                         tp_ma: tp_ma,
                         count: cart[tp_ma].num,
+                        size: cart[tp_ma].size,
+                        name: cart[tp_ma].name,
                     });
                 }
-                // validation form
+                // validation form -----
                 if (!$("#txtAddress").val()) {
                     alert("Địa chỉ không được để trống");
                     return;
@@ -305,6 +308,14 @@
                     alert("Số điện thoại không được để trống");
                     return;
                 }
+                for (let item of cartAsarray) {
+                    console.log(`Check ${item.count} ${item.size}`);
+                    if (item.size !== null && item.count % item.size !== 0) {
+                        alert(`Thực phẩm ${item.name} chỉ bán với số lượng ${String(item.size).replace(/\.0*$/g, '')} mỗi lần bán`);
+                        return
+                    }
+                }
+
                 // get quick checkout api endpoint params
                 let apiParams = $("#frmQuickCheckOut").serialize() + "&details=" + JSON.stringify(cartAsarray);
                 // send api

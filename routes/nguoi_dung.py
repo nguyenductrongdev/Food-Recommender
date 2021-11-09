@@ -239,8 +239,12 @@ def approve_join_cluster():
     nd_ma = user_info["ND_MA"]
     # tp_ma = 10
     # cluster_index = 0
-    # nd_ma = 6
+    # nd_ma = 3
     print(tp_ma, cluster_index, nd_ma)
-    # join_cluster(tp_ma=tp_ma, cluster_index=cluster_index, nd_ma=nd_ma)
+    join_cluster(
+        tp_ma=int(tp_ma),
+        cluster_index=int(cluster_index),
+        nd_ma=int(nd_ma)
+    )
 
     return redirect("/nguoi-dung/goi-y-mua-chung")

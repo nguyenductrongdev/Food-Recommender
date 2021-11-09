@@ -186,7 +186,7 @@
                     </div>
                     <div class="modal-footer">
                       <button type="button" class="btn btn-primary" data-dismiss="modal"
-                        data-form-target="frm-add-cart-{{ food.TP_MA }}">
+                        data-size="{{ food.TP_SUAT_BAN }}" data-form-target="frm-add-cart-{{ food.TP_MA }}">
                         Thêm vào giỏ
                       </button>
                     </div>
@@ -287,7 +287,7 @@
                         </div>
                         <div class="modal-footer">
                           <button type="button" class="btn btn-primary" data-dismiss="modal"
-                            data-form-target="frm-add-cart-${food.TP_MA}">
+                            data-size="${food.TP_SUAT_BAN}" data-form-target="frm-add-cart-${food.TP_MA}">
                             Thêm vào giỏ
                           </button>
                         </div>
@@ -367,16 +367,18 @@
 
 
     // handle for update cart
-    $(document).on('click', "button[data-form-target^='frm-add-cart-']", function () {
+    $(document).on('click', "button[data-form-target^='frm-add-cart-']", function (e) {
       // $("button[data-form-target^='frm-add-cart-']").click(function (e) {
       let dataFormTarget = $(this).attr("data-form-target");
+      let dataSuatBan = $(this).attr("data-size");
+
       var data = {};
       $.each($(`form#${dataFormTarget}`).serializeArray(), function (_, kv) {
         data[kv.name] = kv.value;
       });
 
       let { tp_ma, numAddCart: new_number, tp_don_gia, tp_ten } = data;
-      console.log({ data });
+
       let cart = localStorage.getItem(CART_KEY);
 
       console.log("current cart", cart);
@@ -386,6 +388,13 @@
 
       // get pre number of this food id
       pre_number = cart[tp_ma]?.num || 0;
+
+
+      // check for cube food
+      if (Number(dataSuatBan) && (Number(pre_number) + Number(new_number)) % Number(dataSuatBan) !== 0) {
+        alert(`Với sản phẩm này, bạn chỉ có thể mua với số lượng chia hết cho ${String(dataSuatBan).replace(/\.0+/g, '')}`);
+        return;
+      }
 
       // set up for update cart
       cart = {
@@ -397,6 +406,8 @@
           "num": Number(pre_number) + Number(new_number),
           // set unit cost
           "unit_cost": tp_don_gia,
+          // size
+          "size": Number(dataSuatBan),
         }
       };
 

@@ -18,6 +18,8 @@
 
 {% block main %}
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src=" https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js " defer></script>
+
 
 <div class="container" style="min-height: 90vh !important;">
     <div class="row">
@@ -49,11 +51,34 @@
                             const nodes = cluster["nodes"];
                             let uuid = get_uuid()
 
-                            presentHTML += `<div class='bg-light p-3 rounded shadow-sm d-flex justify-content-start align-items-center recommend-cluster' data-toggle='modal' data-target='#${uuid}'>`;
+                            presentHTML += `<div class='bg-light p-3 rounded shadow-sm d-flex flex-wrap justify-content-start align-items-center recommend-cluster' data-toggle='modal' data-target='#${uuid}'>`;
 
-                            presentHTML += nodes.map(node => `
-                                <span class="d-inline-block p-2 m-2 w-25 border">${node.detail.ND_TAI_KHOAN}</span>
-                            `).join('');
+                            const max_of_CTDKM_SO_LUONG = Math.max(...nodes.map(node => node.detail.CTDKM_SO_LUONG))
+                            const host_ND_MA = nodes.find(node => node.detail.CTDKM_SO_LUONG == max_of_CTDKM_SO_LUONG).detail.ND_MA;
+
+                            presentHTML += nodes.map(node => {
+                                let isHost = false;
+                                let loginUser = false;
+                                let tagClasses = [];
+                                if (node.approve)
+                                    tagClasses = [...tagClasses, ...['bg-success', 'text-light']];
+                                else
+                                    tagClasses = [...tagClasses, ...['bg-secondary', 'text-light']];
+
+                                if (Cookies.get("ND_MA") == node.detail.ND_MA) {
+                                    tagClasses = [...tagClasses, ...['font-weight-bold']];
+                                    loginUser = true
+                                }
+
+                                if (node.detail.ND_MA == host_ND_MA)
+                                    isHost = true;
+
+                                return `
+                                    <span class="p-2 text-center border rounded ${tagClasses.join(' ')}" style="flex-basis: 20%">${loginUser ? "Bạn" : node.detail.ND_TAI_KHOAN} (mua ${node.detail.CTDKM_SO_LUONG})
+                                    ${isHost ? `<span class="badge badge-danger">host</span>` : ''}
+                                    </span>
+                                `
+                            }).join('')
 
 
                             presentHTML += "</div>";
@@ -72,14 +97,20 @@
 
                             // add modal body
                             presentHTML += `<div class="modal-body">`;
-                            presentHTML += `<div>Bạn đồng ý mua chung với ${nodes.map(node => '<b>' + node.detail.ND_TAI_KHOAN + '</b>').join(', ')}?</div>`
+                            presentHTML += `<div>Bạn đồng ý mua chung với ${nodes.map(node => '<b>' + node.detail.ND_TAI_KHOAN + '</b>').join(', ')}?</div>`;
+
                             presentHTML += `</div>`;
 
-                            // add model foot
+                            // add model foot, that include hidden form
                             presentHTML += `
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                            <button type="button" class="btn btn-primary" data-tp_ma="${tp_ma}" data-cluster_index=${cluster.cluster_index}>Đồng ý</button>
+                                            <form name="frm-${get_uuid()}" action="/nguoi-dung/approve-join-cluster" method="post">
+                                                <input type="hidden" name="tp_ma" value="${tp_ma}">
+                                                <input type="hidden" name="cluster_index" value="${cluster.cluster_index}">
+                                                
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-primary js-btn-approve">Đồng ý</button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
@@ -105,8 +136,11 @@
 
 <script>
     $(function () {
-
-
+        $("#js-btn-approve").click(async function (e) {
+            let tp_ma = $(this).attr("data-tp_ma");
+            let dmtp_ma = $(this).attr("data-cluster_index");
+            $(this).siblings("form[name^='frm']").submit();
+        });
     });
 </script>
 {% endblock %}
