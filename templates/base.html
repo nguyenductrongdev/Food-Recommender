@@ -73,7 +73,52 @@
                 </li>
                 {% else %}
                 <li class="nav-item">
-                    <a class="nav-link" href="/nguoi-dung/dang-nhap">Đăng nhập</a>
+                    <a class="nav-link" href="#" data-toggle="modal" data-target="#popup-login">
+                        Đăng nhập
+                    </a>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="popup-login" tabindex="-1" role="dialog"
+                        aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLongTitle">Đăng nhập</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form class="p-3 shadow" name="frmLogin" method="post"
+                                        action="/nguoi-dung/dang-nhap">
+                                        <div class="form-group">
+                                            <div class="input-group mb-3 input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">
+                                                        <i class="fas fa-user"></i>
+                                                    </span>
+                                                </div>
+                                                <input type="text" name="txtTaiKhoan" class="form-control"
+                                                    id="txtTaiKhoan" placeholder="Username..." autofocus>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="input-group mb-3 input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">
+                                                        <i class="fas fa-unlock-alt"></i>
+                                                    </span>
+                                                </div>
+                                                <input type="password" name="txtMatKhau" class="form-control"
+                                                    id="txtMatKhau" placeholder="Password...">
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-primary form-control">Đăng nhập</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/nguoi-dung/dang-ky">Đăng ký</a>
