@@ -29,7 +29,7 @@
 
 {% block main %}
 <div class="container-fluid">
-  <div class="row border shadow-sm bg-light p-3 mb-1">
+  <div class="row border shadow-sm bg-light p-3 mb-1 d-flex justify-content-center align-items-center">
     <!-- filter for nd_ma -->
     <div class="col-md-3 ">
       <input type="text" id="txtFilter-nd-ma" class="form-control" placeholder="Lọc theo tên người dùng">
@@ -353,7 +353,10 @@
       if (productsHTML.length === 0) {
         productsHTML = "<p class='w-100 p-5 text-center'>Không có thực phẩm nào</p>"
       }
+      $("#product-presenter").fadeOut(0)
       $("#product-presenter").html(productsHTML);
+      $("#product-presenter").fadeIn(350, "swing");
+
       $("#btn-next-page").hide();
     });
 

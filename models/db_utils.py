@@ -1,3 +1,4 @@
+import json
 import pymongo
 import logging
 import mysql.connector
@@ -22,8 +23,10 @@ cursor = db.cursor(dictionary=True)
 mongo_db_client = pymongo.MongoClient("mongodb://localhost:27017/")
 mongo_db = mongo_db_client[config["MONGODB"]["NAME"]]
 
+
 if __name__ == "__main__":
-    # res = list(mongo_db["clusters_of_food"].find({}))
-    # print(len(res))
+    with open("just_for_test.json", "w") as fp:
+        res = list(mongo_db["clusters_of_food"].find({}, {"_id": 0}))
+        json.dump(res[0], fp)
 
     pass

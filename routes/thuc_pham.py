@@ -68,7 +68,7 @@ def tp_index(tp_ma):
                 for register in registered_detail_list
                 if str(register["TP_MA"]) == str(tp_ma) and
                 str(register["ND_MA"]) == str(user_info["ND_MA"]) and
-                not register["DKM_TRANG_THAI"]
+                not register["CTDKM_TRANG_THAI"]
             ]
             is_registered = len(is_registered) == 1
 

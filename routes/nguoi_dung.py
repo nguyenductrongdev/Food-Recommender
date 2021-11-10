@@ -187,7 +187,7 @@ def shop(nd_tai_khoan):
             register
             for register in registered_list
             if int(register["TP_MA"]) == int(food["TP_MA"]) and
-            not register["DKM_TRANG_THAI"] and
+            not register["CTDKM_TRANG_THAI"] and
             int(register["CTDKM_SO_LUONG"]) <= int(food["TP_SO_LUONG"]) and
             int(register["CTDKM_SO_LUONG"]) % (
                 food["TP_SUAT_BAN"] or 1) == 0

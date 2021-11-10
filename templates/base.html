@@ -38,6 +38,23 @@
         .btn-darkblue:hover {
             opacity: 1;
         }
+
+        .btn-logout {
+            font-size: 1.5rem;
+        }
+
+        #user-mark {
+            display: flex;
+            justify-content: center !important;
+            align-items: center !important;
+            margin-right: 1vw;
+
+            min-width: 10vw !important;
+            max-height: 5vh !important;
+
+            font-size: 1.5rem;
+            box-shadow: 0 0 6px 3px #eee;
+        }
     </style>
     {% block style %}{% endblock %}
 </head>
@@ -60,16 +77,18 @@
                 </li>
             </ul>
 
-            <ul class="navbar-nav ml-auto">
+            <ul class="navbar-nav ml-auto d-flex justify-content-center align-items-center">
                 {% if user_info and user_info.ND_TAI_KHOAN %}
                 <li class="nav-item">
-                    <a class="nav-link btn btn-darkblue" href="/nguoi-dung/{{user_info.ND_TAI_KHOAN}}">
-                        <i class="fas fa-user"></i>
+                    <a class="nav-link btn font-weight-bold btn-darkblue" href="/nguoi-dung/{{user_info.ND_TAI_KHOAN}}"
+                        id="user-mark">
                         {{ user_info.ND_TAI_KHOAN }}
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/nguoi-dung/dang-xuat">Đăng xuất</a>
+                    <a class="nav-link btn-logout" href="/nguoi-dung/dang-xuat">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
                 </li>
                 {% else %}
                 <li class="nav-item">

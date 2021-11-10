@@ -227,15 +227,16 @@
             <table class="table table-striped table-bordered table-hover">
                 <thead class="thead-dark">
                     <tr>
-                        <th>Tài khoản</th>
-                        <th>Số lượng</th>
-                        <th>Địa chỉ</th>
-                        <th>Trạng thái</th>
-                        <th>Ghi chú</th>
-                        <th>Thao tác</th>
+                        <th style="width: 10%">Tài khoản</th>
+                        <th style="width: 5%">Số lượng</th>
+                        <th style="width: 5%">Phone</th>
+                        <th style="width: 35%">Địa chỉ</th>
+                        <th style="width: 25%">Ghi chú</th>
+                        <th style="width: 5%">Trạng thái</th>
+                        <th style="width: 15%">Thao tác</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="wait-list">
                     {% for registered in ready_registered_list %}
                     <tr data-dkm-ma="{{ registered.DKM_MA }}" data-nd-ma="{{ registered.ND_MA }}"
                         data-count="{{ registered.CTDKM_SO_LUONG }}">
@@ -247,16 +248,19 @@
                                 document.write(String({{ registered.CTDKM_SO_LUONG }}).replace(/\.0*$/g, ''))
                             </script>
                         </td>
+
+                        <td>{{ registered.ND_SO_DIEN_THOAI }}</td>
+
                         <td>{{ registered.DKM_DIA_CHI }}</td>
+
+                        <td>{{ registered.CTDKM_GHI_CHU }}</td>
 
                         <td>
                             <span class="badge badge-warning">Chờ xử lý</span>
                         </td>
 
-                        <td>{{ registered.CTDKM_GHI_CHU }}</td>
-
                         <td>
-                            <button type="button" class="btn btn-success js-btn-done">
+                            <button type="button" class="btn btn-sm btn-success js-btn-done">
                                 <i class="fas fa-check"></i>
                                 Đánh dấu hoàn tất
                             </button>
@@ -266,7 +270,7 @@
 
                     {% if ready_registered_list|length == 0 %}
                     <tr>
-                        <td colspan="6" class="text-center">Không có yêu cầu nào</td>
+                        <td colspan="7" class="text-center">Không có yêu cầu nào</td>
                     </tr>
                     {% endif %}
                 </tbody>
@@ -335,6 +339,12 @@
 
                 let response = await axios.put(`/api/thuc-pham/${tp_ma}?${api_params}`);
                 alert("Thao tác thành công")
+
+                // remove row
+                $(this).parents("tr").remove();
+                if ($("#wait-list").children("tr").length === 0) {
+                    $('#wait-list').html(`<tr><td colspan="7" class="text-center">Không có yêu cầu nào</td></tr>`);
+                }
             } catch (e) {
                 alert("Thao tác không thành công")
                 console.log({ e });
