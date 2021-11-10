@@ -156,7 +156,7 @@ def quick_check_out():
     """
     # insert register
     new_register = {
-        "ND_MA": user_info.get("ND_MA"),
+        "ND_MA": None if not user_info else user_info["ND_MA"],
         "DKM_THOI_GIAN": datetime.now().strftime("%Y-%m-%d"),
         "DKM_DIA_CHI": query_string_dict["txtAddress"],
         "DKM_VI_TRI_BAN_DO": query_string_dict["txtViTriBanDo"],

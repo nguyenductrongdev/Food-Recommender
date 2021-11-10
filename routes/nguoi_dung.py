@@ -268,7 +268,7 @@ def list_of_ctncm(nd_ma):
     df = pd.DataFrame(list_of_ctncm)
     df = df[df["ND_MA"] == int(nd_ma)]
     df["CTDKM_TRANG_THAI"] = df["CTDKM_TRANG_THAI"].map(
-        lambda val: not math.isnan(val)
+        lambda val: val and not math.isnan(val)
     )
     df["order"] = list(range(1, len(df)+1))
     print(df.columns)

@@ -23,5 +23,7 @@ mongo_db_client = pymongo.MongoClient("mongodb://localhost:27017/")
 mongo_db = mongo_db_client[config["MONGODB"]["NAME"]]
 
 if __name__ == "__main__":
-    # mongo_db.insert_one({"Hello", "world"})
+    # res = list(mongo_db["clusters_of_food"].find({}))
+    # print(len(res))
+
     pass

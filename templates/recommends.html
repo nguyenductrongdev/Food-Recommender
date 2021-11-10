@@ -7,11 +7,30 @@
     }
 
     .recommend-cluster {
+        position: relative;
         cursor: pointer;
+        opacity: 1;
+        background: rgba(0, 0, 0, 0.8) !important;
+        transition: all 0.2s;
+    }
+
+    .recommend-cluster::before {
+        content: '';
+        z-index: -1;
+        position: absolute !important;
+        top: 0;
+        left: 0;
+
+        display: block !important;
+        width: 100% !important;
+        height: 100% !important;
+        background-image: url("https://i.stack.imgur.com/E810h.png") !important;
+        background-repeat: no-repeat !important;
+        background-position: center !important;
     }
 
     .recommend-cluster:hover {
-        background-color: #eee !important;
+        background: rgba(172, 55, 55, 0) !important;
     }
 </style>
 {% endblock %}
@@ -63,7 +82,7 @@
                                 if (node.approve)
                                     tagClasses = [...tagClasses, ...['bg-success', 'text-light']];
                                 else
-                                    tagClasses = [...tagClasses, ...['bg-secondary', 'text-light']];
+                                    tagClasses = [...tagClasses, ...['bg-dark', 'text-light']];
 
                                 if (Cookies.get("ND_MA") == node.detail.ND_MA) {
                                     tagClasses = [...tagClasses, ...['font-weight-bold']];

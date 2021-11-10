@@ -22,6 +22,7 @@ import collections
 from typing import List, Dict
 
 from models.db_utils import mongo_db
+from models.db_utils import db, cursor
 
 
 groups = []
@@ -40,9 +41,11 @@ def _subset_sum(registers: list, target: float, current_group: list = []) -> Non
     # ], f"---> sum={s}")
 
     # check if the current_group sum is equals to target
-    if s % target == 0:
+    if s != 0 and s % target == 0:
         # append 1D current_group group to 2D groups list
         groups += [current_group]
+        print(
+            f"[DM] {s}, {[register['CTDKM_SO_LUONG'] for register in current_group]}")
 
         if s >= target:
             return
@@ -61,7 +64,7 @@ def get_groups(register_detail_list, target) -> list:
     groups = []
     _subset_sum(register_detail_list, target)
     # return by ignore empty list at head
-    return groups[1:]
+    return groups
 
 
 class CustomGraph(nx.Graph):
@@ -130,10 +133,10 @@ def get_onroad_distance(coord_src: list, coord_dest: list) -> float:
     return route["distance"]/1000
 
 
-def recommand_for_big_cube_food(tp_ma: int) -> dict:
+def recommand_for_big_cube_food(tp_ma: int) -> list:
     """
         This func will call when one more food register created
-        return format: {"cost": int, "register_detail_list": list}
+        return format: [{"cost": int, "register_detail_list": list}]
     """
 
     # check food is need recommend
@@ -148,7 +151,7 @@ def recommand_for_big_cube_food(tp_ma: int) -> dict:
     register_details_df = pd.DataFrame(ChiTietDangKyMua.get_all())
     register_details_df = register_details_df[
         (register_details_df["TP_MA"] == int(tp_ma)) & (
-            register_details_df["CTDKM_TRANG_THAI"].isin([float("nan"), 0]))
+            register_details_df["CTDKM_TRANG_THAI"].isin([float("nan"), 0, None]))
     ]
 
     # get all clusters fit target value
@@ -212,7 +215,6 @@ def update_recommend_data(tp_ma: int) -> None:
         (*notice: each cluster identify by list of DKM_MA)
     """
     calc_clusters = recommand_for_big_cube_food(tp_ma=tp_ma)
-
     # # sample data
     # calc_clusters = [
     #     {
@@ -355,8 +357,10 @@ def get_recommend_data(nd_ma: int) -> list:
 
 def join_cluster(tp_ma: int, cluster_index: int, nd_ma: int) -> None:
     """
-        [Notice] This function communicate with MongoDB
+        IMPORTANT FUNCTION
         Execute join cluster behavior and select host
+        Group ctdkm of cluster in MySQL db
+        [Notice] This function communicate with both MongoDB and MYSQL
     """
 
     # get MongoDB document
@@ -403,32 +407,32 @@ def join_cluster(tp_ma: int, cluster_index: int, nd_ma: int) -> None:
             }
         )
 
+    # [IMPORTANT] if can create host, going group in MySQL database
+
 
 if __name__ == "__main__":
     # start_time = time.time()
-    # update_recommend_data(tp_ma=12)
+    update_recommend_data(tp_ma=1)
     # print(f"Run {time.time() - start_time} seconds")
 
-    ctdkm_filtered = [
-        ctdkm
-        for ctdkm in ChiTietDangKyMua.get_all()
-        if ctdkm["TP_MA"] == 10
-    ]
-    print(
-        "valid ctdkm:",
-        [f"{ctdkm['ND_TAI_KHOAN']} {ctdkm['CTDKM_SO_LUONG']}" for ctdkm in ctdkm_filtered])
-    groups = get_groups(register_detail_list=ctdkm_filtered,
-                        target=ThucPham.find(TP_MA=10)["TP_SUAT_BAN"])
-    for g in groups:
-        print([f"""{mem["ND_TAI_KHOAN"]} ({mem["CTDKM_SO_LUONG"]})"""for mem in g])
-
-    # res = recommand_for_big_cube_food(tp_ma=10)
-    # for item in res:
-    #     print(
-    #         [ctdkm["ND_TAI_KHOAN"]
-    #             for ctdkm in item["register_detail_list"]], f"cost: {item['cost']}"
-    #     )
-
-    # clusters = get_groups(register_detail_list=raw_data, target=target)
+    # raw_data = [
+    #     *ChiTietDangKyMua.get_all(),
+    # ]
+    # print([
+    #     {
+    #         "TP_MA": data["TP_MA"],
+    #         "CTDKM_SO_LUONG": data["CTDKM_SO_LUONG"],
+    #         "ND_TAI_KHOAN": data["ND_TAI_KHOAN"],
+    #         "TP_SUAT_BAN": data["TP_SUAT_BAN"],
+    #     }
+    #     for data in raw_data
+    # ])
+    # res = get_groups(raw_data, target=50.0)
+    # print(len(res))
+    # # clear for test -----------------
+    # sql = "DELETE FROM DangKyMua WHERE ND_MA = 6"
+    # cursor.execute(sql)
+    # sql = "DELETE FROM ChiTietDangKyMua WHERE CTDKM_GHI_CHU = '180'"
+    # cursor.execute(sql)
 
     pass

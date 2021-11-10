@@ -181,6 +181,8 @@ def tp_dang_ky_mua():
     """
         Add food register and details by form, add just one ctncm
     """
+    TEST_MODE = False
+
     query_string_dict = request.values
 
     """
@@ -196,7 +198,8 @@ def tp_dang_ky_mua():
         "DKM_VI_TRI_BAN_DO": query_string_dict.get("txtViTriBanDo"),
     }
 
-    REGISTER_CREATED = DangKyMua.create(new_dang_ky_mua)
+    REGISTER_CREATED = DangKyMua.create(
+        new_dang_ky_mua) if not TEST_MODE else {"DKM_MA": -1}
 
     new_chi_tiet_dang_ky_mua = {
         "TP_MA": query_string_dict.get("txtTPMa"),
@@ -206,7 +209,7 @@ def tp_dang_ky_mua():
         "CTDKM_GHI_CHU": query_string_dict.get("txtNote"),
     }
     # print(f"[DEBUG] new_chi_tiet_dang_ky_mua {new_chi_tiet_dang_ky_mua}")
-    ChiTietDangKyMua.create(new_chi_tiet_dang_ky_mua)
+    not TEST_MODE and ChiTietDangKyMua.create(new_chi_tiet_dang_ky_mua)
 
     """
         UPDATE MONGODB:

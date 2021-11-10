@@ -77,7 +77,7 @@ def recommend_page():
 
         # replaced nan by None
         for node in data["cluster"]["nodes"]:
-            if math.isnan(node["detail"]["CTDKM_TRANG_THAI"]):
+            if node["detail"]["CTDKM_TRANG_THAI"] and math.isnan(node["detail"]["CTDKM_TRANG_THAI"]):
                 node["detail"]["CTDKM_TRANG_THAI"] = None
 
         response_dict[tp_ma].append({
