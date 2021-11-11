@@ -1,3 +1,5 @@
+import os
+import sys
 import json
 import math
 import datetime
@@ -253,6 +255,57 @@ def approve_join_cluster():
     )
 
     return redirect("/nguoi-dung/goi-y-mua-chung")
+
+
+@route.route("/dashboard/<int:nd_ma>", methods=['GET'])
+def dashboard(nd_ma):
+    from db_utils import cursor
+
+    user_info = get_user_info()
+
+    # get data for draw chart
+    custom_sql = """
+    SELECT 
+        dang_ky_mua.ND_MA as NguoiMua, thuc_pham.ND_MA as NguoiBan, 
+        danh_muc_thuc_pham.DMTP_TEN, chi_tiet_dang_ky_mua.CTDKM_SO_LUONG, dang_ky_mua.DKM_MA, 
+        chi_tiet_dang_ky_mua.CTDKM_GHI_CHU, thuc_pham.TP_DON_GIA, dang_ky_mua.DKM_THOI_GIAN
+    FROM danh_muc_thuc_pham, thuc_pham, chi_tiet_dang_ky_mua, dang_ky_mua, nguoi_dung
+    WHERE danh_muc_thuc_pham.DMTP_MA = thuc_pham.DMTP_MA
+        AND thuc_pham.TP_MA = chi_tiet_dang_ky_mua.TP_MA
+        AND chi_tiet_dang_ky_mua.DKM_MA = dang_ky_mua.DKM_MA
+        AND dang_ky_mua.ND_MA = nguoi_dung.ND_MA
+    """
+    cursor.execute(custom_sql)
+    df = pd.DataFrame(cursor.fetchall())
+
+    # filter data
+    df = df[df["NguoiBan"] == user_info["ND_MA"]]
+
+    result_df = pd.DataFrame()
+
+    for month in range(1, 13):
+        cost = 0
+        bill_money = 0
+        sub_df = df[
+            df.apply(lambda row: int(
+                row["DKM_THOI_GIAN"].split("-")[1]) == month, axis=1)
+        ]
+
+        for _, row in sub_df.iterrows():
+            bill_money += row["CTDKM_SO_LUONG"] * row["TP_DON_GIA"]
+
+        result_df = result_df.append({
+            "month": int(month),
+            "cost": cost,
+            "bill_money": bill_money,
+            "proceeds": bill_money - cost,
+        }, ignore_index=True)
+
+    return render_template(
+        "user_thong_ke.html",
+        user_info=user_info,
+        draw_data=result_df.to_dict('records'),
+    )
 
 
 @route.route("/danh-sach-dang-ky-mua/<int:nd_ma>", methods=['GET'])

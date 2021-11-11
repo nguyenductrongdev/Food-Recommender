@@ -23,6 +23,10 @@ from models.danh_muc_thuc_pham import DanhMucThucPham
 from models.thuc_pham import ThucPham
 
 from utils import get_user_info
+import sys
+
+# append to view db_utils
+sys.path.append(os.path.abspath("./models/"))
 
 
 app = Flask(__name__)
