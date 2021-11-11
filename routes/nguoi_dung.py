@@ -324,7 +324,6 @@ def list_of_ctncm(nd_ma):
         lambda val: val and not math.isnan(val)
     )
     df["order"] = list(range(1, len(df)+1))
-    print(df.columns)
 
     return render_template(
         "list_of_ctdkm.html",

@@ -44,8 +44,6 @@ def _subset_sum(registers: list, target: float, current_group: list = []) -> Non
     if s != 0 and s % target == 0:
         # append 1D current_group group to 2D groups list
         groups += [current_group]
-        print(
-            f"[DM] {s}, {[register['CTDKM_SO_LUONG'] for register in current_group]}")
 
         if s >= target:
             return
@@ -411,28 +409,4 @@ def join_cluster(tp_ma: int, cluster_index: int, nd_ma: int) -> None:
 
 
 if __name__ == "__main__":
-    # start_time = time.time()
-    update_recommend_data(tp_ma=1)
-    # print(f"Run {time.time() - start_time} seconds")
-
-    # raw_data = [
-    #     *ChiTietDangKyMua.get_all(),
-    # ]
-    # print([
-    #     {
-    #         "TP_MA": data["TP_MA"],
-    #         "CTDKM_SO_LUONG": data["CTDKM_SO_LUONG"],
-    #         "ND_TAI_KHOAN": data["ND_TAI_KHOAN"],
-    #         "TP_SUAT_BAN": data["TP_SUAT_BAN"],
-    #     }
-    #     for data in raw_data
-    # ])
-    # res = get_groups(raw_data, target=50.0)
-    # print(len(res))
-    # # clear for test -----------------
-    # sql = "DELETE FROM DangKyMua WHERE ND_MA = 6"
-    # cursor.execute(sql)
-    # sql = "DELETE FROM ChiTietDangKyMua WHERE CTDKM_GHI_CHU = '180'"
-    # cursor.execute(sql)
-
     pass
