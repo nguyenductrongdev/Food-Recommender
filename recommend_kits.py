@@ -1,3 +1,4 @@
+from const import COMPLETED, MERGED
 import sys
 import datetime
 from numpy import ndenumerate
@@ -157,17 +158,19 @@ def recommand_for_big_cube_food(tp_ma: int) -> list:
             *[int(n) for n in row["DKM_THOI_GIAN"].split("-")])
 
         return all([
+            not math.isnan(row["TP_SUAT_BAN"]),
             row["TP_MA"] == int(tp_ma),
-            row["CTDKM_TRANG_THAI"] != float(
-                'nan') and bool(row["CTDKM_TRANG_THAI"]),
             register_date <= datetime.datetime.now(),
+            row["CTDKM_TRANG_THAI"] != MERGED,
+            row["CTDKM_TRANG_THAI"] != COMPLETED,
+            row["CTDKM_SO_LUONG"] % row["TP_SUAT_BAN"] != 0,
         ])
     register_details_df = register_details_df[
         register_details_df.apply(_filter_callbacks, axis=1)
     ]
-
     # get all clusters fit target value
     raw_data = register_details_df.to_dict('records')
+    print("raw_data", [data["DKM_MA"] for data in raw_data])
     target = ThucPham.find(TP_MA=int(tp_ma))["TP_SUAT_BAN"]
     print(f"[DEBUG/target] {target}")
     clusters = get_groups(register_detail_list=raw_data, target=target)
@@ -431,6 +434,7 @@ def join_cluster(tp_ma: int, cluster_index: int, nd_ma: int) -> None:
                 "TP_MA": node["detail"]["TP_MA"],
 
                 "CTDKM_SO_LUONG": 0,
+                "CTDKM_TRANG_THAI": 2,  # merged
             })
 
 
@@ -439,3 +443,5 @@ if __name__ == "__main__":
         nd_ma = int(sys.argv[1])
         update_recommend_data(nd_ma)
         exit(f"[LOG] update_recommend_data for nd_ma {nd_ma} done!")
+
+    recommand_for_big_cube_food(tp_ma=2)

@@ -1,3 +1,4 @@
+from const import COMPLETED, MERGED
 import sys
 import subprocess
 from flask import Blueprint, Flask, request,  jsonify, url_for, render_template, redirect, flash, send_file, session
@@ -41,11 +42,15 @@ def tp_index(tp_ma):
         ready_registered_list = [
             register_detail
             for register_detail in registered_detail_list
-            if int(register_detail["TP_MA"]) == int(tp_ma) and
-            not register_detail["CTDKM_TRANG_THAI"] and
-            int(register_detail["CTDKM_SO_LUONG"]) <= int(food["TP_SO_LUONG"]) and
-            int(register_detail["CTDKM_SO_LUONG"]) % (
-                food["TP_SUAT_BAN"] or 1) == 0
+            if all([
+                int(register_detail["TP_MA"]) == int(tp_ma),  # fit food id
+                register_detail["CTDKM_TRANG_THAI"] != COMPLETED,
+                register_detail["CTDKM_TRANG_THAI"] != MERGED,
+                int(register_detail["CTDKM_SO_LUONG"]) <= int(
+                    food["TP_SO_LUONG"]),  # enough to buy
+                int(register_detail["CTDKM_SO_LUONG"]) % (
+                    food["TP_SUAT_BAN"] or 1) == 0  # fit cube
+            ])
         ]
 
         unready_registered_list = [
@@ -59,8 +64,6 @@ def tp_index(tp_ma):
             (int(register_detail["CTDKM_SO_LUONG"]) %
              (food["TP_SUAT_BAN"] or 1) != 0)
         ]
-        # print("[DEBUG] unready_registered_list",
-        #       unready_registered_list[0])
 
         try:
             user_info = get_user_info()
@@ -83,8 +86,18 @@ def tp_index(tp_ma):
         except Exception as e:
             pass
 
+        def _filter_callback(register):
+            if register["TP_SUAT_BAN"]:
+                return all([
+                    register["CTDKM_TRANG_THAI"] is None or register["CTDKM_TRANG_THAI"] == 0,
+                    register["CTDKM_SO_LUONG"] != 0,
+                    register["CTDKM_SO_LUONG"] % register["TP_SUAT_BAN"] != 0
+                ])
+            return True
+
         unready_registered_list = [
-            *map(lambda x: {**x, }, unready_registered_list)]
+            *filter(_filter_callback, unready_registered_list)
+        ]
 
         return render_template(
             "food.html",
