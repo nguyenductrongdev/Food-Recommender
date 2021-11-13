@@ -35,7 +35,7 @@
 
     <div class="row" id="food-presenter" style="min-height: 90vh;">
         {% for food in food_list %}
-        <div class="col-3 my-3">
+        <div class="col-3 my-3 product-wrapper" data-dmtp_ten="{{ food.DMTP_TEN }}">
             <div class="card product position-relative">
                 {% if food.ready_registered_count %}
                 <div class="badge badge-danger position-absolute" style="bottom: 0; right: 0;">
@@ -60,7 +60,7 @@
                         </i>
                     </p>
 
-                    <a href="/thuc-pham/{{food.TP_MA}}" class="btn btn-primary stretched-link">
+                    <a href="/thuc-pham/{{food.TP_MA}}" class="btn btn-primary btn-sm stretched-link">
                         Xem chi tiết
                     </a>
                 </div>
@@ -75,47 +75,15 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 <script type="text/javascript">
-    function foodToHTML(food) {
-        return `
-            <div class="col-3 my-3">
-                <div class="card product position-relative">
-                    <img class="card-img-top product__image" src="/${food.TP_HINH_ANH}" alt="Card image cap">
-                    <div class="card-body">
-                        <h5 class="card-title">
-                            ${food.DMTP_TEN}
-                        </h5>
-                        <p class="card-text">
-                            <i>Còn lại:
-                                ${String(food.TP_SO_LUONG).replace(/\.0*$/g, '')}
-                            </i>
-                            <br />
-                            <i>
-                                ${Number(String(food.TP_DON_GIA).replace(/\.0*$/g, '')).toLocaleString('vi')} đ/1 ${food.DMDVT_TEN})
-                            </i>
-                        </p>
-
-                        <a href="/thuc-pham/${food.TP_MA}" class="btn btn-primary stretched-link">
-                            Xem chi tiết
-                        </a>
-                    </div>
-                </div>
-            </div>
-        `
-    }
-
     $(function () {
         $("#txtFilterByName").keyup(async function (e) {
             let { value } = e.target;
-            let response = await axios.get(`/api/thuc-pham/shop/{{ user_info.ND_MA }}`)
-            let foods = response.data.food_list;
-            let presentHTML = foods
-                .filter(food => food.TP_TEN.includes(value))
-                .map(food => foodToHTML(food))
-                .join("");
-            if (presentHTML === "") {
-                presentHTML = `<p class="text-center w-100">Không có thực phẩm nào khớp với tìm kiếm</p>`;
+            if (value == '') {
+                $(".product-wrapper").show();
+            } else {
+                $(".product-wrapper").hide();
+                $(`.product-wrapper[data-dmtp_ten*='${value}']`).show();
             }
-            $("#food-presenter").html(presentHTML);
         });
     });
 </script>

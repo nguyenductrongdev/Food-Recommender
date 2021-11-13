@@ -85,56 +85,64 @@ def checkout():
     )
 
 
-@app.route('/food-map', methods=['GET'])
+@app.route('/food-map/', methods=['GET'])
 def food_map():
     food_list = ThucPham.get_all()
     danh_muc_thuc_pham_list = DanhMucThucPham.get_all()
-    danh_muc_don_vi_tinh_list = DanhMucDonViTinh.get_all()
-    nguoi_dung_list = NguoiDung.get_all()
+    target_dmtp = None
 
-    user_info = None
+    def _get_leafs():
+        parent_list = [
+            *map(lambda item: item["DMTP_MA_DMTM_CHA"], danh_muc_thuc_pham_list)
+        ]
 
-    geo_location_list = []
-    info_in_location = []
+        def dmtp_is_leaf(dmtp):
+            # leaf is not parent anywhere and have parent
+            return dmtp["DMTP_MA"] not in parent_list and dmtp["DMTP_MA_DMTM_CHA"]
 
-    def is_number(n):
+        # filter dmtp, just get leaf node
+        dmtp_leaf = [
+            *filter(dmtp_is_leaf, danh_muc_thuc_pham_list)
+        ]
+        return dmtp_leaf
+
+    query_string_dict = request.values
+    if query_string_dict.get("dmtp_ma"):
+        food_list = [
+            *filter(lambda food: int(food["DMTP_MA"]) == int(query_string_dict.get("dmtp_ma")), food_list)
+        ]
+        target_dmtp = [
+            dmtp
+            for dmtp in DanhMucThucPham.get_all()
+            if int(dmtp.get("DMTP_MA")) == int(query_string_dict.get("dmtp_ma"))
+        ][0]
+
+    custom_food_list = []
+
+    def _is_number(n):
         try:
             float(n)
             return True
         except:
             return False
 
-    for food in food_list:
+    for i, food in enumerate(food_list):
         longitude, latitude = food.get("TP_VI_TRI_BAN_DO").split("|")
-        if not is_number(longitude) or not is_number(latitude):
+        if not _is_number(longitude) or not _is_number(latitude):
             continue
 
-        geo_location_list.append({
+        custom_food_list.append({
+            **food,
             "longitude": longitude,
             "latitude": latitude,
         })
 
-        DMDVT_TEN = list(filter(lambda dmdvt: dmdvt.get("DMDVT_MA") ==
-                                food.get("DMDVT_MA"), danh_muc_don_vi_tinh_list))[0].get("DMDVT_TEN")
-        DMTP_TEN = list(filter(lambda dmtp: dmtp.get("DMTP_MA") ==
-                               food.get("DMTP_MA"), danh_muc_thuc_pham_list))[0].get("DMTP_TEN")
-
-        info_in_location.append({
-            "TP_NGAY_BAN": food.get("TP_NGAY_BAN"),
-            "DMTP_TEN": DMTP_TEN,
-            "TP_SO_LUONG": food.get("TP_SO_LUONG"),
-            "DMDVT_TEN": DMDVT_TEN,
-        })
-
-    user_info = get_user_info()
-
     return render_template(
         "food_map.html",
-        user_info=user_info,
-        geo_location_list=geo_location_list,
-        lengthLocation=len(geo_location_list),
-        information_in_location=info_in_location,
-        food_list=food_list,
+        user_info=get_user_info(),
+        custom_food_list=custom_food_list,
+        dmtp_list=_get_leafs(),
+        target_dmtp=target_dmtp,
     )
 
 

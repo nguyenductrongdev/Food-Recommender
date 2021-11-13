@@ -23,11 +23,32 @@
 {% endblock %}
 
 
-
 {% block main %}
-<div class="container">
-    <div class="shadow" id="map" style="height:90vh"></div>
-</div>
+<main class="container">
+    <div class="row mb-3">
+        <div class="col-4">
+            <select name="slDMTP_MA" id="slDMTP_MA" class="form-control">
+                <option value="">Tất cả</option>
+                {% for dmtp in dmtp_list %}
+                <option value="{{ dmtp.DMTP_MA }}">{{ dmtp.DMTP_TEN }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    
+    <div class="row mb-3">
+        <div class="col-12">
+            <h1 class="section-header">Danh mục: <span class="text-success">{{ target_dmtp.DMTP_TEN }}</span> ({{custom_food_list | count}})</h1>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-12">
+            <div class="shadow" id="map" style="height:90vh"></div>
+        </div>
+    </div>
+</main>
 {% endblock %}
 
 {% block script %}
@@ -40,8 +61,7 @@
 <link href="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css" rel="stylesheet" />
 
 <script>
-    mapboxgl.accessToken =
-        "pk.eyJ1IjoidnVseXRoaWVuYW5oIiwiYSI6ImNrZXlhNXd3ZDBkb2Myd3AzYWRxaXhodnIifQ.de-6twccJ_8Jte2Iy5xVqg";
+    mapboxgl.accessToken = "pk.eyJ1IjoidnVseXRoaWVuYW5oIiwiYSI6ImNrZXlhNXd3ZDBkb2Myd3AzYWRxaXhodnIifQ.de-6twccJ_8Jte2Iy5xVqg";
 
     function successLocation(position) {
         setupMap([position.coords.longitude, position.coords.latitude]);
@@ -63,37 +83,41 @@
             zoom: 10,
         });
 
-        {%for local in range(0, lengthLocation) %}
-        var marker{{ local+1
-    }} = new mapboxgl.Marker()
-        .setLngLat([{{ geo_location_list[local].latitude }}, {{ geo_location_list[local].longitude }}])
+        {%for food in custom_food_list %}
+        var marker{{ food.TP_MA }} = new mapboxgl.Marker()
+        .setLngLat([{{ food.latitude }}, {{ food.longitude }}])
         .setPopup(new mapboxgl.Popup({ offset: 25 }) // add popups
             .setHTML(
                 `
-                <a href="/thuc-pham/{{food_list[local].TP_MA}}" style="text-decoration: none">
+                <a href="/thuc-pham/{{food.TP_MA}}" style="text-decoration: none">
                     <div>
                         <h6>Thông tin</h6>
-                        <p>Danh mục: {{ information_in_location[local].DMTP_TEN }}<p>
-                        <p>Số lượng: {{ information_in_location[local].TP_SO_LUONG}} {{ information_in_location[local].DMDVT_TEN}}</p>
-                        <p>Ngày bán: {{ information_in_location[local].TP_NGAY_BAN }}<p>
+                        <p>Danh mục: {{ food.DMTP_TEN }}<p>
+                        <p>Số lượng: {{ food.TP_SO_LUONG}} {{ food.DMDVT_TEN}}</p>
+                        <p>Ngày bán: {{ food.TP_NGAY_BAN }}<p>
                     </div>
                 </a>
                 `
             ))
         .addTo(map);
-    {% endfor %}
+        {% endfor %}
 
-    // Add geolocate control to the map.
-    map.addControl(
-        new mapboxgl.GeolocateControl({
-            positionOptions: {
-                enableHighAccuracy: true
-            },
-            trackUserLocation: true
-        })
-    );
+        // Add geolocate control to the map.
+        map.addControl(
+            new mapboxgl.GeolocateControl({
+                positionOptions: {
+                    enableHighAccuracy: true
+                },
+                trackUserLocation: true
+            })
+        );
     }
 
+    document.querySelector('#slDMTP_MA').addEventListener("change", function(e) {
+        let { value } = e.target;
+        console.log({ value });
+        window.location.href = "/food-map?dmtp_ma=" + value;
+    });
 
 </script>
 {% endblock %}

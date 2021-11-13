@@ -67,7 +67,7 @@ def recommend_page():
 
     # sort cluster by cost
     cluster_df = pd.DataFrame(list_of_clusters)
-    print(cluster_df)
+    # print(cluster_df)
 
     response_dict = {}
     for _, data in cluster_df.iterrows():

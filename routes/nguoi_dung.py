@@ -268,7 +268,8 @@ def dashboard(nd_ma):
     SELECT 
         dang_ky_mua.ND_MA as NguoiMua, thuc_pham.ND_MA as NguoiBan, 
         danh_muc_thuc_pham.DMTP_TEN, chi_tiet_dang_ky_mua.CTDKM_SO_LUONG, dang_ky_mua.DKM_MA, 
-        chi_tiet_dang_ky_mua.CTDKM_GHI_CHU, thuc_pham.TP_DON_GIA, dang_ky_mua.DKM_THOI_GIAN
+        chi_tiet_dang_ky_mua.CTDKM_GHI_CHU, thuc_pham.TP_DON_GIA, dang_ky_mua.DKM_THOI_GIAN, 
+        chi_tiet_dang_ky_mua.CTDKM_TRANG_THAI
     FROM danh_muc_thuc_pham, thuc_pham, chi_tiet_dang_ky_mua, dang_ky_mua, nguoi_dung
     WHERE danh_muc_thuc_pham.DMTP_MA = thuc_pham.DMTP_MA
         AND thuc_pham.TP_MA = chi_tiet_dang_ky_mua.TP_MA
@@ -277,13 +278,23 @@ def dashboard(nd_ma):
     """
     cursor.execute(custom_sql)
     df = pd.DataFrame(cursor.fetchall())
-
     # filter data
-    df = df[df["NguoiBan"] == user_info["ND_MA"]]
+    print(df)
 
+    def _filter_callbacks(row: pd.Series) -> bool:
+        """Filter to get information for draw chart"""
+        is_nguoi_ban = int(row["NguoiBan"]) == int(user_info["ND_MA"])
+        is_in_range_date = datetime.datetime(
+            *[int(n) for n in row["DKM_THOI_GIAN"].split("-")]) <= datetime.datetime.now()
+        is_handle_complete = not math.isnan(
+            row["CTDKM_TRANG_THAI"]) and bool(row["CTDKM_TRANG_THAI"])
+
+        return all([is_nguoi_ban, is_in_range_date, is_handle_complete])
+    df = df[df.apply(_filter_callbacks, axis=1)]
+
+    # handle to build template
     result_df = pd.DataFrame()
-
-    for month in range(1, 13):
+    for month in range(1, int(datetime.date.today().strftime("%m")) + 1):
         cost = 0
         bill_money = 0
         sub_df = df[

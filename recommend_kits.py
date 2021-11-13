@@ -1,3 +1,5 @@
+import sys
+import datetime
 from numpy import ndenumerate
 import pandas as pd
 import math
@@ -16,7 +18,7 @@ from models.nguoi_dung import NguoiDung
 from models.thuc_pham import ThucPham
 from models.dang_ky_mua import DangKyMua
 
-import time
+from time import sleep
 import collections
 
 from typing import List, Dict
@@ -140,16 +142,28 @@ def recommand_for_big_cube_food(tp_ma: int) -> list:
     # check food is need recommend
     if tp_ma not in [
         food["TP_MA"]
-        for food in ThucPham.get_all() if food["TP_SUAT_BAN"]
+        for food in ThucPham.get_all()
+        if bool(food["TP_SUAT_BAN"])
     ]:
         print("[WARNING] Food not sale by bcf")
         return
 
     # get register details contain THIS FOOD ID and not done
     register_details_df = pd.DataFrame(ChiTietDangKyMua.get_all())
+
+    # filter
+    def _filter_callbacks(row: pd.Series) -> bool:
+        register_date = datetime.datetime(
+            *[int(n) for n in row["DKM_THOI_GIAN"].split("-")])
+
+        return all([
+            row["TP_MA"] == int(tp_ma),
+            row["CTDKM_TRANG_THAI"] != float(
+                'nan') and bool(row["CTDKM_TRANG_THAI"]),
+            register_date <= datetime.datetime.now(),
+        ])
     register_details_df = register_details_df[
-        (register_details_df["TP_MA"] == int(tp_ma)) & (
-            register_details_df["CTDKM_TRANG_THAI"].isin([float("nan"), 0, None]))
+        register_details_df.apply(_filter_callbacks, axis=1)
     ]
 
     # get all clusters fit target value
@@ -168,20 +182,21 @@ def recommand_for_big_cube_food(tp_ma: int) -> list:
             for j in range(i+1, len(cluster)):
                 try:
                     # must get weight here
-                    coord_src = cluster[i]["DKM_VI_TRI_BAN_DO"].split(
-                        "|")
-                    coord_dest = cluster[j]["DKM_VI_TRI_BAN_DO"].split(
-                        "|")
-                    weight_1 = get_onroad_distance(
-                        coord_src, coord_dest)
-                    G.add_edge(cluster[i], cluster[j], weight_1)
+                    coord_src = cluster[i]["DKM_VI_TRI_BAN_DO"].split("|")
+                    coord_dest = cluster[j]["DKM_VI_TRI_BAN_DO"].split("|")
+                    weight_src_dest = get_onroad_distance(
+                        coord_src, coord_dest
+                    )
+                    G.add_edge(cluster[i], cluster[j], weight_src_dest)
 
                     # add edges to food place to src/dest place
                     coord_food = food.get("TP_VI_TRI_BAN_DO").split("|")
                     weight_food_src = get_onroad_distance(
-                        coord_food, coord_src)
+                        coord_food, coord_src
+                    )
                     weight_food_dest = get_onroad_distance(
-                        coord_food, coord_dest)
+                        coord_food, coord_dest
+                    )
                     G.add_edge(food, cluster[i], weight_food_src)
                     G.add_edge(food, cluster[j], weight_food_dest)
                 except Exception as e:
@@ -213,20 +228,6 @@ def update_recommend_data(tp_ma: int) -> None:
         (*notice: each cluster identify by list of DKM_MA)
     """
     calc_clusters = recommand_for_big_cube_food(tp_ma=tp_ma)
-    # # sample data
-    # calc_clusters = [
-    #     {
-    #         "cost": 10,
-    #         "register_detail_list": [
-    #             {
-    #                 "TP_MA": 10,
-    #                 "DKM_MA": 99,
-    #                 "CTDKM_SO_LUONG": 20,
-    #                 "ND_MA": 99,
-    #             }
-    #         ],
-    #     },
-    # ]
 
     try:
         # get old document
@@ -248,15 +249,13 @@ def update_recommend_data(tp_ma: int) -> None:
         ]
 
         # find new clusters need to update
-        # print(old_cluster_dkm_ma_list, "\n", calc_cluster_dkm_ma_list)
-
         new_clusters_of_dkm_ma = []
         for items_1 in calc_cluster_dkm_ma_list:
             # append when the cluster not exist any cluster
             if all([collections.Counter(items_1) != collections.Counter(items_2) for items_2 in old_cluster_dkm_ma_list]):
                 new_clusters_of_dkm_ma += [items_1]
 
-        print(f"the new {new_clusters_of_dkm_ma}")
+        print(f"the new")
 
         # update new clusters
         def _find_cluster_by_dkm_ma_list(filter_list: List[int]) -> List[dict]:
@@ -374,7 +373,8 @@ def join_cluster(tp_ma: int, cluster_index: int, nd_ma: int) -> None:
 
     assert node_index != -1
 
-    print(f"[DEBUG] {tp_ma} > {cluster_index} > {node_index}")
+    print(
+        f"[DEBUG] tp_ma {tp_ma} >  cluster_index {cluster_index} > node_index {node_index}")
     # set approve of specified user is True
     mongo_db[CLUSTERS_OF_FOOD_COLLECTION].update_one(
         {"TP_MA": tp_ma},
@@ -384,6 +384,11 @@ def join_cluster(tp_ma: int, cluster_index: int, nd_ma: int) -> None:
             }
         }
     )
+
+    # re-fetch data
+    mongodb_document = mongo_db[CLUSTERS_OF_FOOD_COLLECTION].find_one({
+        "TP_MA": tp_ma
+    })
 
     # check to set host of cluster if can, the cluster is ready when all approve
     is_ready_cluster = all([
@@ -405,8 +410,32 @@ def join_cluster(tp_ma: int, cluster_index: int, nd_ma: int) -> None:
             }
         )
 
-    # [IMPORTANT] if can create host, going group in MySQL database
+        # [IMPORTANT] if can create host, going group in MySQL database
+        total_of_cluster = sum([
+            node["detail"]["CTDKM_SO_LUONG"]
+            for node in mongodb_document["clusters"][cluster_index]["nodes"]
+        ])
+        # set host_value/host's ND_MA has total
+        ChiTietDangKyMua.update(**{
+            "DKM_MA": host_node["detail"]["DKM_MA"],
+            "TP_MA": host_node["detail"]["TP_MA"],
+
+            "CTDKM_SO_LUONG": total_of_cluster,
+        })
+        # delete remain registers of group
+        for node in mongodb_document["clusters"][cluster_index]["nodes"]:
+            if node["detail"]["DKM_MA"] == host_node["detail"]["DKM_MA"]:
+                continue
+            ChiTietDangKyMua.update(**{
+                "DKM_MA": node["detail"]["DKM_MA"],
+                "TP_MA": node["detail"]["TP_MA"],
+
+                "CTDKM_SO_LUONG": 0,
+            })
 
 
 if __name__ == "__main__":
-    pass
+    if len(sys.argv) > 1:
+        nd_ma = int(sys.argv[1])
+        update_recommend_data(nd_ma)
+        exit(f"[LOG] update_recommend_data for nd_ma {nd_ma} done!")

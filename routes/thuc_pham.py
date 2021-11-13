@@ -1,3 +1,5 @@
+import sys
+import subprocess
 from flask import Blueprint, Flask, request,  jsonify, url_for, render_template, redirect, flash, send_file, session
 import configparser
 import uuid
@@ -218,6 +220,7 @@ def tp_dang_ky_mua():
     """
     tp_ma = int(query_string_dict["txtTPMa"])
     if ThucPham.find(TP_MA=tp_ma).get("TP_SUAT_BAN"):
-        update_recommend_data(tp_ma=tp_ma)
+        # update recommend by another process
+        subprocess.Popen([sys.executable, "recommend_kits.py", str(tp_ma)])
 
     return redirect("/")

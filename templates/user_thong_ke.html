@@ -29,33 +29,35 @@
         data.addColumn('number', 'Lợi nhuận');
 
         data.addRows([
-
             {% for month_data in draw_data %}
-            [`{{month_data.month}}`.replace(/\.0*$/, ''), {{ month_data.bill_money }}, {{ month_data.cost }}, {{ month_data.proceeds }}],
-            {% endfor %}
+    [`{{month_data.month}}`.replace(/\.0*$/, ''), {{ month_data.bill_money }}, {{ month_data.cost }}, {{ month_data.proceeds }}],
+        {% endfor %}
         ]);
 
-        var options = {
-            chart: {
-                title: `Biểu đồ thống kê năm ${new Date().getFullYear()}`,
-                subtitle: 'đơn vị: VNĐ'
-            },
-            width: 900,
-            height: 500,
-            axes: {
-                x: {
-                    0: { side: 'bottom' }
-                }
-            },
-            vAxis: {
-                title: 'VNĐ',
-                format: 'decimal'
+    var options = {
+        chart: {
+            title: `Biểu đồ thống kê năm ${new Date().getFullYear()} (tháng 1 - tháng ${new Date().getMonth() + 1})`,
+            subtitle: 'đơn vị: VNĐ'
+        },
+        width: 900,
+        height: 500,
+        axes: {
+            x: {
+                0: { side: 'bottom' }
             }
-        };
+        },
+        vAxis: {
+            title: 'VNĐ',
+            format: 'decimal',
+            viewWindow: {
+                min: 0,
+            }
+        }
+    };
 
-        var chart = new google.charts.Line(document.getElementById('linechart_material'));
+    var chart = new google.charts.Line(document.getElementById('linechart_material'));
 
-        chart.draw(data, google.charts.Line.convertOptions(options));
+    chart.draw(data, google.charts.Line.convertOptions(options));
     }
 </script>
 {% endblock %}
