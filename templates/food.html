@@ -159,7 +159,7 @@
         <div class="col-12">
             <h2 class="section-header">Đặt mua</h2>
             <form action="/thuc-pham/dang-ky" class="bg-light p-5 shadow-lg rounded" method="post">
-                <input type="hidden" name="txtNDMa" value="{{user_info.ND_MA}}" />
+                <input type="hidden" name="txtNDMa" value="{{ user_info.ND_MA }}" />
                 <input type="hidden" name="txtTPMa" value="{{food.TP_MA}}" />
                 <input type="hidden" name="txtViTriBanDo" id="txtViTriBanDo" />
 
@@ -175,7 +175,7 @@
                     <div class="col-12">
                         <div class="form-row">
                             <div class="col-6">
-                                <label for="numDangKy">Số lượng</label>
+                                <label for="numSoLuongDangKy">Số lượng</label>
                                 <input type="number" name="numSoLuongDangKy" id="numSoLuongDangKy" class="form-control"
                                     step="0.1" max="{{food.TP_SO_LUONG}}" />
                             </div>
@@ -201,7 +201,7 @@
                             class="form-control position-relative"></textarea>
                     </div>
                 </div>
-                <button class="btn btn-primary form-control mt-3" id="js-btn-register" type="submit">Đặt</button>
+                <button class="btn btn-primary form-control mt-3" id="js-btn-register" type="button">Đặt</button>
             </form>
         </div>
     </div>
@@ -351,22 +351,27 @@
             }
         });
 
-        // function isLogin() {
-        //     let x = Cookies.get("ND_MA");
-        //     console.log("Check result nd_ma", x);
-        //     return x ? true : false;
-        // }
-
-        // // new feature
-        // $("#js-btn-register").click(function (e) {
-        //     e.preventDefault();
-        //     try {
-        //         let userIsLogin = isLogin();
-        //         console.log({ userIsLogin });
-        //     } catch (err) {
-        //         console.log({ err });
-        //     }
-        // });
+        // new feature
+        $("#js-btn-register").click(function (e) {
+            e.preventDefault();
+            try {
+                let count = Number($("#numSoLuongDangKy").val());
+                let foodSize = Number(`{{ food.TP_SUAT_BAN }}`);
+                if(!count || count < 0) {
+                    alert("Số lượng mua không hợp lệ");
+                    return;
+                }
+                if (foodSize) {
+                    if (!Cookies.get("ND_MA") && (count % foodSize != 0)) {
+                        alert(`Thực phẩm này chỉ bán với số lượng ${foodSize} mỗi phần`);
+                        return;
+                    }
+                }
+                $(this).parents("form").submit();
+            } catch (err) {
+                console.log({ err });
+            }
+        });
     });
 </script>
 {% endblock %}

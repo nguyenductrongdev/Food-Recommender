@@ -39,6 +39,47 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src=" https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js " defer></script>
 
+<!-- Mapbox -->
+<script src="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js"></script>
+<link href="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css" rel="stylesheet" />
+
+<script>
+    function setupMap(center, ctdkm_list=[], container) {
+        var map = new mapboxgl.Map({
+            container: container,
+            style: "mapbox://styles/mapbox/streets-v11",
+            center: center,
+            zoom: 10,
+        });
+
+        for(let ctdkm of ctdkm_list){
+            let marker = new mapboxgl.Marker()
+                .setLngLat(ctdkm.detail.DKM_VI_TRI_BAN_DO.split('|').reverse())
+                .setPopup(new mapboxgl.Popup({ offset: 25 }) // add popups
+                .setHTML(
+                    `
+                    <div>
+                        <h6>Thông tin</h6>
+                        <p>Tài khoản: ${ ctdkm.detail.ND_TAI_KHOAN }<p>
+                        <p>Số điện thoại: ${ ctdkm.detail.ND_SO_DIEN_THOAI }<p>
+                        <p>Số lượng: ${ ctdkm.detail.TP_SO_LUONG} ${ ctdkm.detail.DMDVT_TEN}</p>
+                    </div>
+                    `
+                ))
+                .addTo(map);
+        }
+
+        // Add geolocate control to the map.
+        map.addControl(
+            new mapboxgl.GeolocateControl({
+                positionOptions: {
+                    enableHighAccuracy: true
+                },
+                trackUserLocation: true
+            })
+        );
+    }
+</script>
 
 <div class="container" style="min-height: 90vh !important;">
     <div class="row">
@@ -50,6 +91,8 @@
             </div>
 
             <script>
+                mapboxgl.accessToken = "pk.eyJ1IjoidnVseXRoaWVuYW5oIiwiYSI6ImNrZXlhNXd3ZDBkb2Myd3AzYWRxaXhodnIifQ.de-6twccJ_8Jte2Iy5xVqg";
+
                 (async function () {
                     let response = await axios.get("/api/nguoi-dung/goi-y-mua-chung");
                     let recommendData = response.data.recommend_data;
@@ -59,18 +102,19 @@
                         return () => `uuid-${++uniKeyCount}`;
                     })();
 
-                    let presentHTML = "";
-                    console.log({ recommendData });
                     let uniKeyCount = 0;
+
                     for (const tp_ma in recommendData) {
                         const tp_ten = recommendData[tp_ma][0]["nodes"][0]["detail"]["TP_TEN"]
-                        presentHTML += `<h4>${tp_ten} (mã thực phẩm: ${tp_ma})</h4>`;
+                        $("#main-content").append(`<h4>${tp_ten} (mã thực phẩm: ${tp_ma})</h4>`);
+
                         // show cluster one by one
                         for (const cluster of recommendData[tp_ma]) {
+                            console.log("cluster")
                             const nodes = cluster["nodes"];
                             let uuid = get_uuid()
 
-                            presentHTML += `<div class='bg-light p-3 rounded border shadow-sm d-flex flex-wrap justify-content-start align-items-center recommend-cluster' data-toggle='modal' data-target='#${uuid}'>`;
+                            presentHTML = `<div class='bg-light p-3 rounded border shadow-sm d-flex flex-wrap justify-content-start align-items-center recommend-cluster' data-toggle='modal' data-target='#${uuid}'>`;
 
                             const max_of_CTDKM_SO_LUONG = Math.max(...nodes.map(node => node.detail.CTDKM_SO_LUONG))
                             const host_ND_MA = nodes.find(node => node.detail.CTDKM_SO_LUONG == max_of_CTDKM_SO_LUONG).detail.ND_MA;
@@ -116,14 +160,42 @@
 
                             // add modal body
                             presentHTML += `<div class="modal-body">`;
-                            presentHTML += `<div>Bạn đồng ý mua chung với ${nodes.map(node => '<b>' + node.detail.ND_TAI_KHOAN + '</b>').join(', ')}?</div>`;
 
+                            // add map start
+                            presentHTML += `<div id="map-${uuid}" class="border shadow my-3" style="width: 100%; height: 50vh">`;
                             presentHTML += `</div>`;
+                            // add map end
+
+                            presentHTML += `<i>Chi tiết:</i><br />`;
+                            presentHTML += `<table class="table table-bordered table-striped">`
+                            presentHTML += `
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Tài khoản</th>
+                                    <th>Số điện thoại</th>
+                                    <th>Số lượng</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+                            for(let node of nodes) {
+                                presentHTML += `<tr>`;
+                                presentHTML += `<td>${node.detail.ND_TAI_KHOAN}</td>`;
+                                presentHTML += `<td>${node.detail.ND_SO_DIEN_THOAI}</td>`;
+                                presentHTML += `<td>${node.detail.CTDKM_SO_LUONG}</td>`;
+                                presentHTML += `</tr>`;
+                            }
+                            presentHTML += `</tbody></table>`
+
+                            
+                            presentHTML += `<div>Bạn đồng ý mua chung với ${nodes.map(node => '<b>' + node.detail.ND_TAI_KHOAN + '</b>').join(', ')}?</div>`;
+                            
+                            presentHTML += `</div>`;
+                            
 
                             // add model foot, that include hidden form
                             presentHTML += `
                                         <div class="modal-footer">
-                                            <form name="frm-${get_uuid()}" action="/nguoi-dung/approve-join-cluster" method="post">
+                                            <form name="frm-${uuid}" action="/nguoi-dung/approve-join-cluster" method="post">
                                                 <input type="hidden" name="tp_ma" value="${tp_ma}">
                                                 <input type="hidden" name="cluster_index" value="${cluster.cluster_index}">
                                                 
@@ -136,11 +208,22 @@
                             </div>`;
 
                             presentHTML += "<br />"
+
+                            $("#main-content").append(presentHTML);
+                            setupMap(
+                                nodes
+                                    .find(node => node.detail.ND_MA == Cookies.get("ND_MA"))
+                                    .detail.DKM_VI_TRI_BAN_DO
+                                    .split("|")
+                                    .reverse(),
+                                nodes,
+                                `map-${uuid}`,
+                            );
                         }
 
                     }
 
-                    $("#main-content").html(presentHTML);
+                    
                 })();
             </script>
 
@@ -155,11 +238,8 @@
 
 <script>
     $(function () {
-        $("#js-btn-approve").click(async function (e) {
-            let tp_ma = $(this).attr("data-tp_ma");
-            let dmtp_ma = $(this).attr("data-cluster_index");
-            $(this).siblings("form[name^='frm']").submit();
-        });
+        
+
     });
 </script>
 {% endblock %}

@@ -443,5 +443,3 @@ if __name__ == "__main__":
         nd_ma = int(sys.argv[1])
         update_recommend_data(nd_ma)
         exit(f"[LOG] update_recommend_data for nd_ma {nd_ma} done!")
-
-    recommand_for_big_cube_food(tp_ma=2)

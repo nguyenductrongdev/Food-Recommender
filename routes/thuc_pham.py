@@ -6,6 +6,7 @@ import configparser
 import uuid
 import os
 import json
+import pandas as pd
 
 from models.danh_muc_thuc_pham import DanhMucThucPham
 from models.danh_muc_don_vi_tinh import DanhMucDonViTinh
@@ -32,26 +33,57 @@ config.read(CONFIG_PATH)
 
 @route.route('/<tp_ma>', methods=['GET'])
 def tp_index(tp_ma):
+    from db_utils import cursor
+
     try:
         registered_detail_list = ChiTietDangKyMua.get_all()
         # get current list
         food = ThucPham.find(TP_MA=int(tp_ma))
 
         role = "not_login"
+
         # get all register already to handle
-        ready_registered_list = [
-            register_detail
-            for register_detail in registered_detail_list
-            if all([
-                int(register_detail["TP_MA"]) == int(tp_ma),  # fit food id
-                register_detail["CTDKM_TRANG_THAI"] != COMPLETED,
-                register_detail["CTDKM_TRANG_THAI"] != MERGED,
-                int(register_detail["CTDKM_SO_LUONG"]) <= int(
-                    food["TP_SO_LUONG"]),  # enough to buy
-                int(register_detail["CTDKM_SO_LUONG"]) % (
-                    food["TP_SUAT_BAN"] or 1) == 0  # fit cube
+        custom_sql = """
+            SELECT *
+            FROM chi_tiet_dang_ky_mua
+        """
+        cursor.execute(custom_sql)
+        ready_registered_list = cursor.fetchall()
+
+        def _filter_callback(ctdkm):
+            if int(ctdkm["TP_MA"]) != int(tp_ma):
+                return False
+            food = ThucPham.find(TP_MA=int(ctdkm["TP_MA"]))
+            if not food["TP_SUAT_BAN"]:
+                return True
+            return all([
+                ctdkm["CTDKM_SO_LUONG"] % food["TP_SUAT_BAN"] == 0,
+                ctdkm["CTDKM_TRANG_THAI"] not in [MERGED, COMPLETED],
             ])
+
+        def _make_full_data(ctdkm):
+            dkm = DangKyMua.find_by_id(dkm_ma=int(ctdkm["DKM_MA"]))
+            # set default user info
+            user = {"ND_TAI_KHOAN": "Khách vãn lai", }
+            if dkm["ND_MA"]:
+                user = NguoiDung.find_by_id(nd_ma=int(dkm["ND_MA"]))
+
+            new_data = {
+                **user,
+                **dkm,
+                **ctdkm,
+            }
+            return new_data
+        ready_registered_list = [
+            *filter(_filter_callback, ready_registered_list)
         ]
+        try:
+            ready_registered_list = [
+                *map(_make_full_data, ready_registered_list)
+            ]
+        except Exception as e:
+            print(e)
+            pass
 
         unready_registered_list = [
             register_detail
@@ -206,13 +238,13 @@ def tp_dang_ky_mua():
         - Update into MySQL database
     """
     new_dang_ky_mua = {
-        "ND_MA": query_string_dict.get("txtNDMa"),
+        "ND_MA": query_string_dict.get("txtNDMa") or None,
 
         "DKM_THOI_GIAN": query_string_dict.get("txtThoiGian"),
         "DKM_DIA_CHI": query_string_dict.get("txtAddress"),
         "DKM_VI_TRI_BAN_DO": query_string_dict.get("txtViTriBanDo"),
     }
-
+    print("[new_dang_ky_mua]", new_dang_ky_mua)
     REGISTER_CREATED = DangKyMua.create(
         new_dang_ky_mua) if not TEST_MODE else {"DKM_MA": -1}
 

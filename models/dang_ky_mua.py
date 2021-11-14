@@ -33,6 +33,18 @@ class DangKyMua:
             "DKM_MA": cursor.lastrowid,
         }
 
+    def find_by_id(dkm_ma: int) -> dict:
+        try:
+            sql = f"""
+            SELECT * 
+            FROM dang_ky_mua
+            WHERE dang_ky_mua.DKM_MA = {dkm_ma}
+            """
+            cursor.execute(sql)
+            return cursor.fetchall()[0]
+        except IndexError:
+            return None
+
     def update(**data):
         # record is identified by nd_ma and tp_ma
         dkm_ma = data["DKM_MA"]
