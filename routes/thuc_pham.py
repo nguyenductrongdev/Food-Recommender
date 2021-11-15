@@ -57,8 +57,9 @@ def tp_index(tp_ma):
             if not food["TP_SUAT_BAN"]:
                 return True
             return all([
+                ctdkm["CTDKM_SO_LUONG"] > 0,
                 ctdkm["CTDKM_SO_LUONG"] % food["TP_SUAT_BAN"] == 0,
-                ctdkm["CTDKM_TRANG_THAI"] not in [MERGED, COMPLETED],
+                ctdkm["CTDKM_TRANG_THAI"] not in [COMPLETED],
             ])
 
         def _make_full_data(ctdkm):

@@ -161,8 +161,7 @@ def recommand_for_big_cube_food(tp_ma: int) -> list:
             not math.isnan(row["TP_SUAT_BAN"]),
             row["TP_MA"] == int(tp_ma),
             register_date <= datetime.datetime.now(),
-            row["CTDKM_TRANG_THAI"] != MERGED,
-            row["CTDKM_TRANG_THAI"] != COMPLETED,
+            row["CTDKM_TRANG_THAI"] not in [MERGED, COMPLETED],
             row["CTDKM_SO_LUONG"] % row["TP_SUAT_BAN"] != 0,
         ])
     register_details_df = register_details_df[
@@ -424,6 +423,7 @@ def join_cluster(tp_ma: int, cluster_index: int, nd_ma: int) -> None:
             "TP_MA": host_node["detail"]["TP_MA"],
 
             "CTDKM_SO_LUONG": total_of_cluster,
+            "CTDKM_TRANG_THAI": MERGED,  # merged
         })
         # delete remain registers of group
         for node in mongodb_document["clusters"][cluster_index]["nodes"]:
@@ -434,7 +434,7 @@ def join_cluster(tp_ma: int, cluster_index: int, nd_ma: int) -> None:
                 "TP_MA": node["detail"]["TP_MA"],
 
                 "CTDKM_SO_LUONG": 0,
-                "CTDKM_TRANG_THAI": 2,  # merged
+                "CTDKM_TRANG_THAI": MERGED,  # merged
             })
 
 

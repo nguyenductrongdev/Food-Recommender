@@ -1,6 +1,8 @@
 import math
 import numpy as np
 import pandas as pd
+from const import COMPLETED, MERGED
+from models.chi_tiet_dang_ky_mua import ChiTietDangKyMua
 from utils import get_user_info
 from recommend_kits import update_recommend_data, get_recommend_data
 import json
@@ -57,6 +59,21 @@ def them_nhu_cau_mua():
 @route.route('/goi-y-mua-chung', methods=['GET'])
 def recommend_page():
     user_info = get_user_info()
+    register_detail_list = ChiTietDangKyMua.get_all()
+
+    def _get_ctdkm(dkm_ma: int, tp_ma: int) -> dict:
+        dkm_ma = int(dkm_ma)
+        tp_ma = int(tp_ma)
+
+        df = pd.DataFrame(register_detail_list)
+        df = df[
+            df.apply(
+                lambda row: row["DKM_MA"] == dkm_ma and row["TP_MA"] == tp_ma,
+                axis=1
+            )
+        ]
+
+        return df.to_dict("records")[0] if len(df) else None
 
     # get all clustur in mongo db database of current user as list
     list_of_clusters = get_recommend_data(nd_ma=user_info["ND_MA"])
@@ -77,13 +94,30 @@ def recommend_page():
 
         # replaced nan by None
         for node in data["cluster"]["nodes"]:
-            if node["detail"]["CTDKM_TRANG_THAI"] and math.isnan(node["detail"]["CTDKM_TRANG_THAI"]):
+            if bool(node["detail"]["CTDKM_TRANG_THAI"]) and math.isnan(node["detail"]["CTDKM_TRANG_THAI"]):
                 node["detail"]["CTDKM_TRANG_THAI"] = None
 
-        response_dict[tp_ma].append({
-            "cluster_index": data["cluster_index"],
-            "nodes": data["cluster"]["nodes"],
-        })
+        approve_db_count = len([
+            node
+            for node in data["cluster"]["nodes"]
+            if _get_ctdkm(
+                dkm_ma=node["detail"]["DKM_MA"],
+                tp_ma=node["detail"]["TP_MA"]
+            )["CTDKM_TRANG_THAI"] in [MERGED, COMPLETED]
+        ])
+
+        # skip when one of cluster/ctdkm item merged
+        print(approve_db_count)
+        is_skip_cluster = approve_db_count not in [
+            0, len(data["cluster"]["nodes"])
+        ]
+
+        if not is_skip_cluster:
+            # append to response_dict
+            response_dict[tp_ma].append({
+                "cluster_index": data["cluster_index"],
+                "nodes": data["cluster"]["nodes"],
+            })
 
     with open("just_for_test.json", "w") as f:
         json.dump(response_dict, f)
@@ -96,6 +130,12 @@ def recommend_page():
             ]
         }
     """
+    response_dict = {
+        key: value
+        for key, value in response_dict.items()
+        if value
+    }
+
     return {
         "recommend_data": response_dict
     }
