@@ -72,7 +72,12 @@ def index():
         user_info=user_info,
         food_list=thuc_pham_list[:20],
         user_list=nguoi_dung_list,
-        danh_muc_thuc_pham_list=dmtp_leaf
+        danh_muc_thuc_pham_list=dmtp_leaf,
+
+        max_of_price=max(
+            thuc_pham_list,
+            key=lambda food: food["TP_DON_GIA"]
+        )["TP_DON_GIA"],
     )
 
 

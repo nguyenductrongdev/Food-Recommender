@@ -279,7 +279,7 @@ def dashboard(nd_ma):
     cursor.execute(custom_sql)
     df = pd.DataFrame(cursor.fetchall())
     # filter data
-    print(df)
+    # print(df)
 
     def _filter_callbacks(row: pd.Series) -> bool:
         """Filter to get information for draw chart"""

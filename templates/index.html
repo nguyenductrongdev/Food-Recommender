@@ -56,8 +56,22 @@
       </select>
     </div>
 
+    <!-- price range: not do -->
+    <div class="col-md-4 d-flex align-items-center">
+
+    </div>
+
+    <!-- sort by price -->
+    <!-- <div class="col-md-3">
+      <select name="slSortByPrice" class="form-control" id="slSortByPrice">
+        <option class="bg-white w-100 shadow" value="">Sắp xếp theo đơn giá</option>
+        <option class="bg-white w-100 shadow" value="des">Giảm dần</option>
+        <option class="bg-white w-100 shadow" value="inc">Tăng dần</option>
+      </select>
+    </div> -->
+
     <!-- cart -->
-    <div class="col-md-6">
+    <div class="col-md-2">
       <button type="button" data-toggle="modal" data-target="#cart-modal" class="btn btn-lg btn-success d-block ml-auto"
         id="js-btn-view-cart">
         <i class="fas fa-shopping-cart"></i>
@@ -123,13 +137,60 @@
       </div>
       <!-- add cart modal -->
     </div>
-
   </div>
+
+  <!-- range by price start -->
+  <div class="row">
+    <div class="col-12">
+      <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
+      <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+      <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
+
+      <p>
+        <label for="amount">Lọc theo giá:</label>
+        <input type="text" id="amount" class="w-100 text-success" readonly style="border:0; font-weight:bold; font-size: 1.5rem">
+      </p>
+
+      <div id="slider-range"></div>
+
+      <script>
+        $(function () {
+          $("#slider-range").slider({
+            range: true,
+            min: 0,
+            max: Number({{max_of_price}}),
+            values: [0, Number({{max_of_price}})],
+            slide: function (event, ui) {
+              $("#amount").val(ui.values[0].toLocaleString('vi') + " VNĐ - " + ui.values[1].toLocaleString("vi") + " VNĐ");
+              let min = ui.values[0];
+              let max = ui.values[1];
+
+              $(".product-wrapper").each(function () {
+                let price = Number($(this).attr("data-price"));
+                if (price > max || price < min) {
+                  $(this).hide();
+                } else {
+                  $(this).show();
+                }
+              });
+            }
+          });
+
+          $("#amount").val(
+            $("#slider-range").slider("values", 0).toLocaleString('vi') + " VNĐ" +
+            " - " + $("#slider-range").slider("values", 1).toLocaleString('vi') + " VNĐ"
+          );
+        });
+      </script>
+    </div>
+  </div>
+  <!-- range by price end -->
+
   <div class="row">
     <div class="col-12">
       <div class="row" id="product-presenter" style="min-height: 90vh;">
         {% for food in food_list %}
-        <div class="col-sm-6 col-md-4 col-lg-3 my-3">
+        <div class="col-sm-6 col-md-4 col-lg-3 my-3 product-wrapper" data-price="{{ food.TP_DON_GIA }}">
           <div class="card product">
             <img class="card-img-top product__image" src="{{ food.TP_HINH_ANH }}" alt="Card image cap">
             <div class="card-body">
@@ -229,6 +290,9 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+<script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
+
 <script>
   const LIMIT = 20;
   var currentPage = 1;
@@ -245,7 +309,7 @@
     function toFoodString(foods) {
       return foods.map(food => {
         return `
-        <div class="col-sm-6 col-md-4 col-lg-3 my-3">
+        <div class="col-sm-6 col-md-4 col-lg-3 my-3 product-wrapper" data-price="${food.TP_DON_GIA}">
           <div class="card product">
             <img class="card-img-top product__image" src="${food.TP_HINH_ANH}" alt="Card image cap">
             <div class="card-body">
@@ -470,8 +534,31 @@
       } else {
         $("#cart-body").html('<td colspan="4" class="text-center">Giỏ hàng trống</td>')
       }
-
     });
+
+    // sort
+    /*
+    $("#slSortByPrice").change(function () {
+      let val = $(this).val();
+      console.log({ val });
+      let products = Array.from($(".product-wrapper"));
+      switch (val) {
+        case 'inc':
+          products = products.sort((x, y) => Number($(x).attr("data-price")) - Number($(x).attr("data-price")));
+          break;
+
+        case 'des':
+          products = products.sort((x, y) => Number($(y).attr("data-price")) - Number($(x).attr("data-price")));
+          break;
+      }
+      //console.log(products)
+      $("#product-presenter").html("");
+      for (let product of products) {
+        $("#product-presenter").append(product);
+      }
+    })
+    */
+
   });
 
 
