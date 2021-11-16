@@ -26,13 +26,6 @@
 <div class="container-fluid">
     <div class="row mt-5 d-flex justify-content-center">
         <div class="col-md-10">
-
-            <!-- {% if role == 'registered' %}
-            <div class="alert alert-success text-center font-weight-bold">
-                Yêu cầu mua Đang xử lý
-            </div>
-            {% endif %} -->
-
             <h2 class="section-header">Thông tin thực phẩm</h2>
 
             <form class="p-3 shadow" id="frmThongTinThucPham" name="frmThongTinThucPham" method="post"
@@ -55,18 +48,6 @@
                                 <input type="text" class="form-control" id="txtTenThucPham" name="txtTenThucPham"
                                     value="{{ food.TP_TEN }}" readonly>
                             </div>
-
-                            <!-- <div class="col-6">
-                                <label for="slLoaiThucPham">Danh mục thực phẩm</label>
-                                <input type="text" name="slLoaiThucPham" id="slLoaiThucPham" class="form-control"
-                                    value="{{food.DMTP_TEN}}" readonly>
-                            </div> -->
-
-                            <!-- <div class="col-6">
-                                <label for="slDonVi">Đơn vị</label>
-                                <input type="text" name="slDonVi" id="slDonVi" class="form-control"
-                                    value="{{food.DMDVT_TEN}}" readonly>
-                            </div> -->
                             <div class="col-md-6">
                                 <label for="numDonGia">Đơn giá</label>
                                 <div class="input-group">
@@ -128,7 +109,7 @@
                     <div class="col-12">
                         <label for="txtMoTa">Mô tả</label>
                         <textarea name="txtMoTa" id="txtMoTa" cols="30" rows="8" class="form-control"
-                            readonly>{{food.TP_MO_TA}}</textarea>
+                            readonly>{{ food.TP_MO_TA}}</textarea>
                     </div>
                 </div>
             </form>
@@ -155,53 +136,74 @@
     </div>
 
     {% if role != 'owner' %}
-    <div class="row mt-3">
-        <div class="col-12">
-            <h2 class="section-header">Đặt mua</h2>
-            <form action="/thuc-pham/dang-ky" class="bg-light p-5 shadow-lg rounded" method="post">
-                <input type="hidden" name="txtNDMa" value="{{ user_info.ND_MA }}" />
-                <input type="hidden" name="txtTPMa" value="{{food.TP_MA}}" />
-                <input type="hidden" name="txtViTriBanDo" id="txtViTriBanDo" />
+    <button type="button" class="btn btn-success position-fixed" data-toggle="modal" data-target="#exampleModalCenter"
+        style="top: 30vh; right: 0; z-index: 1; transform: rotateZ(-90deg);">
+        Đặt mua
+    </button>
 
-                <div class="form-row">
-                    <div class="col-12">
-                        <label for="txtAddress">Địa chỉ</label>
-                        <input type="text" name="txtAddress" id="txtAddress" class="form-control" autocomplete="off">
-                        <div id="txtAddress__options" class="w-100">
-
-                        </div>
+    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <form action="/thuc-pham/dang-ky" method="post">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle">Đặt mua</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="txtNDMa" value="{{ user_info.ND_MA }}" />
+                        <input type="hidden" name="txtTPMa" value="{{food.TP_MA}}" />
+                        <input type="hidden" name="txtViTriBanDo" id="txtViTriBanDo" />
 
-                    <div class="col-12">
                         <div class="form-row">
-                            <div class="col-6">
-                                <label for="numSoLuongDangKy">Số lượng</label>
-                                <input type="number" name="numSoLuongDangKy" id="numSoLuongDangKy" class="form-control"
-                                    step="0.1" max="{{food.TP_SO_LUONG}}" />
+                            <div class="col-12">
+                                <label for="txtAddress">Địa chỉ</label>
+                                <input type="text" name="txtAddress" id="txtAddress" class="form-control"
+                                    autocomplete="off">
+                                <div id="txtAddress__options" class="w-100">
+
+                                </div>
                             </div>
 
-                            <div class="col-6">
-                                <label for="txtThoiGian">Thời gian</label>
-                                <script
-                                    src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment-with-locales.min.js"
-                                    integrity="sha512-LGXaggshOkD/at6PFNcp2V2unf9LzFq6LE+sChH7ceMTDP0g2kn6Vxwgg7wkPP7AAtX+lmPqPdxB47A0Nz0cMQ=="
-                                    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-                                <script>
-                                    var today = moment().format('YYYY-MM-DD');
-                                    document.write(`<input type="date" name="txtThoiGian" id="txtThoiGian" class="form-control" value="${today}" readonly />`)
-                                </script>
+                            <div class="col-12">
+                                <div class="form-row">
+                                    <div class="col-6">
+                                        <label for="numSoLuongDangKy">Số lượng</label>
+                                        <input type="number" name="numSoLuongDangKy" id="numSoLuongDangKy"
+                                            class="form-control" step="0.1" max="{{food.TP_SO_LUONG}}" />
+                                    </div>
+
+                                    <div class="col-6">
+                                        <label for="txtThoiGian">Thời gian</label>
+                                        <script
+                                            src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment-with-locales.min.js"
+                                            integrity="sha512-LGXaggshOkD/at6PFNcp2V2unf9LzFq6LE+sChH7ceMTDP0g2kn6Vxwgg7wkPP7AAtX+lmPqPdxB47A0Nz0cMQ=="
+                                            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+                                        <script>
+                                            var today = moment().format('YYYY-MM-DD');
+                                            document.write(`<input type="date" name="txtThoiGian" id="txtThoiGian" class="form-control" value="${today}" readonly />`)
+                                        </script>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="col-12">
+                                <label for="txtNote">Ghi chú</label>
+                                <textarea name="txtNote" id="txtNote" cols="30" rows="5"
+                                    class="form-control position-relative"></textarea>
                             </div>
                         </div>
                     </div>
-
-
-                    <div class="col-12">
-                        <label for="txtNote">Ghi chú</label>
-                        <textarea name="txtNote" id="txtNote" cols="30" rows="5"
-                            class="form-control position-relative"></textarea>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button class="btn btn-primary" id="js-btn-register" type="button">
+                            Đặt
+                        </button>
                     </div>
                 </div>
-                <button class="btn btn-primary form-control mt-3" id="js-btn-register" type="button">Đặt</button>
             </form>
         </div>
     </div>
@@ -278,6 +280,27 @@
         </div>
     </div>
     {% endif %}
+    <!-- UI for owner end -->
+
+
+    <!-- UI for comment -->
+    <div class="row">
+        <div class="col-12">
+            <h1 class="section-header">Bình luận</h1>
+
+            <textarea rows="4" cols="50" class="form-control" name="txtComment" id="txtComment"
+                placeholder="Nhập bình luận..."></textarea>
+            <div class="btn btn-info mt-1 w-25 d-block ml-auto" id="js-btn-save-comment">Lưu</div>
+
+            <hr />
+            <div id="comment-presenter" style="height: 50vh; overflow: auto">
+
+
+            </div>
+        </div>
+    </div>
+    <!-- UI for comment end -->
+
 
 
 </div>
@@ -286,6 +309,11 @@
 {% block script %}
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src=" https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js " defer></script>
+
+<script src="/static/vendor/ckeditor/ckeditor.js"></script>
+<script type="text/javascript">
+    CKEDITOR.replace('txtMoTa');
+</script>
 
 <script>
     $(function () {
@@ -357,7 +385,7 @@
             try {
                 let count = Number($("#numSoLuongDangKy").val());
                 let foodSize = Number(`{{ food.TP_SUAT_BAN }}`);
-                if(!count || count < 0) {
+                if (!count || count < 0) {
                     alert("Số lượng mua không hợp lệ");
                     return;
                 }
@@ -370,6 +398,46 @@
                 $(this).parents("form").submit();
             } catch (err) {
                 console.log({ err });
+            }
+        });
+
+
+        // load and render comments 
+        async function renderComment() {
+            const toCommentHTML = commentObject => {
+                return `
+                    <div class="w-100 mb-3 comment">
+                        <div class="d-flex justify-content-between">
+                            <b>${commentObject.ND_TAI_KHOAN}</b>
+                            <i class="pr-2">${commentObject.BL_THOI_GIAN}</i>
+                        </div>
+
+                        <div class="border p-2 rounded">
+                            ${commentObject.BL_NOI_DUNG}
+                        </div> 
+                    </div>
+                `;
+            }
+
+            let response = await axios.get(`/api/thuc-pham/binh-luan/{{ food.TP_MA }}`);
+            let comments = await response.data.comments;
+
+            // present HTML
+            presentHTML = comments
+                .map(comment => toCommentHTML(comment))
+                .join('');
+            $("#comment-presenter").html(presentHTML);
+        }
+        renderComment();
+
+        $("#js-btn-save-comment").click(async function (e) {
+            try {
+                let comment = $("#txtComment").val();
+                await axios.post(`/api/thuc-pham/binh-luan/{{ food.TP_MA }}?comment=${comment}`);
+                renderComment();
+                $("#txtComment").val("");
+            } catch (e) {
+                alert("Bình luận lỗi")
             }
         });
     });

@@ -16,6 +16,7 @@ from models.danh_muc_thuc_pham import DanhMucThucPham
 from models.nguoi_dung import NguoiDung
 from models.chi_tiet_dang_ky_mua import ChiTietDangKyMua
 from models.dang_ky_mua import DangKyMua
+from models.binh_luan import BinhLuan
 
 from recommend_kits import recommand_for_big_cube_food
 
@@ -218,4 +219,38 @@ def api_get_shop(nd_ma):
     )
     return {
         "food_list": food_df.to_dict('records')
+    }
+
+
+@route.route('/binh-luan/<int:tp_ma>', methods=['POST'])
+def add_comment(tp_ma):
+    query_string_dict = request.values
+    user_info = get_user_info()
+
+    new_comment = {
+        "ND_MA": user_info["ND_MA"],
+        "TP_MA": tp_ma,
+        "BL_NOI_DUNG": query_string_dict["comment"],
+        "BL_THOI_GIAN": datetime.now().strftime("%Y-%m-%d"),
+    }
+    BinhLuan.create(new_comment)
+    print(f"[INFO] created comment {new_comment}")
+    return {}, 200
+
+
+@route.route('/binh-luan/<tp_ma>', methods=['GET'])
+def get_comments(tp_ma):
+    comment_list = BinhLuan.get_all()
+    comment_list = [
+        *filter(lambda comment: int(comment["TP_MA"]) == int(tp_ma), comment_list)
+    ]
+
+    comment_list = sorted(
+        comment_list,
+        key=lambda comment: datetime(
+            *[int(x) for x in comment["BL_THOI_GIAN"].split("-")]
+        )
+    )
+    return {
+        "comments": comment_list,
     }

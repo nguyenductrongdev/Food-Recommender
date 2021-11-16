@@ -286,10 +286,12 @@ def dashboard(nd_ma):
         is_nguoi_ban = int(row["NguoiBan"]) == int(user_info["ND_MA"])
         is_in_range_date = datetime.datetime(
             *[int(n) for n in row["DKM_THOI_GIAN"].split("-")]) <= datetime.datetime.now()
-        is_handle_complete = not math.isnan(
-            row["CTDKM_TRANG_THAI"]) and bool(row["CTDKM_TRANG_THAI"])
-
+        is_handle_complete = all([
+            not math.isnan(row["CTDKM_TRANG_THAI"] or float('nan')),
+            bool(row["CTDKM_TRANG_THAI"])
+        ])
         return all([is_nguoi_ban, is_in_range_date, is_handle_complete])
+
     df = df[df.apply(_filter_callbacks, axis=1)]
 
     # handle to build template
