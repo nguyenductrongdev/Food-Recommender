@@ -3,6 +3,7 @@ import sys
 import json
 import math
 import datetime
+from const import COMPLETED, MERGED
 from middlewares.require_login import require_login
 from flask import Blueprint, request, abort, jsonify, url_for, render_template, redirect, flash, send_file, session, make_response
 from uuid import uuid4
@@ -192,7 +193,7 @@ def shop(nd_tai_khoan):
             not register["CTDKM_TRANG_THAI"] and
             int(register["CTDKM_SO_LUONG"]) <= int(food["TP_SO_LUONG"]) and
             int(register["CTDKM_SO_LUONG"]) % (
-                food["TP_SUAT_BAN"] or 1) == 0
+                food["TP_SUAT_BAN"] or register["CTDKM_SO_LUONG"]) == 0
         ]
         return len(ready_registered_list)
 
@@ -278,7 +279,7 @@ def dashboard(nd_ma):
     """
     cursor.execute(custom_sql)
     df = pd.DataFrame(cursor.fetchall())
-    # filter data
+    # filter data to draw
     # print(df)
 
     def _filter_callbacks(row: pd.Series) -> bool:
@@ -287,8 +288,7 @@ def dashboard(nd_ma):
         is_in_range_date = datetime.datetime(
             *[int(n) for n in row["DKM_THOI_GIAN"].split("-")]) <= datetime.datetime.now()
         is_handle_complete = all([
-            not math.isnan(row["CTDKM_TRANG_THAI"] or float('nan')),
-            bool(row["CTDKM_TRANG_THAI"])
+            row["CTDKM_TRANG_THAI"] in [MERGED, COMPLETED]
         ])
         return all([is_nguoi_ban, is_in_range_date, is_handle_complete])
 
@@ -333,9 +333,7 @@ def list_of_ctncm(nd_ma):
 
     df = pd.DataFrame(list_of_ctncm)
     df = df[df["ND_MA"] == int(nd_ma)]
-    df["CTDKM_TRANG_THAI"] = df["CTDKM_TRANG_THAI"].map(
-        lambda val: val and not math.isnan(val)
-    )
+    # count in firt column
     df["order"] = list(range(1, len(df)+1))
 
     return render_template(

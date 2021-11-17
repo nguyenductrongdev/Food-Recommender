@@ -15,7 +15,8 @@ db = mysql.connector.connect(
     host=config['MYSQL']['HOST'],
     user=config['MYSQL']['USER'],
     password=config['MYSQL']['PASSWORD'],
-    database=config['MYSQL']['NAME']
+    database=config['MYSQL']['NAME'],
+    autocommit=True
 )
 cursor = db.cursor(dictionary=True)
 

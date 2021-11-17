@@ -55,12 +55,12 @@ def tp_index(tp_ma):
             if int(ctdkm["TP_MA"]) != int(tp_ma):
                 return False
             food = ThucPham.find(TP_MA=int(ctdkm["TP_MA"]))
-            if not food["TP_SUAT_BAN"]:
-                return True
+
             return all([
                 ctdkm["CTDKM_SO_LUONG"] > 0,
-                ctdkm["CTDKM_SO_LUONG"] % food["TP_SUAT_BAN"] == 0,
-                ctdkm["CTDKM_TRANG_THAI"] not in [COMPLETED],
+                ctdkm["CTDKM_TRANG_THAI"] not in [COMPLETED, MERGED],
+                ctdkm["CTDKM_SO_LUONG"] % (
+                    food["TP_SUAT_BAN"] or ctdkm["CTDKM_SO_LUONG"]) == 0,
             ])
 
         def _make_full_data(ctdkm):

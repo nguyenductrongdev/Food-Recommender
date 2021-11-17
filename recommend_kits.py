@@ -158,7 +158,9 @@ def recommand_for_big_cube_food(tp_ma: int) -> list:
             *[int(n) for n in row["DKM_THOI_GIAN"].split("-")])
 
         return all([
-            not math.isnan(row["TP_SUAT_BAN"] or float('nan')),
+            # must have suat ban
+            row["TP_SUAT_BAN"] is not None and not math.isnan(
+                row["TP_SUAT_BAN"]),
             row["TP_MA"] == int(tp_ma),
             register_date <= datetime.datetime.now(),
             row["CTDKM_TRANG_THAI"] not in [MERGED, COMPLETED],

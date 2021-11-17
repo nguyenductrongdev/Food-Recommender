@@ -25,17 +25,25 @@
                             <a href="/thuc-pham/{{ data.TP_MA }}" class="text-success font-weight-bold">
                                 {{ data.TP_MA}}
                             </a>
+
+
                         </td>
                         <td>{{ data.TP_TEN }}</td>
                         <td class="text-center">{{ data.DKM_THOI_GIAN }}</td>
                         <td class="text-right">
+                            {% if data.CTDKM_TRANG_THAI == 2 %}
+                            Mua chung
+                            {% else %}
                             <script>
                                 document.write(`${String({{ data.CTDKM_SO_LUONG }}).replace(/\.0*$/g, '')}`);
                             </script>
                             <i>{{ data.DMDVT_TEN }}</i>
+                            {% endif %}
                         </td>
                         <td class="text-center">
-                            {% if data.CTDKM_TRANG_THAI %}
+                            {% if data.CTDKM_TRANG_THAI == 1 %}
+                            <i class="fas fa-check-circle text-success" style="font-size: 1.5rem"></i>
+                            {% elif data.CTDKM_TRANG_THAI == 2 %}
                             <i class="fas fa-check-circle text-success" style="font-size: 1.5rem"></i>
                             {% endif %}
                         </td>
