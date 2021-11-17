@@ -261,6 +261,15 @@ def approve_join_cluster():
 @route.route("/dashboard/<int:nd_ma>", methods=['GET'])
 def dashboard(nd_ma):
     from db_utils import cursor
+    query_string_dict = request.values
+
+    focus_year = int(
+        query_string_dict.get(
+            "slFilterYear",
+            datetime.datetime.now().strftime("%Y")
+        )
+    )
+    CURRENT_YEAR = int(datetime.datetime.now().strftime("%Y"))
 
     user_info = get_user_info()
 
@@ -283,6 +292,10 @@ def dashboard(nd_ma):
     # print(df)
 
     def _filter_callbacks(row: pd.Series) -> bool:
+        ctdkm_year = int(row["DKM_THOI_GIAN"].split("-")[0])
+        if ctdkm_year != focus_year:
+            return False
+
         """Filter to get information for draw chart"""
         is_nguoi_ban = int(row["NguoiBan"]) == int(user_info["ND_MA"])
         is_in_range_date = datetime.datetime(
@@ -296,7 +309,13 @@ def dashboard(nd_ma):
 
     # handle to build template
     result_df = pd.DataFrame()
-    for month in range(1, int(datetime.date.today().strftime("%m")) + 1):
+
+    if focus_year == CURRENT_YEAR:
+        target_month = int(datetime.date.today().strftime("%m"))
+    else:
+        target_month = 12
+
+    for month in range(1, target_month + 1):
         cost = 0
         bill_money = 0
         sub_df = df[
@@ -318,6 +337,7 @@ def dashboard(nd_ma):
         "user_thong_ke.html",
         user_info=user_info,
         draw_data=result_df.to_dict('records'),
+        chart_title=f"Biểu đồ thống kê năm {focus_year} (tháng 1 - tháng {target_month})",
     )
 
 

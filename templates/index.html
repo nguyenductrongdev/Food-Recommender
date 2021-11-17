@@ -29,10 +29,12 @@
 
 {% block main %}
 <div class="container-fluid">
+  <!-- =================================  filter row ================================= -->
   <div class="row border shadow-sm bg-light p-3 mb-1 d-flex justify-content-center align-items-center">
-    <!-- filter for nd_ma -->
+    <!-- filter for nd_ma start -->
     <div class="col-md-3">
-      <input type="text" id="txtFilter-nd-ma" class="form-control" placeholder="Lọc theo tên người dùng">
+      <input type="text" id="txtFilter-nd-ma" class="form-control custom-filter-input"
+        placeholder="Lọc theo tên người dùng">
       <div id="user-list" class="position-absolute w-100" style="z-index: 100;">
         <!-- <div data-nd-ma="" class="bg-white w-100 shadow user-list__item d-none">Tất cả</div> -->
         {% for user in user_list %}
@@ -43,10 +45,11 @@
         {% endfor %}
       </div>
     </div>
+    <!-- filter for nd_ma end -->
 
-    <!-- filter for dmtp_ma -->
+    <!-- filter for dmtp_ma start -->
     <div class="col-md-3">
-      <select name="slFilter-dmtp-ma" class="form-control" id="slFilter-dmtp-ma">
+      <select name="slFilter-dmtp-ma" class="form-control custom-filter-input" id="slFilter-dmtp-ma">
         <option data-dmtp-ma="" class="bg-white w-100 shadow" value="">
           Tất cả danh mục thực phẩm
         </option>
@@ -55,20 +58,12 @@
         {% endfor %}
       </select>
     </div>
+    <!-- filter for dmtp_ma end -->
 
     <!-- price range: not do -->
     <div class="col-md-4 d-flex align-items-center">
 
     </div>
-
-    <!-- sort by price -->
-    <!-- <div class="col-md-3">
-      <select name="slSortByPrice" class="form-control" id="slSortByPrice">
-        <option class="bg-white w-100 shadow" value="">Sắp xếp theo đơn giá</option>
-        <option class="bg-white w-100 shadow" value="des">Giảm dần</option>
-        <option class="bg-white w-100 shadow" value="inc">Tăng dần</option>
-      </select>
-    </div> -->
 
     <!-- cart -->
     <div class="col-md-2">
@@ -148,7 +143,8 @@
 
       <p>
         <label for="amount">Lọc theo giá:</label>
-        <input type="text" id="amount" class="w-100 text-success" readonly style="border:0; font-weight:bold; font-size: 1.5rem">
+        <input type="text" id="amount" class="w-100 text-success" readonly
+          style="border:0; font-weight:bold; font-size: 1.5rem">
       </p>
 
       <div id="slider-range"></div>
@@ -158,28 +154,28 @@
           $("#slider-range").slider({
             range: true,
             min: 0,
-            max: Number({{max_of_price}}),
-            values: [0, Number({{max_of_price}})],
-            slide: function (event, ui) {
-              $("#amount").val(ui.values[0].toLocaleString('vi') + " VNĐ - " + ui.values[1].toLocaleString("vi") + " VNĐ");
-              let min = ui.values[0];
-              let max = ui.values[1];
+            max: Number({{ max_of_price }}),
+            values: [0, Number({{ max_of_price }})],
+        slide: function (event, ui) {
+          $("#amount").val(ui.values[0].toLocaleString('vi') + " VNĐ - " + ui.values[1].toLocaleString("vi") + " VNĐ");
+          let min = ui.values[0];
+          let max = ui.values[1];
 
-              $(".product-wrapper").each(function () {
-                let price = Number($(this).attr("data-price"));
-                if (price > max || price < min) {
-                  $(this).hide();
-                } else {
-                  $(this).show();
-                }
-              });
+          $(".product-wrapper").each(function () {
+            let price = Number($(this).attr("data-price"));
+            if (price > max || price < min) {
+              $(this).hide();
+            } else {
+              $(this).show();
             }
           });
+        }
+          });
 
-          $("#amount").val(
-            $("#slider-range").slider("values", 0).toLocaleString('vi') + " VNĐ" +
-            " - " + $("#slider-range").slider("values", 1).toLocaleString('vi') + " VNĐ"
-          );
+        $("#amount").val(
+          $("#slider-range").slider("values", 0).toLocaleString('vi') + " VNĐ" +
+          " - " + $("#slider-range").slider("values", 1).toLocaleString('vi') + " VNĐ"
+        );
         });
       </script>
     </div>
@@ -422,7 +418,12 @@
       let productsHTML = toFoodString(foods);
       $("#product-presenter").html(productsHTML);
 
+      // remove next page
+      $("#btn-next-page").hide();
+
+      // clear other filters
       $("#txtFilter-nd-ma").val("");
+      $("#slFilter-dmtp-ma").val("");
     });
 
     $("#slFilter-dmtp-ma").change(async function () {

@@ -4,6 +4,25 @@
 <main class="container">
     <h1 class="section-header">Thống kê</h1>
 
+    <div class="row">
+        <div class="col-12 col-lg-3">
+            <form action="/nguoi-dung/dashboard/{{ user_info.ND_MA }}" method="get">
+                <div class="form-group d-flex justify-content-between align-items-center">
+                    Năm:
+                    <select name="slFilterYear" id="slFilterYear" class="form-control ml-3">
+                        <script>
+                            let currentYear = new Date().getFullYear();
+                            for (let y = currentYear; y >= currentYear - 10; y--) {
+                                document.write(`<option value="${y}">${y}</option>`)
+                            }
+                        </script>
+                    </select>
+                    <button type="submit" class="btn btn-primary ml-3">Lọc</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="row" style="min-height: 90vh;">
         <div class="col-12">
             <div id="linechart_material" class="p-5 shadow" style="width: 1000px; height: 600px;"></div>
@@ -36,7 +55,7 @@
 
     var options = {
         chart: {
-            title: `Biểu đồ thống kê năm ${new Date().getFullYear()} (tháng 1 - tháng ${new Date().getMonth() + 1})`,
+            title: `{{ chart_title }}`,
             subtitle: 'đơn vị: VNĐ'
         },
         width: 900,
@@ -60,4 +79,5 @@
     chart.draw(data, google.charts.Line.convertOptions(options));
     }
 </script>
+
 {% endblock %}
