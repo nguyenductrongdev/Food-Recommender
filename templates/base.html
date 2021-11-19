@@ -59,12 +59,20 @@
             font-size: 1.5rem;
             box-shadow: 0 0 6px 3px #eee;
         }
+
+        .bg-dark-green {
+            background: darkgreen;
+        }
+
+        .btn-dark-green {
+            background: #113015;
+        }
     </style>
     {% block style %}{% endblock %}
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark-green">
         <a class="navbar-brand" href="/">Project X</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,7 +89,7 @@
             <ul class="navbar-nav ml-auto d-flex justify-content-center align-items-center">
                 {% if user_info and user_info.ND_TAI_KHOAN %}
                 <li class="nav-item">
-                    <a class="nav-link btn font-weight-bold btn-darkblue" href="/nguoi-dung/{{user_info.ND_TAI_KHOAN}}"
+                    <a class="nav-link font-weight-bold btn-dark-green" href="/nguoi-dung/{{user_info.ND_TAI_KHOAN}}"
                         id="user-mark">
                         {{ user_info.ND_TAI_KHOAN }}
                     </a>

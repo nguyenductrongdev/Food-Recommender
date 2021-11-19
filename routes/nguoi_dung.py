@@ -1,3 +1,4 @@
+import calendar
 import os
 import sys
 import json
@@ -189,11 +190,18 @@ def shop(nd_tai_khoan):
         ready_registered_list = [
             register
             for register in registered_list
-            if int(register["TP_MA"]) == int(food["TP_MA"]) and
-            not register["CTDKM_TRANG_THAI"] and
-            int(register["CTDKM_SO_LUONG"]) <= int(food["TP_SO_LUONG"]) and
-            int(register["CTDKM_SO_LUONG"]) % (
-                food["TP_SUAT_BAN"] or register["CTDKM_SO_LUONG"]) == 0
+            if all([
+                # match food id
+                int(register["TP_MA"]) == int(food["TP_MA"]),
+                # enough to sale
+                float(register["CTDKM_SO_LUONG"]) <= float(
+                    food["TP_SO_LUONG"]),
+                # not complete
+                register["CTDKM_TRANG_THAI"] not in [COMPLETED],
+                # fit count to sale
+                float(register["CTDKM_SO_LUONG"]) > 0 and float(register["CTDKM_SO_LUONG"]) % (
+                    food["TP_SUAT_BAN"] or register["CTDKM_SO_LUONG"]) == 0
+            ])
         ]
         return len(ready_registered_list)
 
@@ -262,94 +270,140 @@ def approve_join_cluster():
 def dashboard(nd_ma):
     from db_utils import cursor
     query_string_dict = request.values
-
-    focus_year = int(
-        query_string_dict.get(
-            "slFilterYear",
-            datetime.datetime.now().strftime("%Y")
-        )
-    )
-    CURRENT_YEAR = int(datetime.datetime.now().strftime("%Y"))
-
     user_info = get_user_info()
 
+    CURRENT_MONTH_VALUE = "current_month"
+    CURRENT_WEEK_VALUE = "current_week"
+
+    CURRENT_YEAR = int(datetime.datetime.now().strftime("%Y"))
+    CURRENT_MONTH = int(datetime.datetime.now().strftime("%m"))
+    CURRENT_DAY = int(datetime.datetime.now().strftime("%d"))
+
+    chart = {
+        "header_rows": "",
+        "rows": [],
+    }
     # get data for draw chart
     custom_sql = """
-    SELECT 
-        dang_ky_mua.ND_MA as NguoiMua, thuc_pham.ND_MA as NguoiBan, 
-        danh_muc_thuc_pham.DMTP_TEN, chi_tiet_dang_ky_mua.CTDKM_SO_LUONG, dang_ky_mua.DKM_MA, 
-        chi_tiet_dang_ky_mua.CTDKM_GHI_CHU, thuc_pham.TP_DON_GIA, dang_ky_mua.DKM_THOI_GIAN, 
-        chi_tiet_dang_ky_mua.CTDKM_TRANG_THAI
-    FROM danh_muc_thuc_pham, thuc_pham, chi_tiet_dang_ky_mua, dang_ky_mua, nguoi_dung
-    WHERE danh_muc_thuc_pham.DMTP_MA = thuc_pham.DMTP_MA
-        AND thuc_pham.TP_MA = chi_tiet_dang_ky_mua.TP_MA
-        AND chi_tiet_dang_ky_mua.DKM_MA = dang_ky_mua.DKM_MA
-        AND dang_ky_mua.ND_MA = nguoi_dung.ND_MA
+        SELECT
+            dang_ky_mua.ND_MA as NguoiMua, thuc_pham.ND_MA as NguoiBan,
+            danh_muc_thuc_pham.DMTP_TEN, chi_tiet_dang_ky_mua.CTDKM_SO_LUONG, dang_ky_mua.DKM_MA,
+            chi_tiet_dang_ky_mua.CTDKM_GHI_CHU, thuc_pham.TP_DON_GIA, dang_ky_mua.DKM_THOI_GIAN,
+            chi_tiet_dang_ky_mua.CTDKM_TRANG_THAI, thuc_pham.TP_MA
+        FROM danh_muc_thuc_pham, thuc_pham, chi_tiet_dang_ky_mua, dang_ky_mua, nguoi_dung
+        WHERE danh_muc_thuc_pham.DMTP_MA = thuc_pham.DMTP_MA
+            AND thuc_pham.TP_MA = chi_tiet_dang_ky_mua.TP_MA
+            AND chi_tiet_dang_ky_mua.DKM_MA = dang_ky_mua.DKM_MA
+            AND dang_ky_mua.ND_MA = nguoi_dung.ND_MA
     """
     cursor.execute(custom_sql)
     df = pd.DataFrame(cursor.fetchall())
-    # filter data to draw
-    # print(df)
 
-    def _filter_callbacks(row: pd.Series) -> bool:
-        ctdkm_year = int(row["DKM_THOI_GIAN"].split("-")[0])
-        if ctdkm_year != focus_year:
-            return False
+    if query_string_dict.get("slFilterProduct"):
+        filter_id = int(query_string_dict.get("slFilterProduct"))
+        df = df[df["TP_MA"] == filter_id]
 
-        """Filter to get information for draw chart"""
-        is_nguoi_ban = int(row["NguoiBan"]) == int(user_info["ND_MA"])
-        is_in_range_date = datetime.datetime(
-            *[int(n) for n in row["DKM_THOI_GIAN"].split("-")]) <= datetime.datetime.now()
-        is_handle_complete = all([
-            row["CTDKM_TRANG_THAI"] in [MERGED, COMPLETED]
-        ])
-        return all([is_nguoi_ban, is_in_range_date, is_handle_complete])
-
-    df = df[df.apply(_filter_callbacks, axis=1)]
-
-    # handle to build template
-    result_df = pd.DataFrame()
-
-    if focus_year == CURRENT_YEAR:
-        target_month = int(datetime.date.today().strftime("%m"))
+    if "current_" in query_string_dict.get("slFilterYear", ""):
+        # case current month
+        if query_string_dict.get("slFilterYear") == CURRENT_MONTH_VALUE:
+            chart["header_rows"] = [
+                {"type": "string", "text": "Ngày"},
+                {"type": "number", "text": "Số tiền thu vào"},
+            ]
+            for day in range(1, CURRENT_DAY + 1):
+                # get match day data
+                sub_df = df[df.apply(
+                    lambda row: datetime.datetime.strptime(row["DKM_THOI_GIAN"], "%Y-%m-%d").date().day == day, axis=1
+                )]
+                # calc bill_money for draw chart line
+                bill_money_of_day = sum([
+                    row["CTDKM_SO_LUONG"] * row["TP_DON_GIA"]
+                    for _, row in sub_df.iterrows()
+                ])
+                chart["rows"].append(
+                    [str(day), bill_money_of_day]
+                )
     else:
-        target_month = 12
+        focus_year = int(
+            query_string_dict.get("slFilterYear", CURRENT_YEAR)
+        )
 
-    for month in range(1, target_month + 1):
-        cost = 0
-        bill_money = 0
-        sub_df = df[
-            df.apply(lambda row: int(
-                row["DKM_THOI_GIAN"].split("-")[1]) == month, axis=1)
+        def _filter_callbacks(row: pd.Series) -> bool:
+            # filter data to draw
+            ctdkm_year = int(row["DKM_THOI_GIAN"].split("-")[0])
+            if ctdkm_year != focus_year:
+                return False
+
+            """Filter to get information for draw chart"""
+            is_nguoi_ban = int(row["NguoiBan"]) == int(user_info["ND_MA"])
+            is_in_range_date = datetime.datetime(
+                *[int(n) for n in row["DKM_THOI_GIAN"].split("-")]) <= datetime.datetime.now()
+            is_handle_complete = all([
+                row["CTDKM_TRANG_THAI"] in [MERGED, COMPLETED]
+            ])
+            return all([is_nguoi_ban, is_in_range_date, is_handle_complete])
+
+        df = df[df.apply(_filter_callbacks, axis=1)]
+
+        # handle to build template
+        result_df = pd.DataFrame()
+
+        target_month = 12 if focus_year < CURRENT_YEAR else CURRENT_MONTH
+
+        for month in range(1, target_month + 1):
+            bill_money = 0
+            sub_df = df[
+                df.apply(lambda row: int(
+                    row["DKM_THOI_GIAN"].split("-")[1]) == month, axis=1)
+            ]
+
+            for _, row in sub_df.iterrows():
+                bill_money += row["CTDKM_SO_LUONG"] * row["TP_DON_GIA"]
+
+            result_df = result_df.append({
+                "month": int(month),
+                "bill_money": bill_money,
+            }, ignore_index=True)
+
+        # map data to draw, format: []
+        chart["header_rows"] = [
+            {"type": "string", "text": "Tháng"},
+            {"type": "number", "text": "Số tiền thu vào"},
         ]
-
-        for _, row in sub_df.iterrows():
-            bill_money += row["CTDKM_SO_LUONG"] * row["TP_DON_GIA"]
-
-        result_df = result_df.append({
-            "month": int(month),
-            "cost": cost,
-            "bill_money": bill_money,
-            "proceeds": bill_money - cost,
-        }, ignore_index=True)
+        chart["rows"] = [
+            [str(int(row.month)), float(row.bill_money), ]
+            for _, row in result_df.iterrows()
+        ]
 
     return render_template(
         "user_thong_ke.html",
         user_info=user_info,
-        draw_data=result_df.to_dict('records'),
-        chart_title=f"Biểu đồ thống kê năm {focus_year} (tháng 1 - tháng {target_month})",
+
+        chart_title=f"Biểu đồ thống kê",
+        chart=chart,
+
+        owner_foods=[
+            *filter(lambda food: food["ND_MA"] == user_info["ND_MA"], ThucPham.get_all())
+        ],
+
+        # default
+        slFilterYear="current_month",
+        slFilterProduct=query_string_dict.get("slFilterProduct", ""),
     )
 
 
-@route.route("/danh-sach-dang-ky-mua/<int:nd_ma>", methods=['GET'])
+@ route.route("/danh-sach-dang-ky-mua/<int:nd_ma>", methods=['GET'])
 def list_of_ctncm(nd_ma):
     user_info = get_user_info()
     list_of_ctncm = ChiTietDangKyMua.get_all()
     # sort near to far
     list_of_ctncm = sorted(
-        list_of_ctncm, key=lambda ctncm: datetime.datetime(
-            *[int(val) for val in ctncm["DKM_THOI_GIAN"].split("-")]
-        ), reverse=True)
+        list_of_ctncm,
+        key=lambda ctncm: datetime.datetime.strptime(
+            ctncm["DKM_THOI_GIAN"],
+            "%Y-%m-%d").date(),
+        reverse=True
+    )
 
     df = pd.DataFrame(list_of_ctncm)
     df = df[df["ND_MA"] == int(nd_ma)]

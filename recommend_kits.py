@@ -425,7 +425,6 @@ def join_cluster(tp_ma: int, cluster_index: int, nd_ma: int) -> None:
             "TP_MA": host_node["detail"]["TP_MA"],
 
             "CTDKM_SO_LUONG": total_of_cluster,
-            "CTDKM_TRANG_THAI": MERGED,  # merged
         })
         # delete remain registers of group
         for node in mongodb_document["clusters"][cluster_index]["nodes"]:

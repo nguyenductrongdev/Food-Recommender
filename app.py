@@ -45,6 +45,15 @@ hdlr.setFormatter(fmt)
 log.addHandler(hdlr)
 
 
+@app.route('/admin', methods=['GET'])
+def admin_page():
+
+    return render_template(
+        "admin.html",
+        dmtp_list=DanhMucThucPham.get_all(),
+    )
+
+
 @app.route('/', methods=['GET'])
 def index():
     nguoi_dung_list = NguoiDung.get_all()

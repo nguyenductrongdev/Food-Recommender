@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin page</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
+    <style>
+        .section-header {
+            border-left: 1.5vw solid orange;
+            padding: 1vw 2vw;
+            margin: 1vw 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <!-- Quan ly danh muc thuc pham -->
+                <h1 class="section-header">
+                    <i class="fas fa-users-cog"></i> Quản lý danh mục thực phẩm
+                </h1>
+
+                <div class="shadow p-5 mb-3">
+                    <h3>Sửa tên danh mục:</h3>
+                    <form action="/admin/dmtp/sua" method="post">
+                        <div class="form-row">
+                            <input type="text" name="txtAction" id="txtAction" class="d-none">
+                            <div class="col-5">
+                                <select name="slDMTP_MA" id="slDMTP_MA" class="form-control">
+                                    {% for dmtp in dmtp_list %}
+                                    <option value="{{ dmtp.DMTP_MA }}">{{ dmtp.DMTP_TEN }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-5">
+                                <input type="text" name="txtName" id="txtName" class="form-control"
+                                    placeholder="Tên cần sửa" />
+                            </div>
+                            <div class="col-2">
+                                <button class="btn btn-warning w-100">Sửa</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+
+                <div class="shadow p-5">
+                    <h3>Thêm danh mục:</h3>
+                    <form action="/admin/dmtp/them" method="post">
+                        <div class="form-row">
+                            <div class="col-5">
+                                <input type="text" name="txtName" id="txtName" class="form-control"
+                                    placeholder="Tên Danh mục" />
+                            </div>
+
+                            <div class="col-2">
+                                <button class="btn btn-success w-100">Thêm</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <hr />
+
+                <!-- Quan ly danh muc don vi tinh -->
+                <h1 class="section-header">
+                    <i class="fas fa-users-cog"></i> Quản lý danh mục đơn vị tính
+                </h1>
+
+                <div class="shadow p-5">
+                    <h3>Thêm đơn vị tính:</h3>
+                    <form action="/admin/dmdvt" method="post">
+                        <div class="form-row">
+                            <div class="col-5">
+                                <input type="text" name="txtName" id="txtName" class="form-control"
+                                    placeholder="Tên Danh mục" />
+                            </div>
+
+                            <div class="col-2">
+                                <button class="btn btn-success w-100">Thêm</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -51,19 +51,20 @@ def tp_index(tp_ma):
         cursor.execute(custom_sql)
         ready_registered_list = cursor.fetchall()
 
-        def _filter_callback(ctdkm):
+        def _filter_callback(ctdkm: dict) -> bool:
+            """Filter for ready_register"""
             if int(ctdkm["TP_MA"]) != int(tp_ma):
                 return False
             food = ThucPham.find(TP_MA=int(ctdkm["TP_MA"]))
 
             return all([
                 ctdkm["CTDKM_SO_LUONG"] > 0,
-                ctdkm["CTDKM_TRANG_THAI"] not in [COMPLETED, MERGED],
+                ctdkm["CTDKM_TRANG_THAI"] not in [COMPLETED],
                 ctdkm["CTDKM_SO_LUONG"] % (
                     food["TP_SUAT_BAN"] or ctdkm["CTDKM_SO_LUONG"]) == 0,
             ])
 
-        def _make_full_data(ctdkm):
+        def _make_full_data(ctdkm: dict) -> dict:
             dkm = DangKyMua.find_by_id(dkm_ma=int(ctdkm["DKM_MA"]))
             # set default user info
             user = {"ND_TAI_KHOAN": "Khách vãn lai", }
