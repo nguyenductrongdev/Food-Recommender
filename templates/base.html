@@ -28,7 +28,7 @@
         }
 
         .section-header {
-            border-left: 1.5vw solid orange;
+            border-left: 1.5vw solid darkgreen;
             padding: 1vw 2vw;
             margin: 1vw 0;
         }
@@ -51,28 +51,39 @@
             display: flex;
             justify-content: center !important;
             align-items: center !important;
+
             margin-right: 1vw;
-
-            min-width: 10vw !important;
-            max-height: 5vh !important;
-
             font-size: 1.5rem;
-            box-shadow: 0 0 6px 3px #eee;
         }
 
         .bg-dark-green {
-            background: darkgreen;
+            background-color: darkslategray !important;
         }
 
-        .btn-dark-green {
-            background: #113015;
+        #master-navbar {
+            background: darkgreen !important;
+        }
+
+        #master-navbar .nav-link {
+            border-bottom: solid 3px transparent;
+            margin-bottom: -3px;
+            color: white !important;
+        }
+
+        #master-navbar .nav-link:hover {
+            border-bottom: solid 3px orangered;
+        }
+
+        #master-navbar .navbar-brand {
+            color: white !important;
+            font-weight: 700;
         }
     </style>
     {% block style %}{% endblock %}
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark-green">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light py-3" id="master-navbar">
         <a class="navbar-brand" href="/">Project X</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">

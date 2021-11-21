@@ -1,27 +1,79 @@
 {% extends 'base.html' %}
 
+{% block style %}
+<style>
+    .arrlFilter__container__option {
+        cursor: pointer;
+    }
+
+    .arrlFilter__container__option:hover {
+        color: white;
+        background-color: darkgreen;
+    }
+
+    .arrlFilter__container__selected__item {
+        display: inline-block;
+        width: 5rem;
+        margin: 2px;
+
+        color: white;
+        background: rgb(0, 36, 1);
+        background: linear-gradient(65deg, rgba(0, 36, 1, 1) 0%, rgba(56, 127, 68, 0.9026961126247374) 95%);
+        cursor: pointer;
+    }
+
+    .arrlFilter__container__selected__item:hover {
+        background: rgb(85, 29, 20);
+        background: linear-gradient(65deg, rgba(85, 29, 20, 1) 0%, rgba(180, 49, 5, 0.9) 95%);
+    }
+</style>
+{% endblock %}
+
 {% block main %}
 <main class="container">
     <h1 class="section-header">Thống kê</h1>
 
     <div class="row">
-        <div class="col-12 col-lg-6">
-            <form action="/nguoi-dung/dashboard/{{ user_info.ND_MA }}" method="get">
-                <div class="form-group d-flex justify-content-between align-items-center">
-                    <!-- filter year -->
-                    <select name="slFilterYear" id="slFilterYear" class="form-control ml-3">
-                        <option value="current_month">Tháng này</option>
-                        <script>
-                            let currentYear = new Date().getFullYear();
-                            for (let y = currentYear; y >= currentYear - 10; y--) {
-                                document.write(`<option value="${y}">${y}</option>`)
-                            }
-                            document.querySelector("#slFilterYear option[value='{{ slFilterYear }}']").selected = true;
-                        </script>
-                    </select>
+        <div class="col-12 col-lg-6 mb-2">
+            <form action="/nguoi-dung/dashboard/{{ user_info.ND_MA }}" name="frmDrawChart" id="frmDrawChart"
+                method="get">
+                <input type="text" name="jsonFilterProduct" id="jsonFilterProduct" class="d-none" />
 
-                    <!-- filter food id -->
-                    <select name="slFilterProduct" id="slFilterProduct" class="form-control ml-3">
+                <div class="form-row">
+                    <div class="col-5">
+                        <!-- filter year -->
+                        <select name="slFilterTime" id="slFilterTime" class="form-control">
+                            <option value="current_month">Tháng này</option>
+                            <script>
+                                let currentYear = new Date().getFullYear();
+                                for (let y = currentYear; y >= currentYear - 10; y--) {
+                                    document.write(`<option value="${y}">${y}</option>`)
+                                }
+                                document.querySelector("#slFilterTime option[value='{{ slFilterTime }}']").selected = true;
+                            </script>
+                        </select>
+                    </div>
+
+                    <div class="col-5">
+                        <input type="text" name="txtFilterProduct" id="txtFilterProduct" class="form-control"
+                            placeholder="Tên thực phẩm..." autocomplete="off" />
+                        <div id="arrlFilter__container" class="position-absolute shadow w-100 p-2" style="z-index: 1;">
+                            {% for food in owner_foods %}
+                            <div data-tp_ma="{{ food.TP_MA }}" data-tp_ten="{{ food.TP_TEN }}"
+                                class="arrlFilter__container__option pl-1">
+                                {{ food.TP_TEN }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="col-2">
+                        <button type="submit" class="btn btn-primary">Lọc</button>
+                    </div>
+                </div>
+
+                <!-- filter food id -->
+                <!-- <select name="slFilterProduct" id="slFilterProduct" class="form-control ml-3">
                         <option value="">Tất cả sản phẩm</option>
                         {% for food in owner_foods %}
                         <option value="{{ food.TP_MA }}">{{ food.TP_TEN }}</option>
@@ -30,11 +82,15 @@
                         <script>
                             document.querySelector("#slFilterProduct option[value='{{ slFilterProduct }}']").selected = true;
                         </script>
-                    </select>
+                    </select> -->
 
-                    <button type="submit" class="btn btn-primary ml-3">Lọc</button>
-                </div>
             </form>
+        </div>
+
+        <div class="col-12">
+            <div id="arrlFilter__container__selected">
+                <!-- selected items here -->
+            </div>
         </div>
     </div>
 
@@ -89,6 +145,54 @@
 
     chart.draw(data, google.charts.Line.convertOptions(options));
     }
+</script>
+
+<script>
+    $(function () {
+        $("#arrlFilter__container").hide();
+
+
+        // show field when text change
+        $("#txtFilterProduct").keyup(function (e) {
+            $("#arrlFilter__container").show();
+            let value = e.target.value;
+            console.log({ value });
+
+
+            $(`.arrlFilter__container__option`).hide();
+            $(`.arrlFilter__container__option`).each(function (_, element) {
+                let tp_ten = $(element).attr('data-tp_ten');
+                console.log({ tp_ten });
+                tp_ten.toLocaleLowerCase().includes(value.toLocaleLowerCase()) ? $(this).show() : $(this).hide();
+            });
+        });
+
+        // append to selected field when click
+        $(document).on('click', '.arrlFilter__container__option', function () {
+            $("#arrlFilter__container").hide();
+            let tp_ma = $(this).attr('data-tp_ma');
+            let tp_ten = $(this).attr('data-tp_ten');
+
+            let newItem = $('<div></div>')
+                .attr("data-tp_ma", tp_ma)
+                .addClass("arrlFilter__container__selected__item border rounded p-1 pl-2")
+                .html(tp_ten);
+            console.log(newItem)
+            $("#arrlFilter__container__selected").append(newItem);
+        });
+
+        // remove item when click
+        $(document).on('click', '.arrlFilter__container__selected__item', function () {
+            $(this).remove();
+        });
+
+        $("#frmDrawChart").submit(function (e) {
+            // get all food ids for filter
+            let ids = Array.from($(".arrlFilter__container__selected__item")).map(element => $(element).attr("data-tp_ma"));
+            // asign value for hidden field
+            $("#jsonFilterProduct").val(JSON.stringify(ids));
+        });
+    });
 </script>
 
 {% endblock %}
