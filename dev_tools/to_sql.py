@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 from uuid import uuid4
 import urllib.request
-
+import requests
 
 product_df = pd.read_excel("products.xlsx", index_col=[0])
 
@@ -16,6 +16,8 @@ TABLE_NGUOI_DUNG = []
 TABLE_THUC_PHAM = []
 TABLE_DANH_MUC_THUC_PHAM = []
 TABLE_DANH_MUC_DON_VI_TINH = []
+
+TABLE_DM_DON_VI_TINH_DM_THUC_PHAM = []
 
 
 def generate_geo():
@@ -457,7 +459,7 @@ def generate_ND():
                 f"""
                     INSERT INTO NGUOI_DUNG (ND_MA, ND_HO_TEN, ND_DIA_CHI, ND_SO_DIEN_THOAI, ND_EMAIL, ND_MAT_KHAU, ND_TAI_KHOAN)
                     VALUES ({ND_MA}, '{ND_HO_TEN}', '{ND_DIA_CHI}', '{ND_SO_DIEN_THOAI}',
-                            '{ND_EMAIL}', '{ND_MAT_KHAU}', '{ND_TAI_KHOAN}')
+                            '{ND_EMAIL}', '{ND_MAT_KHAU}', '{ND_TAI_KHOAN}');
                 """.strip()
             )
         )
@@ -529,7 +531,7 @@ def generate_DMTP():
                 r"\s+", " ",
                 f"""
                     INSERT INTO DANH_MUC_THUC_PHAM (DMTP_MA, DMTP_TEN, DMTP_MA_DMTM_CHA)
-                    VALUES ({next(get_dmtp_ma)}, '{category_name}', NULL)
+                    VALUES ({DMTP_MA}, '{category_name}', NULL);
                 """.strip()
             )
         )
@@ -547,7 +549,7 @@ def generate_DMTP():
                 r"\s+", " ",
                 f"""
                     INSERT INTO DANH_MUC_THUC_PHAM (DMTP_MA, DMTP_TEN, DMTP_MA_DMTM_CHA)
-                    VALUES ({DMTP_MA}, '{category_name}', {DMTP_MA_DMTM_CHA})
+                    VALUES ({DMTP_MA}, '{category_name}', {DMTP_MA_DMTM_CHA});
                 """.strip()
             )
         )
@@ -561,6 +563,15 @@ def generate_DMTP():
 
 def generate_TP():
     global TABLE_THUC_PHAM
+    global TABLE_DM_DON_VI_TINH_DM_THUC_PHAM
+
+    IMAGE_FOLDER = os.path.abspath("./crawl_images")
+
+    if os.path.exists(IMAGE_FOLDER):
+        os.remove(IMAGE_FOLDER)
+
+    # create new folder that contain product image
+    os.mkdir(IMAGE_FOLDER)
 
     def id_gen():
         i = 1
@@ -569,12 +580,12 @@ def generate_TP():
             i += 1
 
     def user_id_gen():
-        i = 0
+        user_id = 1
         while True:
-            i += 1
-            if i == len(TABLE_NGUOI_DUNG):
-                i = 0
-            yield i
+            if user_id > len(TABLE_NGUOI_DUNG):
+                user_id = 1
+            yield user_id
+            user_id += 1
 
     get_tp_ma = id_gen()
     get_nd_ma = user_id_gen()
@@ -582,9 +593,14 @@ def generate_TP():
 
     food_df = pd.read_excel("./products.xlsx")
     food_df['description'] = food_df['description'].fillna("")
-    sql = []
+    food_df['img_url'] = food_df['img_url'].fillna(
+        "https://daubepgiadinh.vn/wp-content/uploads/2018/04/hinh-thuc-pham-sach.jpg"
+    )
 
-    for _, food in food_df[:3].iterrows():
+    sql = []
+    sql_dmtp_dmdvt = set()
+
+    for _, food in food_df.iterrows():
         try:
             TP_MA = next(get_tp_ma)
 
@@ -605,20 +621,32 @@ def generate_TP():
                 TABLE_DANH_MUC_THUC_PHAM
             )][0]["DMTP_MA"]
 
+            # add to secondary sql table
+            sql_dmtp_dmdvt.add(
+                re.sub(
+                    r"\s+", " ",
+                    f"""
+                        INSERT INTO DM_DON_VI_TINH_DM_THUC_PHAM(DMDVT_MA, DMTP_MA)
+                        VALUES ({DMDVT_MA}, {DMTP_MA});
+                    """.strip()
+                )
+            )
+
             TP_TEN = food["title"]
             TP_MO_TA = food["description"]
 
             # handle for image here
             filename = str(uuid4())
+            extension = food["img_url"].split(".")[-1]
 
             # download file
             urllib.request.urlretrieve(
-                food["url"],
-                os.path.abspath(f"./crawl_images/{filename}")
+                food["img_url"],
+                os.path.abspath(f"./crawl_images/{filename}.{extension}")
             )
-
             TP_HINH_ANH = f"static/images/{filename}.jpg"
-            TP_DON_GIA = f"""{food["price"]}0"""[:-6]
+            TP_DON_GIA = f"""{food["price"]}0"""[-6:]
+
             TP_SO_LUONG = 500
             TP_NGAY_BAN = datetime.datetime.now().strftime("%Y-%m-%d")
 
@@ -632,8 +660,8 @@ def generate_TP():
                     r"\s+", " ",
                     f"""
                         INSERT INTO THUC_PHAM (TP_MA, DMDVT_MA, ND_MA, DMTP_MA, TP_TEN, TP_MO_TA, TP_HINH_ANH, TP_DON_GIA, TP_SO_LUONG, TP_NGAY_BAN, TP_VI_TRI_BAN_DO, TP_DIA_CHI, TP_SUAT_BAN)
-                        VALUES ({TP_MA}, {DMDVT_MA}, {ND_MA}, {DMTP_MA}, '{TP_TEN}', '{TP_MO_TA}', '{TP_HINH_ANH}', {
-                                TP_DON_GIA}, {TP_SO_LUONG}, '{TP_NGAY_BAN}', '{TP_VI_TRI_BAN_DO}', '{TP_DIA_CHI}', {TP_SUAT_BAN})
+                        VALUES ({TP_MA}, {DMDVT_MA}, {ND_MA}, {DMTP_MA}, '{TP_TEN}', '{TP_MO_TA}', '{TP_HINH_ANH}', 
+                        {TP_DON_GIA}, {TP_SO_LUONG}, '{TP_NGAY_BAN}', '{TP_VI_TRI_BAN_DO}', '{TP_DIA_CHI}', {TP_SUAT_BAN});
                     """.strip()
                 )
             )
@@ -647,12 +675,15 @@ def generate_TP():
                 }
             )
             print(sql[-1])
-        except:
+        except Exception as e:
             print(food)
-            exit()
+            exit(e)
 
     with open("./TP.sql", "w", encoding="utf-8") as fp:
         fp.write("\n".join(sql))
+
+    with open("./DMDVT_DMTP.sql", "w", encoding="utf-8") as fp:
+        fp.write("\n".join(sql_dmtp_dmdvt))
 
 
 def generate_DMDVT():
@@ -685,7 +716,7 @@ def generate_DMDVT():
                 r"\s+", " ",
                 f"""
                     INSERT INTO danh_muc_don_vi_tinh (DMDVT_MA, DMDVT_TEN)
-                    VALUES ({DMTP_MA}, '{unit_name}')
+                    VALUES ({DMTP_MA}, '{unit_name}');
                 """.strip()
             )
         )
