@@ -568,7 +568,7 @@ def generate_TP():
     IMAGE_FOLDER = os.path.abspath("./crawl_images")
 
     if os.path.exists(IMAGE_FOLDER):
-        os.remove(IMAGE_FOLDER)
+        exit(f"Please remove {IMAGE_FOLDER} !!!")
 
     # create new folder that contain product image
     os.mkdir(IMAGE_FOLDER)
@@ -615,11 +615,15 @@ def generate_TP():
 
             ND_MA = next(get_nd_ma)
 
-            DMTP_MA = [*filter(
-                lambda dmtp: dmtp["DMTP_TEN"] == food["category"].split(
-                    "/")[-1].strip(),
-                TABLE_DANH_MUC_THUC_PHAM
-            )][0]["DMTP_MA"]
+            dmtp = [
+                *filter(
+                    lambda dmtp: dmtp["DMTP_TEN"] == food["category"].split(
+                        "/")[-1].strip(),
+                    TABLE_DANH_MUC_THUC_PHAM
+                )
+            ][0]
+            DMTP_MA = dmtp["DMTP_MA"]
+            print(food["category"], "==", dmtp["DMTP_TEN"])
 
             # add to secondary sql table
             sql_dmtp_dmdvt.add(
@@ -660,7 +664,7 @@ def generate_TP():
                     r"\s+", " ",
                     f"""
                         INSERT INTO THUC_PHAM (TP_MA, DMDVT_MA, ND_MA, DMTP_MA, TP_TEN, TP_MO_TA, TP_HINH_ANH, TP_DON_GIA, TP_SO_LUONG, TP_NGAY_BAN, TP_VI_TRI_BAN_DO, TP_DIA_CHI, TP_SUAT_BAN)
-                        VALUES ({TP_MA}, {DMDVT_MA}, {ND_MA}, {DMTP_MA}, '{TP_TEN}', '{TP_MO_TA}', '{TP_HINH_ANH}', 
+                        VALUES ({TP_MA}, {DMDVT_MA}, {ND_MA}, {DMTP_MA}, '{TP_TEN}', '{TP_MO_TA}', '{TP_HINH_ANH}',
                         {TP_DON_GIA}, {TP_SO_LUONG}, '{TP_NGAY_BAN}', '{TP_VI_TRI_BAN_DO}', '{TP_DIA_CHI}', {TP_SUAT_BAN});
                     """.strip()
                 )
@@ -674,7 +678,6 @@ def generate_TP():
                     "TP_SUAT_BAN": TP_SUAT_BAN,
                 }
             )
-            print(sql[-1])
         except Exception as e:
             print(food)
             exit(e)
