@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 27, 2021 at 09:01 AM
+-- Generation Time: Dec 05, 2021 at 02:36 PM
 -- Server version: 10.4.21-MariaDB
 -- PHP Version: 8.0.12
 
@@ -35,6 +35,13 @@ CREATE TABLE `binh_luan` (
   `BL_NOI_DUNG` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+--
+-- Dumping data for table `binh_luan`
+--
+
+INSERT INTO `binh_luan` (`BL_MA`, `ND_MA`, `TP_MA`, `BL_THOI_GIAN`, `BL_NOI_DUNG`) VALUES
+(1, 102, 1863, '2021-11-28', 'ngon không vậy?');
+
 -- --------------------------------------------------------
 
 --
@@ -49,6 +56,83 @@ CREATE TABLE `chi_tiet_dang_ky_mua` (
   `CTDKM_TRANG_THAI` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+--
+-- Dumping data for table `chi_tiet_dang_ky_mua`
+--
+
+INSERT INTO `chi_tiet_dang_ky_mua` (`TP_MA`, `DKM_MA`, `CTDKM_SO_LUONG`, `CTDKM_GHI_CHU`, `CTDKM_TRANG_THAI`) VALUES
+(1862, 1, 15, '15 test', NULL),
+(1862, 2, 15, '15 test', NULL),
+(1862, 4, 15, '15 test', NULL),
+(1863, 17, 6, 'Mua 6 for test chart', 1),
+(1863, 18, 3, 'Mua 3 for test chart', 1),
+(1863, 19, 6, 'Mua 6 for test chart', 1),
+(1863, 20, 6, 'Mua 6 for test chart', 1),
+(1863, 21, 3, 'Mua 3 for test chart', 1),
+(1863, 22, 9, 'Mua 9 for test chart', 1),
+(1863, 23, 3, 'Mua 3 for test chart', 1),
+(1863, 24, 2, 'Mua 2 for test chart', 1),
+(1863, 25, 3, 'Mua 3 for test chart', 1),
+(1863, 26, 2, 'Mua 2 for test chart', 1),
+(1863, 27, 8, 'Mua 8 for test chart', 1),
+(1863, 28, 2, 'Mua 2 for test chart', 1),
+(1863, 97, 4, 'Mua 4 for test chart day', 1),
+(1863, 98, 1, 'Mua 1 for test chart day', 1),
+(1863, 99, 3, 'Mua 3 for test chart day', 1),
+(1863, 100, 7, 'Mua 7 for test chart day', 1),
+(1863, 101, 9, 'Mua 9 for test chart day', 1),
+(1863, 102, 7, 'Mua 7 for test chart day', 1),
+(1863, 103, 6, 'Mua 6 for test chart day', 1),
+(1863, 104, 7, 'Mua 7 for test chart day', 1),
+(1863, 105, 6, 'Mua 6 for test chart day', 1),
+(1863, 106, 3, 'Mua 3 for test chart day', 1),
+(1863, 107, 7, 'Mua 7 for test chart day', 1),
+(1863, 108, 1, 'Mua 1 for test chart day', 1),
+(1863, 109, 8, 'Mua 8 for test chart day', 1),
+(1863, 110, 4, 'Mua 4 for test chart day', 1),
+(1863, 111, 4, 'Mua 4 for test chart day', 1),
+(1863, 112, 1, 'Mua 1 for test chart day', 1),
+(1863, 113, 2, 'Mua 2 for test chart day', 1),
+(1863, 114, 9, 'Mua 9 for test chart day', 1),
+(1863, 115, 3, 'Mua 3 for test chart day', 1),
+(1863, 116, 9, 'Mua 9 for test chart day', 1),
+(1863, 117, 8, 'Mua 8 for test chart day', 1),
+(1863, 118, 3, 'Mua 3 for test chart day', 1),
+(1863, 119, 6, 'Mua 6 for test chart day', 1),
+(1863, 120, 2, 'Mua 2 for test chart day', 1),
+(1863, 121, 1, 'Mua 1 for test chart day', 1),
+(1863, 122, 2, 'Mua 2 for test chart day', 1),
+(1863, 123, 4, 'Mua 4 for test chart day', 1),
+(1863, 124, 1, 'Mua 1 for test chart day', 1),
+(1864, 125, 8, 'Mua 8 for test chart day', 1),
+(1864, 126, 8, 'Mua 8 for test chart day', 1),
+(1864, 127, 1, 'Mua 1 for test chart day', 1),
+(1864, 128, 3, 'Mua 3 for test chart day', 1),
+(1864, 129, 8, 'Mua 8 for test chart day', 1),
+(1864, 130, 8, 'Mua 8 for test chart day', 1),
+(1864, 131, 6, 'Mua 6 for test chart day', 1),
+(1864, 132, 3, 'Mua 3 for test chart day', 1),
+(1864, 133, 3, 'Mua 3 for test chart day', 1),
+(1864, 134, 2, 'Mua 2 for test chart day', 1),
+(1864, 135, 2, 'Mua 2 for test chart day', 1),
+(1864, 136, 7, 'Mua 7 for test chart day', 1),
+(1864, 137, 1, 'Mua 1 for test chart day', 1),
+(1864, 138, 6, 'Mua 6 for test chart day', 1),
+(1864, 139, 5, 'Mua 5 for test chart day', 1),
+(1864, 140, 1, 'Mua 1 for test chart day', 1),
+(1864, 141, 5, 'Mua 5 for test chart day', 1),
+(1864, 142, 2, 'Mua 2 for test chart day', 1),
+(1864, 143, 2, 'Mua 2 for test chart day', 1),
+(1864, 144, 7, 'Mua 7 for test chart day', 1),
+(1864, 145, 3, 'Mua 3 for test chart day', 1),
+(1864, 146, 3, 'Mua 3 for test chart day', 1),
+(1864, 147, 3, 'Mua 3 for test chart day', 1),
+(1864, 148, 7, 'Mua 7 for test chart day', 1),
+(1864, 149, 1, 'Mua 1 for test chart day', 1),
+(1864, 150, 7, 'Mua 7 for test chart day', 1),
+(1864, 151, 8, 'Mua 8 for test chart day', 1),
+(1864, 152, 8, 'Mua 8 for test chart day', 1);
+
 -- --------------------------------------------------------
 
 --
@@ -62,6 +146,83 @@ CREATE TABLE `dang_ky_mua` (
   `DKM_VI_TRI_BAN_DO` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `DKM_DIA_CHI` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `dang_ky_mua`
+--
+
+INSERT INTO `dang_ky_mua` (`DKM_MA`, `ND_MA`, `DKM_THOI_GIAN`, `DKM_VI_TRI_BAN_DO`, `DKM_DIA_CHI`) VALUES
+(1, 102, '2021-11-28', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(2, 103, '2021-11-28', '10.0322715|105.7882308', '106 Đường Hai Bà Trưng, Tân An, Ninh Kiều, Cần Thơ, Việt Nam'),
+(4, 104, '2021-11-28', '10.0322715|105.7882308', '106 Đường Hai Bà Trưng, Tân An, Ninh Kiều, Cần Thơ, Việt Nam'),
+(17, 3, '2021-01-16', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(18, 3, '2021-02-16', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(19, 3, '2021-03-16', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(20, 3, '2021-04-16', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(21, 3, '2021-05-16', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(22, 3, '2021-06-16', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(23, 3, '2021-07-16', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(24, 3, '2021-08-16', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(25, 3, '2021-09-16', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(26, 3, '2021-10-16', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(27, 3, '2021-11-16', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(28, 3, '2021-12-16', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(97, 3, '2021-11-01', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(98, 3, '2021-11-02', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(99, 3, '2021-11-03', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(100, 3, '2021-11-04', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(101, 3, '2021-11-05', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(102, 3, '2021-11-06', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(103, 3, '2021-11-07', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(104, 3, '2021-11-08', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(105, 3, '2021-11-09', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(106, 3, '2021-11-10', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(107, 3, '2021-11-11', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(108, 3, '2021-11-12', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(109, 3, '2021-11-13', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(110, 3, '2021-11-14', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(111, 3, '2021-11-15', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(112, 3, '2021-11-16', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(113, 3, '2021-11-17', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(114, 3, '2021-11-18', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(115, 3, '2021-11-19', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(116, 3, '2021-11-20', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(117, 3, '2021-11-21', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(118, 3, '2021-11-22', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(119, 3, '2021-11-23', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(120, 3, '2021-11-24', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(121, 3, '2021-11-25', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(122, 3, '2021-11-26', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(123, 3, '2021-11-27', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(124, 3, '2021-11-28', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(125, 3, '2021-11-01', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(126, 3, '2021-11-02', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(127, 3, '2021-11-03', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(128, 3, '2021-11-04', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(129, 3, '2021-11-05', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(130, 3, '2021-11-06', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(131, 3, '2021-11-07', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(132, 3, '2021-11-08', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(133, 3, '2021-11-09', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(134, 3, '2021-11-10', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(135, 3, '2021-11-11', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(136, 3, '2021-11-12', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(137, 3, '2021-11-13', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(138, 3, '2021-11-14', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(139, 3, '2021-11-15', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(140, 3, '2021-11-16', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(141, 3, '2021-11-17', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(142, 3, '2021-11-18', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(143, 3, '2021-11-19', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(144, 3, '2021-11-20', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(145, 3, '2021-11-21', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(146, 3, '2021-11-22', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(147, 3, '2021-11-23', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(148, 3, '2021-11-24', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(149, 3, '2021-11-25', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(150, 3, '2021-11-26', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(151, 3, '2021-11-27', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(152, 3, '2021-11-28', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam');
 
 -- --------------------------------------------------------
 
@@ -156,7 +317,8 @@ INSERT INTO `danh_muc_thuc_pham` (`DMTP_MA`, `DMTP_TEN`, `DMTP_MA_DMTM_CHA`) VAL
 (38, 'Rau củ chế biến', 6),
 (39, 'Dạng hạt', 2),
 (40, 'Sợi các loại', 4),
-(41, 'Thủy Hải sản đóng hộp', 3);
+(41, 'Thủy Hải sản đóng hộp', 3),
+(42, 'Trà sữa (tà tưa)', NULL);
 
 -- --------------------------------------------------------
 
@@ -397,7 +559,11 @@ INSERT INTO `nguoi_dung` (`ND_MA`, `ND_HO_TEN`, `ND_DIA_CHI`, `ND_SO_DIEN_THOAI`
 (97, 'Ida Martyn', 'Cần Thơ', '0415408746', 'imartyn2o@freewebs.com', '12345678', 'imartyn2o'),
 (98, 'Smitty Rolling', 'Cần Thơ', '0759405120', 'srolling2p@spotify.com', '12345678', 'srolling2p'),
 (99, 'Lebbie Massy', 'Cần Thơ', '0537272424', 'lmassy2q@google.es', '12345678', 'lmassy2q'),
-(100, 'Forester Scimonelli', 'Cần Thơ', '0688189598', 'fscimonelli2r@soundcloud.com', '12345678', 'fscimonelli2r');
+(100, 'Forester Scimonelli', 'Cần Thơ', '0688189598', 'fscimonelli2r@soundcloud.com', '12345678', 'fscimonelli2r'),
+(101, 'Nguyen Duc Trong', NULL, '0378693635', 'trongb1709576@student.ctu.edu.vn', 'trong', 'trong'),
+(102, 'Doan Du', NULL, '0378693634', 'doandu@gmail.com', 'doandu', 'doandu'),
+(103, 'Doan Chinh Thuan', NULL, '0378693633', 'doanchinhgthuan@gmail.com', '123', 'doanchinhthuan'),
+(104, 'Ly Thanh Tan', NULL, '0378693635', 'tan@gmail.com', 'tan', 'tan');
 
 -- --------------------------------------------------------
 
@@ -2297,7 +2463,10 @@ INSERT INTO `thuc_pham` (`TP_MA`, `DMDVT_MA`, `ND_MA`, `DMTP_MA`, `TP_TEN`, `TP_
 (1858, 14, 58, 34, 'Lọ thủy tinh 2000ml', '', 'static/images/f28482b2-6b0a-40c3-8364-2b20c343427b.jpg', 570000, 500, '2021-11-27', '10.01953|105.77283', 'Ninh Kiều, Cần Thơ, Việt Nam', NULL),
 (1859, 1, 59, 34, 'Khăn giấy vuông Bless You 23×23', '', 'static/images/f001b022-dc38-4616-8a56-0b6832c3dade.jpg', 211330, 500, '2021-11-27', '10.02132|105.78997', 'Ninh Kiều, Cần Thơ, Việt Nam', NULL),
 (1860, 1, 60, 34, 'Bao tay nilon – Loại 1kg', '', 'static/images/0459208c-495b-45ad-a965-86d9e902ffbd.jpg', 680000, 500, '2021-11-27', '10.05164|105.77332', 'Ninh Kiều, Cần Thơ, Việt Nam', NULL),
-(1861, 1, 61, 34, 'Bao xách chữ T – Loại 1kg', '', 'static/images/13ee3215-1fd2-4f68-a5c9-6be7e41389ae.jpg', 710000, 500, '2021-11-27', '10.01995|105.78838', 'Ninh Kiều, Cần Thơ, Việt Nam', NULL);
+(1861, 1, 61, 34, 'Bao xách chữ T – Loại 1kg', '', 'static/images/13ee3215-1fd2-4f68-a5c9-6be7e41389ae.jpg', 710000, 500, '2021-11-27', '10.01995|105.78838', 'Ninh Kiều, Cần Thơ, Việt Nam', NULL),
+(1862, 3, 101, 25, 'Dưa hấu Trọng Nguyễn', '<p>Dưa hấu DHCT Trọng trồng</p>\r\n', 'static\\images\\6d517bb1-1151-4f48-8680-ee37499488ca.jpg', 30000, 800, '2021-11-27', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam', 30),
+(1863, 1, 101, 40, 'Bánh trán trộn TN', '<p>B&aacute;nh tr&aacute;n trộn</p>\r\n', 'static\\images\\d334e8e7-f18b-40cd-9ba1-342ebd6c42cc.jpg', 10000, 10000, '2021-11-28', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam', NULL),
+(1864, 1, 101, 25, 'Chôm chôm Vĩnh Long', '<p>Ch&ocirc;m ch&ocirc;m nh&agrave; tui trồng</p>\r\n', 'static\\images\\c7527975-ea00-4fc0-bf26-7c4e9feda07e.jpg', 25000, 500, '2021-11-28', '9.961649999999999|105.9246253', 'Khu 4, Đường Thống Chế Điều Bát, Trà Ôn, Vĩnh Long, Việt Nam', NULL);
 
 --
 -- Indexes for dumped tables
@@ -2367,13 +2536,13 @@ ALTER TABLE `thuc_pham`
 -- AUTO_INCREMENT for table `binh_luan`
 --
 ALTER TABLE `binh_luan`
-  MODIFY `BL_MA` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `BL_MA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `dang_ky_mua`
 --
 ALTER TABLE `dang_ky_mua`
-  MODIFY `DKM_MA` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `DKM_MA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=153;
 
 --
 -- AUTO_INCREMENT for table `danh_muc_don_vi_tinh`
@@ -2385,19 +2554,19 @@ ALTER TABLE `danh_muc_don_vi_tinh`
 -- AUTO_INCREMENT for table `danh_muc_thuc_pham`
 --
 ALTER TABLE `danh_muc_thuc_pham`
-  MODIFY `DMTP_MA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+  MODIFY `DMTP_MA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
 -- AUTO_INCREMENT for table `nguoi_dung`
 --
 ALTER TABLE `nguoi_dung`
-  MODIFY `ND_MA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=101;
+  MODIFY `ND_MA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=105;
 
 --
 -- AUTO_INCREMENT for table `thuc_pham`
 --
 ALTER TABLE `thuc_pham`
-  MODIFY `TP_MA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1862;
+  MODIFY `TP_MA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1865;
 
 --
 -- Constraints for dumped tables

@@ -1,4 +1,4 @@
-from .db_utils import cursor
+from .db_utils import cursor, db
 
 
 class DanhMucThucPham:
@@ -7,6 +7,32 @@ class DanhMucThucPham:
         cursor.execute("SELECT * FROM danh_muc_thuc_pham")
         food_list = cursor.fetchall()
         return food_list
+
+    def create(fields):
+        DMTP_TEN = fields['DMTP_TEN']
+        DMTP_MA_DMTM_CHA = fields['DMTP_MA_DMTM_CHA']
+
+        sql = """
+            INSERT INTO danh_muc_thuc_pham(DMTP_TEN, DMTP_MA_DMTM_CHA)
+            VALUES(%s, %s)
+        """
+
+        params = (DMTP_TEN, DMTP_MA_DMTM_CHA)
+        cursor.execute(sql, params)
+        db.commit()
+
+    def update(data: dict):
+        dmtvt_ma = data.pop("DMTP_MA")
+        cols = data.keys()
+        params = [*data.values(), dmtvt_ma]
+
+        sql = f"""
+            UPDATE danh_muc_thuc_pham
+            SET {", ".join([f"{col} = %s" for col in cols])}
+            WHERE DMTP_MA = %s
+        """
+        cursor.execute(sql, params)
+        db.commit()
 
     def utils_get_leafs() -> list:
         db_danh_muc_thuc_pham_all = DanhMucThucPham.get_all()

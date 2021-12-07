@@ -294,6 +294,8 @@
 <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
 <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
 
+<script src=" https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js " defer></script>
+
 <script>
   const LIMIT = 20;
   var currentPage = 1;
@@ -489,8 +491,10 @@
 
       // check for cube food
       if (Number(dataSuatBan) && (Number(pre_number) + Number(new_number)) % Number(dataSuatBan) !== 0) {
-        alert(`Với sản phẩm này, bạn chỉ có thể mua với số lượng chia hết cho ${String(dataSuatBan).replace(/\.0+/g, '')}`);
-        return;
+        if (!Cookies.get("ND_MA")) {
+          alert(`Với sản phẩm này, bạn chỉ có thể mua với số lượng chia hết cho ${String(dataSuatBan).replace(/\.0+/g, '')}`);
+          return;
+        }
       }
 
       // set up for update cart

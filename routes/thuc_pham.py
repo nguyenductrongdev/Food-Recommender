@@ -147,10 +147,10 @@ def tp_index(tp_ma):
         pass
 
 
-@ route.route('/them', methods=['GET'])
-@ require_login()
+@route.route('/them', methods=['GET'])
+@require_login()
 def add_thuc_pham():
-    food_list = DanhMucThucPham.get_all()
+    food_list = DanhMucThucPham.utils_get_leafs()
     user_info = get_user_info()
 
     # get user for template
@@ -161,7 +161,7 @@ def add_thuc_pham():
     )
 
 
-@ route.route('/them', methods=['POST'])
+@route.route('/them', methods=['POST'])
 def post_them_thuc_pham():
     """
         Create thuc pham

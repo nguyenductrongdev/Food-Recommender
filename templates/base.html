@@ -71,12 +71,17 @@
         }
 
         #master-navbar .nav-link:hover {
-            border-bottom: solid 3px orangered;
+            color: orange !important;
+            border-bottom: solid 3px orange;
         }
 
         #master-navbar .navbar-brand {
             color: white !important;
             font-weight: 700;
+        }
+
+        footer {
+            background-color: darkgreen !important;
         }
     </style>
     {% block style %}{% endblock %}
@@ -93,7 +98,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="/food-map">Bảng đồ thực phẩm</a>
+                    <a class="nav-link" href="/food-map">Bản đồ thực phẩm</a>
                 </li>
             </ul>
 
@@ -170,7 +175,7 @@
 
     {% block main %}{% endblock %}
 
-    <footer class="bg-dark">
+    <footer>
         <div class="text-light">
             Lorem ipsum dolor sit amet, consectetur adipisicing elit. Tenetur dicta recusandae aliquid, cumque excepturi
             vitae?

@@ -1,3 +1,5 @@
+import sys
+import subprocess
 from utils import get_user_info
 import math
 from datetime import datetime
@@ -141,17 +143,10 @@ def recommend():
 
 @route.route('/quick-check-out', methods=['POST'])
 def quick_check_out():
-    """
-        Quick check out, case checkout without login
-    """
     query_string_dict = request.values
     user_info = get_user_info()
 
     print(f"[DEBUG] {query_string_dict}")
-    """
-        Handle and store data to MongoDB database
-    """
-
     """
         Insert into MYSQL database
     """
@@ -176,6 +171,12 @@ def quick_check_out():
             "CTDKM_GHI_CHU": query_string_dict.get("txtNote"),
         }
         ChiTietDangKyMua.create(register_detail)
+
+        """Handle and store data to MongoDB database"""
+        if ThucPham.find(TP_MA=item["tp_ma"]).get("TP_SUAT_BAN"):
+            # update recommend by another process
+            subprocess.Popen(
+                [sys.executable, "recommend_kits.py", str(item["tp_ma"])])
 
     return {}, 200
 

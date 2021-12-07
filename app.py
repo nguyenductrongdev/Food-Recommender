@@ -47,7 +47,8 @@ log.addHandler(hdlr)
 
 @app.route('/admin', methods=['GET'])
 def admin_page():
-
+    query_string_dict = request.values
+    print(query_string_dict)
     return render_template(
         "admin.html",
         dmtp_list=DanhMucThucPham.get_all(),
@@ -176,6 +177,38 @@ def get_unit():
     return {
         "units": units
     }, 200
+
+
+"""
+    Admin endpoints
+"""
+
+
+@app.route('/admin/dmtp/sua', methods=['POST'])
+def admin_dmtp_sua():
+    query_string_dict = request.values
+    dmtp_ma = query_string_dict["slDMTP_MA"]
+    new_dmtp_ten = query_string_dict["txtName"]
+
+    DanhMucThucPham.update({
+        "DMTP_MA": dmtp_ma,
+        "DMTP_TEN": new_dmtp_ten,
+    })
+
+    return redirect('/admin')
+
+
+@app.route('/admin/dmtp/them', methods=['POST'])
+def admin_dmtp_them():
+    query_string_dict = request.values
+
+    new_dmtp = {
+        "DMTP_TEN": query_string_dict["txtName"],
+        "DMTP_MA_DMTM_CHA": query_string_dict["slIdParent"] or None,
+    }
+    DanhMucThucPham.create(new_dmtp)
+
+    return redirect('/admin')
 
 
 # Non-API routes

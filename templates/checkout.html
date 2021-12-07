@@ -306,8 +306,10 @@
                 for (let item of cartAsarray) {
                     console.log(`Check ${item.count} ${item.size}`);
                     if (item.size !== null && item.count % item.size !== 0) {
-                        alert(`Thực phẩm ${item.name} chỉ bán với số lượng ${String(item.size).replace(/\.0*$/g, '')} mỗi lần bán`);
-                        return
+                        if (!Cookies.get("ND_MA")) {
+                            alert(`Thực phẩm ${item.name} chỉ bán với số lượng ${String(item.size).replace(/\.0*$/g, '')} mỗi lần bán`);
+                            return
+                        }
                     }
                 }
 

@@ -289,7 +289,7 @@ def dashboard(nd_ma):
     }
 
     def get_db_data() -> list:
-        custom_sql = """
+        custom_sql = f"""
             SELECT
                 dang_ky_mua.ND_MA as NguoiMua, thuc_pham.ND_MA as NguoiBan,
                 danh_muc_thuc_pham.DMTP_TEN, chi_tiet_dang_ky_mua.CTDKM_SO_LUONG, dang_ky_mua.DKM_MA,
@@ -300,6 +300,7 @@ def dashboard(nd_ma):
                 AND thuc_pham.TP_MA = chi_tiet_dang_ky_mua.TP_MA
                 AND chi_tiet_dang_ky_mua.DKM_MA = dang_ky_mua.DKM_MA
                 AND dang_ky_mua.ND_MA = nguoi_dung.ND_MA
+                AND chi_tiet_dang_ky_mua.CTDKM_TRANG_THAI = {COMPLETED}
         """
         cursor.execute(custom_sql)
         return cursor.fetchall()
