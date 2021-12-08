@@ -1,3 +1,4 @@
+from babel.numbers import format_decimal
 import math
 from functools import wraps
 import configparser
@@ -43,6 +44,11 @@ fmt = jsonlogger.JsonFormatter(
     "%(levelname)s %(asctime)s %(filename)s %(lineno)s %(message)s")
 hdlr.setFormatter(fmt)
 log.addHandler(hdlr)
+
+
+@app.template_filter()
+def currencyFormat(value):
+    return format_decimal(value, locale='vi')
 
 
 @app.route('/admin', methods=['GET'])

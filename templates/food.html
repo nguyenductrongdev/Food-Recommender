@@ -19,14 +19,38 @@
         background: transparent !important;
         resize: none;
     }
+
+    .btn-sale {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        width: 30%;
+        height: 3.7rem;
+
+        background: green;
+        color: white !important;
+        font-size: 1.8rem;
+        font-weight: 600 !important;
+        transition: all 0.4s;
+    }
+
+    .btn-sale:hover {
+        background: darkgreen;
+    }
+
+    .btn-sale--disabled {
+        cursor: not-allowed;
+    }
 </style>
 {% endblock %}
 
 {% block main %}
 <div class="container-fluid">
-    <div class="row mt-5 d-flex justify-content-center">
+    <h2 class="section-header">Thông tin thực phẩm</h2>
+
+    <div class="row d-flex justify-content-center">
         <div class="col-md-10">
-            <h2 class="section-header">Thông tin thực phẩm</h2>
 
             <form class="p-3 shadow" id="frmThongTinThucPham" name="frmThongTinThucPham" method="post"
                 action="/thuc-phan/them">
@@ -37,86 +61,44 @@
                     </div>
 
                     <div class="col-md-8">
-                        <h4 class="border p-3">
-                            <i class="fas fa-user-tie"></i>
-                            <strong>Người bán</strong>: {{ food.ND_TAI_KHOAN }}
-                        </h4>
+                        <h2 class="font-weight-bold" style="font-size: 2.8rem">{{ food.TP_TEN }}</h2>
+                        <div class="bg-secondary rounded my-3" style="width: 8%; height: 5px;"></div>
+                        <b style="font-size: 2.5rem">
+                            {{ food.TP_DON_GIA | currencyFormat}} <sup>VNĐ</sup> / {{food.DMDVT_TEN }}
+                        </b>
+                        <div class="font-weight-bold" style="font-size: 1.8rem">
+                            Tình trạng:
+                            {% if food.TP_SO_LUONG == 0 %}
+                            <span class="text-danger">Hết hàng</span>
+                            {% else %}
+                            <span class="text-success">Còn hàng</span>
+                            {% endif%}
+                        </div>
 
-                        <div class="form-row">
-                            <div class="col-12">
-                                <label for="txtTenThucPham">Tên thực phẩm</label>
-                                <input type="text" class="form-control" id="txtTenThucPham" name="txtTenThucPham"
-                                    value="{{ food.TP_TEN }}" readonly>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="numDonGia">Đơn giá</label>
-                                <div class="input-group">
-                                    <input type="text" name="numDonGia" id="numDonGia" class="form-control"
-                                        value="{{food.TP_DON_GIA}}" readonly>
-                                    <script>
-                                        document.querySelector("#numDonGia").value = Number(`{{food.TP_DON_GIA}}`).toLocaleString('vi');
-                                    </script>
-                                    <div class="input-group-append">
-                                        <span class="input-group-text">VNĐ</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="numSoLuongBanSi">
-                                    Số lượng mỗi suất bán
-                                </label>
-                                <div class="input-group">
-                                    <script>
-                                        const TP_SUAT_BAN = Number(`{{ food.TP_SUAT_BAN }}`);
+                        <div type="button" class="btn-sale" data-toggle="modal" data-target="#modalCenter">
+                            Đặt mua
+                        </div>
 
-                                        document.write(`<input type="text" class="form-control" id="numSoLuongBanSi" name="numSoLuongBanSi"
-                                    step="0.1" value="${TP_SUAT_BAN ? String(TP_SUAT_BAN).replace(/\.0*$/, '') : 'không giới hạn'}" readonly>`)
-                                    </script>
-                                    <div class="input-group-append">
-                                        <span class="input-group-text">{{ food.DMDVT_TEN }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="txtNgayBan">Ngày bắt đầu bán</label>
-                                <input type="date" name="txtNgayBan" id="txtNgayBan" class="form-control"
-                                    value="{{food.TP_NGAY_BAN}}" readonly>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label for="numSoLuong">Số lượng còn lại</label>
-                                <div class="input-group">
-
-                                    <input type="number" min="1" class="form-control" id="numSoLuong" name="numSoLuong"
-                                        value="{{food.TP_SO_LUONG}}" readonly />
-                                    <script>
-                                        document.querySelector("#numSoLuong").value = Number(`{{food.TP_SO_LUONG}}`).toLocaleString('vi');
-                                    </script>
-                                    <div class="input-group-append">
-                                        <span class="input-group-text">{{ food.DMDVT_TEN }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <label for="txtViTriBanBanDo">Vị trí bán</label>
-                                <input type="text" name="txtViTriBanBanDo" id="txtViTriBanBanDo" class="form-control"
-                                    value="{{ food.TP_DIA_CHI }}" readonly>
-                            </div>
+                        <div class="font-italic" style="font-size: 1.8rem">
+                            <b>Người bán:</b> {{ food.ND_TAI_KHOAN }}
                         </div>
                     </div>
+
                 </div>
+
                 <div class="row mt-3">
                     <div class="col-12">
-                        <label for="txtMoTa">Mô tả</label>
+                        <label for="txtMoTa" style="font-size: 2rem">Mô tả thực phẩm:</label>
                         <textarea name="txtMoTa" id="txtMoTa" cols="30" rows="8" class="form-control"
-                            readonly>{{ food.TP_MO_TA}}</textarea>
+                            readonly>{{ food.TP_MO_TA }}</textarea>
                     </div>
                 </div>
             </form>
+
         </div>
 
         {% if unready_registered_list %}
-        <div class="col-md-2 border" style="max-height: 100vh; overflow: auto">
+        <div class=" col-md-2 border" style="max-height: 100vh; overflow: auto">
             <h2>Đã đặt:</h2>
             <ul style="list-style-type: none; padding-left: 0;">
                 {% for register in unready_registered_list %}
@@ -136,13 +118,13 @@
     </div>
 
     {% if role != 'owner' %}
-    <button type="button" class="btn btn-success btn-lg position-fixed" data-toggle="modal"
-        data-target="#exampleModalCenter" style="top: 30vh; right: 0; z-index: 1; transform: rotateZ(-90deg);">
+    <!-- <button type="button" class="btn btn-success btn-lg position-fixed" data-toggle="modal"
+        data-target="#modalCenter" style="top: 30vh; right: 0; z-index: 1; transform: rotateZ(-90deg);">
         Đặt mua
-    </button>
+    </button> -->
 
-    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog"
-        aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <form action="/thuc-pham/dang-ky" method="post">
                 <div class="modal-content">
@@ -246,9 +228,7 @@
                             <span class="font-weight-bold">{{ registered.ND_TAI_KHOAN }}</span>
                         </td>
                         <td class="text-right">
-                            <script>
-                                document.write(String({{ registered.CTDKM_SO_LUONG }}).replace(/\.0*$/g, ''))
-                            </script>
+                            {{ registered.CTDKM_SO_LUONG | currencyFormat }}
                         </td>
 
                         <td>{{ registered.ND_SO_DIEN_THOAI }}</td>
