@@ -5,24 +5,67 @@
   .product {
     display: flex;
     flex-direction: column;
-    height: 27rem;
+    flex-wrap: wrap;
+
+    height: 25rem;
+    width: 100%;
   }
 
   .product__image {
+    flex-basis: 60%;
     width: 100%;
-    height: 45%;
+    height: 50%;
+
     object-fit: cover;
   }
 
-  .card-title__unit {
-    font-size: 1rem;
-    color: brown;
+  .product__body {
+    display: flex;
+    flex-direction: column;
+
+    flex-basis: 40%;
   }
 
-  .card-title {
-    font-weight: bold;
+  .product__body__title {
+    flex-basis: 60%;
+    height: 60%;
+
+    overflow: hidden;
+    font-size: 1.2rem;
   }
 
+  .product__body__info {
+    flex-basis: 40%;
+    height: 40%;
+  }
+
+  /* style for product mask start */
+
+  .product-mask {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    top: 0;
+    left: 0;
+    width: 100%;
+
+    z-index: 1;
+    visibility: hidden;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(0.12vw);
+  }
+
+  .product-wrapper {
+    cursor: pointer;
+  }
+
+  .product-wrapper:hover .product-mask {
+    visibility: visible;
+  }
+
+  /* style for product mask end */
 
   .user-list__item:hover {
     background-color: #eee !important;
@@ -191,42 +234,61 @@
     <div class="col-12">
       <div class="row" id="product-presenter" style="min-height: 90vh;">
         {% for food in food_list %}
-        <div class="col-sm-6 col-md-4 col-lg-3 my-3 product-wrapper" data-price="{{ food.TP_DON_GIA }}">
-          <div class="card product">
-            <img class="card-img-top product__image" src="{{ food.TP_HINH_ANH }}" alt="Card image cap">
-            <div class="card-body">
-              <h5 class="card-title">
+        <div class="col-sm-6 col-md-4 col-lg-3 my-3 position-relative product-wrapper"
+          data-price="{{ food.TP_DON_GIA }}">
 
-                {{ food.TP_TEN }}
+          <div class="position-absolute h-100 text-light product-mask">
+            <!-- boss of shop -->
+            <div>
+              <i class="fas fa-user"></i> Người bán: <br />
+              <a href="#" class="text-light">
+                <strong style="font-size: 1.5rem;">{{ food.ND_TAI_KHOAN }}</strong>
+              </a>
+            </div>
 
-                <br />
-
-                <span class="card-title__unit">
-                  <script>
-                    document.write("(" + Number(String({{ food.TP_DON_GIA }}).replace(/\.0*$/g, '')).toLocaleString('vi') + "đ/1 {{food.DMDVT_TEN }})")
-                  </script>
-                </span>
-              </h5>
-              <div class="card-text">
-                <i>
-                  <script>document.write("Còn lại: " + String({{ food.TP_SO_LUONG }}).replace(/\.0*$/g, '') + " {{ food.DMDVT_TEN}}")</script>
-                </i>
-
-                <p>
-                  <i class="fas fa-user"></i> Người bán: <br />
-                  <a href="#" class="text-success">{{ food.ND_TAI_KHOAN }}</a>
-                </p>
-              </div>
-
-              <a href="/thuc-pham/{{food.TP_MA}}" class="btn btn-outline-success">
+            <!-- button of tool -->
+            <div>
+              <a href="/thuc-pham/{{food.TP_MA}}" class="btn btn-success">
                 <i class="far fa-eye"></i>
                 Chi tiết
               </a>
-              <button type="button" class="btn btn-outline-success" data-toggle="modal"
+              <button type="button" class="btn btn-success" data-toggle="modal"
                 data-target="#add-cart-{{ food.TP_MA }}">
                 <i class="fas fa-cart-plus"></i>
                 Giỏ hàng
               </button>
+            </div>
+
+          </div>
+
+          <div class="card product">
+            <img class="card-img-top product__image" src="{{ food.TP_HINH_ANH }}" alt="Card image cap">
+            <div class="card-body product__body">
+              <span class="card-title product__body__title">
+                {{ food.TP_TEN }}
+              </span>
+
+              <div class="card-text product__body__info">
+                <div><span>{{ food.TP_DON_GIA | currencyFormat }}</span> đ/1 {{ food.DMDVT_TEN }}</div>
+
+                <div><i>Còn lại: {{ food.TP_SO_LUONG | currencyFormat }} {{ food.DMDVT_TEN }}</i></div>
+
+                <!-- <div>
+                  <i class="fas fa-user"></i> Người bán: <br />
+                  <a href="#" class="text-success">{{ food.ND_TAI_KHOAN }}</a>
+                </div>
+
+                <a href="/thuc-pham/{{food.TP_MA}}" class="btn btn-outline-success">
+                  <i class="far fa-eye"></i>
+                  Chi tiết
+                </a>
+                <button type="button" class="btn btn-outline-success" data-toggle="modal"
+                  data-target="#add-cart-{{ food.TP_MA }}">
+                  <i class="fas fa-cart-plus"></i>
+                  Giỏ hàng
+                </button> -->
+              </div>
+
               <!-- add cart modal -->
               <div class="modal fade" id="add-cart-{{ food.TP_MA }}" tabindex="-1" role="dialog"
                 aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
@@ -261,7 +323,6 @@
                 </div>
               </div>
               <!-- add cart modal -->
-
 
             </div>
           </div>
@@ -310,81 +371,103 @@
 
 
     function toFoodString(foods) {
+      const currencyFormat = n => Number(n).toLocaleString('vi');
+
       return foods.map(food => {
         return `
-        <div class="col-sm-6 col-md-4 col-lg-3 my-3 product-wrapper" data-price="${food.TP_DON_GIA}">
-          <div class="card product">
-            <img class="card-img-top product__image" src="${food.TP_HINH_ANH}" alt="Card image cap">
-            <div class="card-body">
-              <h5 class="card-title">
+          <div class="col-sm-6 col-md-4 col-lg-3 my-3 position-relative product-wrapper" data-price="${food.TP_DON_GIA}">
 
-                ${food.TP_TEN}
-
-                <br />
-
-                <span class="card-title__unit">
-                  (${Number(String(food.TP_DON_GIA).replace(/\.0*$/g, '')).toLocaleString('vi')}đ/1 ${food.DMDVT_TEN})
-                </span>
-              </h5>
-              <div class="card-text">
-                <i>
-                  Còn lại: ${String(food.TP_SO_LUONG).replace(/\.0*$/g, '')} ${food.DMDVT_TEN}
-                </i>
-
-                <p>
-                  <i class="fas fa-user"></i> Người bán: <br />
-                  <a href="#" class="text-success">${food.ND_TAI_KHOAN}</a>
-                </p>
+            <div class="position-absolute h-100 text-light product-mask">
+              <!-- boss of shop -->
+              <div>
+                <i class="fas fa-user"></i> Người bán: <br />
+                <a href="#" class="text-light">
+                  <strong style="font-size: 1.5rem;">${food.ND_TAI_KHOAN}</strong>
+                </a>
               </div>
 
-              <a href="/thuc-pham/${food.TP_MA}" class="btn btn-outline-success">
-                <i class="far fa-eye"></i>
-                Chi tiết
-              </a>
-              <button type="button" class="btn btn-outline-success" data-toggle="modal"
-                data-target="#add-cart-${food.TP_MA}">
-                <i class="fas fa-cart-plus"></i>
-                Giỏ hàng
-              </button>
-              <!-- add cart modal -->
-              <div class="modal fade" id="add-cart-${food.TP_MA}" tabindex="-1" role="dialog"
-                aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered" role="document">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title" id="exampleModalLongTitle">Thêm <b class="text-success">
-                        ${food.TP_TEN}</b> vào giỏ hàng</h5>
-                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                      </button>
-                    </div>
-                    <div class="modal-body">
-                      <form action="#" id="frm-add-cart-${food.TP_MA}" name="frm-add-cart-${food.TP_MA}">
-                        <input type="hidden" name="tp_ma" value="${food.TP_MA}">
-                        <input type="hidden" name="tp_don_gia" value="${food.TP_DON_GIA}">
-                        <input type="hidden" name="tp_ten" value="${food.TP_TEN}">
+              <!-- button of tool -->
+              <div>
+                <a href="/thuc-pham/${food.TP_MA}" class="btn btn-success">
+                  <i class="far fa-eye"></i>
+                  Chi tiết
+                </a>
+                <button type="button" class="btn btn-success" data-toggle="modal"
+                  data-target="#add-cart-${food.TP_MA}">
+                  <i class="fas fa-cart-plus"></i>
+                  Giỏ hàng
+                </button>
+              </div>
 
-                        <div class="from-group">
-                          <label for="numAddCart">Số lượng</label>
-                          <input type="number" id="numAddCart" name="numAddCart" class="form-control" />
-                        </div>
-                      </form>
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-primary" data-dismiss="modal"
-                        data-size="${food.TP_SUAT_BAN}" data-form-target="frm-add-cart-${food.TP_MA}">
-                        Thêm vào giỏ
-                      </button>
+            </div>
+
+            <div class="card product">
+              <img class="card-img-top product__image" src="${food.TP_HINH_ANH}" alt="Card image cap">
+              <div class="card-body product__body">
+                <span class="card-title product__body__title">
+                  ${food.TP_TEN}
+                </span>
+
+                <div class="card-text product__body__info">
+                  <div><span>${Number(food.TP_DON_GIA).toLocaleString("vi")}</span> đ/1 ${food.DMDVT_TEN}</div>
+
+                  <div><i>Còn lại: ${Number(food.TP_SO_LUONG).toLocaleString("vi")} ${food.DMDVT_TEN}</i></div>
+
+                  <!-- <div>
+                    <i class="fas fa-user"></i> Người bán: <br />
+                    <a href="#" class="text-success">${food.ND_TAI_KHOAN}</a>
+                  </div>
+
+                  <a href="/thuc-pham/${food.TP_MA}" class="btn btn-outline-success">
+                    <i class="far fa-eye"></i>
+                    Chi tiết
+                  </a>
+                  <button type="button" class="btn btn-outline-success" data-toggle="modal"
+                    data-target="#add-cart-${food.TP_MA}">
+                    <i class="fas fa-cart-plus"></i>
+                    Giỏ hàng
+                  </button> -->
+                </div>
+
+                <!-- add cart modal -->
+                <div class="modal fade" id="add-cart-${food.TP_MA}" tabindex="-1" role="dialog"
+                  aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle">Thêm <b class="text-success">${food.TP_TEN
+          }</b> vào giỏ hàng</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <form action="#" id="frm-add-cart-${food.TP_MA}" name="frm-add-cart-${food.TP_MA}">
+                          <input type="hidden" name="tp_ma" value="${food.TP_MA}">
+                          <input type="hidden" name="tp_don_gia" value="${food.TP_DON_GIA}">
+                          <input type="hidden" name="tp_ten" value="${food.TP_TEN}">
+
+                          <div class="from-group">
+                            <label for="numAddCart">Số lượng</label>
+                            <input type="number" id="numAddCart" name="numAddCart" class="form-control" />
+                          </div>
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal"
+                          data-size="${food.TP_SUAT_BAN}" data-form-target="frm-add-cart-${food.TP_MA}">
+                          Thêm vào giỏ
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <!-- add cart modal -->
+                <!-- add cart modal -->
 
+              </div>
             </div>
-          </div>
         </div>
-          `;
+        `;
       });
     }
 
@@ -556,7 +639,7 @@
         case 'inc':
           products = products.sort((x, y) => Number($(x).attr("data-price")) - Number($(x).attr("data-price")));
           break;
-
+ 
         case 'des':
           products = products.sort((x, y) => Number($(y).attr("data-price")) - Number($(x).attr("data-price")));
           break;

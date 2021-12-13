@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 05, 2021 at 02:36 PM
+-- Generation Time: Dec 13, 2021 at 04:54 PM
 -- Server version: 10.4.21-MariaDB
 -- PHP Version: 8.0.12
 
@@ -104,6 +104,11 @@ INSERT INTO `chi_tiet_dang_ky_mua` (`TP_MA`, `DKM_MA`, `CTDKM_SO_LUONG`, `CTDKM_
 (1863, 122, 2, 'Mua 2 for test chart day', 1),
 (1863, 123, 4, 'Mua 4 for test chart day', 1),
 (1863, 124, 1, 'Mua 1 for test chart day', 1),
+(1863, 153, 1, 'Mua 1 for test chart day', 1),
+(1863, 154, 9, 'Mua 9 for test chart day', 1),
+(1863, 155, 1, 'Mua 1 for test chart day', 1),
+(1863, 156, 9, 'Mua 9 for test chart day', 1),
+(1863, 157, 7, 'Mua 7 for test chart day', 1),
 (1864, 125, 8, 'Mua 8 for test chart day', 1),
 (1864, 126, 8, 'Mua 8 for test chart day', 1),
 (1864, 127, 1, 'Mua 1 for test chart day', 1),
@@ -131,7 +136,12 @@ INSERT INTO `chi_tiet_dang_ky_mua` (`TP_MA`, `DKM_MA`, `CTDKM_SO_LUONG`, `CTDKM_
 (1864, 149, 1, 'Mua 1 for test chart day', 1),
 (1864, 150, 7, 'Mua 7 for test chart day', 1),
 (1864, 151, 8, 'Mua 8 for test chart day', 1),
-(1864, 152, 8, 'Mua 8 for test chart day', 1);
+(1864, 152, 8, 'Mua 8 for test chart day', 1),
+(1864, 158, 1, 'Mua 1 for test chart day', 1),
+(1864, 159, 3, 'Mua 3 for test chart day', 1),
+(1864, 160, 1, 'Mua 1 for test chart day', 1),
+(1864, 161, 6, 'Mua 6 for test chart day', 1),
+(1864, 162, 5, 'Mua 5 for test chart day', 1);
 
 -- --------------------------------------------------------
 
@@ -222,7 +232,17 @@ INSERT INTO `dang_ky_mua` (`DKM_MA`, `ND_MA`, `DKM_THOI_GIAN`, `DKM_VI_TRI_BAN_D
 (149, 3, '2021-11-25', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
 (150, 3, '2021-11-26', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
 (151, 3, '2021-11-27', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
-(152, 3, '2021-11-28', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam');
+(152, 3, '2021-11-28', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(153, 3, '2021-12-01', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(154, 3, '2021-12-02', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(155, 3, '2021-12-03', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(156, 3, '2021-12-04', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(157, 3, '2021-12-05', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(158, 3, '2021-12-01', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(159, 3, '2021-12-02', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(160, 3, '2021-12-03', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(161, 3, '2021-12-04', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam'),
+(162, 3, '2021-12-05', '10.0299337|105.7706153', 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ, Việt Nam');
 
 -- --------------------------------------------------------
 
@@ -2542,7 +2562,7 @@ ALTER TABLE `binh_luan`
 -- AUTO_INCREMENT for table `dang_ky_mua`
 --
 ALTER TABLE `dang_ky_mua`
-  MODIFY `DKM_MA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=153;
+  MODIFY `DKM_MA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=163;
 
 --
 -- AUTO_INCREMENT for table `danh_muc_don_vi_tinh`

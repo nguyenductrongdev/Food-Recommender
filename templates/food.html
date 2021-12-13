@@ -61,12 +61,12 @@
                     </div>
 
                     <div class="col-md-8">
-                        <h2 class="font-weight-bold" style="font-size: 2.8rem">{{ food.TP_TEN }}</h2>
+                        <h2 class="font-weight-bold" style="font-size: 2rem">{{ food.TP_TEN }}</h2>
                         <div class="bg-secondary rounded my-3" style="width: 8%; height: 5px;"></div>
-                        <b style="font-size: 2.5rem">
+                        <b style="font-size: 1.8rem">
                             {{ food.TP_DON_GIA | currencyFormat}} <sup>VNĐ</sup> / {{food.DMDVT_TEN }}
                         </b>
-                        <div class="font-weight-bold" style="font-size: 1.8rem">
+                        <div class="font-weight-bold" style="font-size: 1.5rem">
                             Tình trạng:
                             {% if food.TP_SO_LUONG == 0 %}
                             <span class="text-danger">Hết hàng</span>
@@ -79,7 +79,7 @@
                             Đặt mua
                         </div>
 
-                        <div class="font-italic" style="font-size: 1.8rem">
+                        <div class="font-italic" style="font-size: 1.5rem">
                             <b>Người bán:</b> {{ food.ND_TAI_KHOAN }}
                         </div>
                     </div>
@@ -88,7 +88,7 @@
 
                 <div class="row mt-3">
                     <div class="col-12">
-                        <label for="txtMoTa" style="font-size: 2rem">Mô tả thực phẩm:</label>
+                        <label for="txtMoTa" style="font-size: 1.5rem">Mô tả thực phẩm:</label>
                         <textarea name="txtMoTa" id="txtMoTa" cols="30" rows="8" class="form-control"
                             readonly>{{ food.TP_MO_TA }}</textarea>
                     </div>
