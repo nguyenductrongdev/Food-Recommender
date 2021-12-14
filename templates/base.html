@@ -19,8 +19,13 @@
     {% block head %}{% endblock %}
 
     <style>
+        :root {
+            --base-green: #2e7d32;
+        }
+
         * {
             font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+            text-decoration: none;
         }
 
         label {
@@ -65,7 +70,10 @@
         }
 
         #master-navbar {
+            /*
             background: darkgreen !important;
+            */
+            background: var(--base-green) !important;
         }
 
         #master-navbar .nav-link {
@@ -85,7 +93,11 @@
         }
 
         footer {
-            background-color: darkgreen !important;
+            background-color: var(--base-green) !important;
+        }
+
+        .bg-base-green {
+            background: var(--base-green) !important;
         }
     </style>
     {% block style %}{% endblock %}

@@ -51,6 +51,16 @@ def currencyFormat(value):
     return format_decimal(value, locale='vi')
 
 
+@app.route('/test', methods=['GET'])
+def endpoint_test():
+    food_list = ThucPham.get_all()
+
+    return render_template(
+        'index2.html',
+        food_list=food_list[:10]
+    )
+
+
 @app.route('/admin', methods=['GET'])
 def admin_page():
     query_string_dict = request.values
