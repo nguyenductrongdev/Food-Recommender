@@ -2,6 +2,10 @@
 
 {% block style %}
 <style>
+  .product-wrapper {
+    height: 22rem;
+  }
+
   .product {
     display: flex;
     flex-direction: column;
@@ -9,7 +13,7 @@
     overflow: hidden;
 
     width: 100%;
-    height: 22rem;
+    height: 100%;
   }
 
   .product__image {
@@ -104,27 +108,21 @@
 <div class="row border shadow-sm bg-light p-3 mb-1 d-flex justify-content-center align-items-center">
   <!-- filter for nd_ma start -->
   <div class="col-md-3">
-    <input type="text" id="txtFilter-nd-ma" class="form-control" placeholder="Lọc theo tên người dùng">
-    <!-- actual field that contain value -->
-
-    <div id="user-list" class="position-absolute w-100" style="z-index: 100;">
-      <!-- <div data-nd-ma="" class="bg-white w-100 shadow user-list__item d-none">Tất cả</div> -->
+    <input class="form-control custom-filter" list="filter-user-list" name="txtFilter-nd_ma" id="txtFilter-nd_ma"
+      placeholder="Tất cả người dùng" />
+    <datalist id="filter-user-list">
       {% for user in user_list %}
-      <div data-nd-ma="{{ user.ND_MA }}" class="bg-white w-100 shadow d-none user-list__item py-2 pl-3 border rounded"
-        style="cursor: pointer;">
-        {{ user.ND_TAI_KHOAN }}
-      </div>
+      <option value="{{ user.ND_TAI_KHOAN }}" data-nd_ma="{{ user.ND_MA }}"></option>
       {% endfor %}
-    </div>
+    </datalist>
   </div>
-  <!-- filter for nd_ma end -->
+
+
 
   <!-- filter for dmtp_ma start -->
   <div class="col-md-3">
-    <select name="slFilter-dmtp_ma" class="form-control custom-filter-input" id="slFilter-dmtp_ma">
-      <option data-dmtp-ma="" class="bg-white w-100 shadow" value="">
-        Tất cả danh mục thực phẩm
-      </option>
+    <select name="slFilter-dmtp_ma" class="form-control custom-filter" id="slFilter-dmtp_ma">
+      <option value="">Toàn bộ danh mục thực phẩm</option>
       {% for dmtp in danh_muc_thuc_pham_list %}
       <option value="{{ dmtp.DMTP_MA }}">{{ dmtp.DMTP_TEN }}</option>
       {% endfor %}
@@ -261,8 +259,8 @@
         <div class="col-sm-6 col-md-4 col-lg-3 my-3 position-relative product-wrapper"
           data-price="{{ food.TP_DON_GIA }}">
 
+          <!-- mask layer -->
           <div class="position-absolute text-light product-mask">
-
             <div>
               <!-- button of tool -->
               <a href="/thuc-pham/{{food.TP_MA}}" class="text-decoration-none">
@@ -272,9 +270,9 @@
                 <i class="fas fa-cart-plus btn-add-cart"></i>
               </span>
             </div>
-
           </div>
 
+          <!-- main product layer -->
           <div class="card product text-center">
             <img class="card-img-top product__image" src="{{ food.TP_HINH_ANH }}" alt="Card image cap">
             <div class="card-body product__body">
@@ -295,7 +293,8 @@
                   <div class="modal-content">
                     <div class="modal-header">
                       <h5 class="modal-title" id="exampleModalLongTitle">
-                        Thêm <b class="text-success">{{ food.TP_TEN }}</b> vào giỏ hàng</h5>
+                        Thêm <b class="text-success">{{ food.TP_TEN }}</b> vào giỏ hàng
+                      </h5>
                       <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                       </button>
@@ -453,72 +452,32 @@
     }
 
 
-    $("#txtFilter-nd-ma").keyup(async function () {
-      let val = $(this).val();
-      console.log({ val });
-      $(".user-list__item").addClass("d-none");
-
-      if (val !== "") {
-        $(".user-list__item").each((i, ele) => {
-          ele = $(ele);
-          if (ele.html().includes(val)) {
-            ele.removeClass("d-none");
-          }
-        });
+    // handle filtering when any filter field is change
+    $(".custom-filter").change(async function (e) {
+      // notice: must define here!
+      let params = {
+        "nd_ma": $(`option[value="${$("#txtFilter-nd_ma").val()}"]`).attr("data-nd_ma"),
+        "dmtp_ma": $("#slFilter-dmtp_ma").val(),
       }
 
-      if (val === "") {
-        let response = await axios.get("/api/thuc-pham");
-        let foods = response.data.foods;
-        let productsHTML = toFoodString(foods);
+      // call API
+      let response = await axios.get("/api/thuc-pham", { params });
 
-        $("#product-presenter").html(productsHTML);
-        $("#btn-next-page").hide();
-      }
-    });
-
-
-    $(".user-list__item").click(async function () {
-      $(".user-list__item").addClass("d-none");
-      let val = $(this).attr("data-nd-ma");
-
-      let response = await axios.get("/api/thuc-pham", {
-        params: { nd_ma: val }
-      });
+      // re-render
       let foods = response.data.foods;
       let productsHTML = toFoodString(foods);
       $("#product-presenter").html(productsHTML);
 
       // remove next page
       $("#btn-next-page").hide();
-
-      // clear other filters
-      $("#txtFilter-nd-ma").val("");
-      $("#slFilter-dmtp_ma").val("");
     });
 
-    $("#slFilter-dmtp_ma").change(async function () {
-      let val = $(this).val();
-      // get all danh muc thuc pham
-      let response = await axios.get("/api/thuc-pham", {
-        params: { dmtp_ma: val }
-      });
-      let foods = response.data.foods;
-      let productsHTML = toFoodString(foods);
-      if (productsHTML.length === 0) {
-        productsHTML = "<p class='w-100 p-5 text-center'>Không có thực phẩm nào</p>"
-      }
-      $("#product-presenter").fadeOut(0)
-      $("#product-presenter").html(productsHTML);
-      $("#product-presenter").fadeIn(350, "swing");
 
-      $("#btn-next-page").hide();
-    });
-
+    // handle click to next page button
     $(document).on('click', '#btn-next-page', async function () {
-      let api = `/api/thuc-pham?page=${currentPage + 1}&limit=${LIMIT}`;
+      const API_URL = `/api/thuc-pham?page=${currentPage + 1}&limit=${LIMIT}`;
       currentPage++;
-      let response = await axios.get(api);
+      let response = await axios.get(API_URL);
       let items = response.data?.foods;
       if (items.length === 0) {
         alert("Đã hiển thị toàn bộ sản phẩm");
