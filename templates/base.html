@@ -23,9 +23,37 @@
             --base-green: #2e7d32;
         }
 
+        /* style for scrollbar start */
+        ::-webkit-scrollbar {
+            width: 0.5vw;
+        }
+
+        /* Track */
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        /* Handle */
+        ::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 0.2rem;
+        }
+
+        /* Handle on hover */
+        ::-webkit-scrollbar-thumb:hover {
+            background: #444;
+        }
+
+        /* style for scrollbar end */
+
+
         * {
             font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
             text-decoration: none;
+        }
+
+        body {
+            overflow-x: hidden;
         }
 
         label {
@@ -70,10 +98,8 @@
         }
 
         #master-navbar {
-            /*
-            background: darkgreen !important;
-            */
             background: var(--base-green) !important;
+            height: 55px;
         }
 
         #master-navbar .nav-link {
@@ -92,19 +118,19 @@
             font-weight: 700;
         }
 
-        footer {
-            background-color: var(--base-green) !important;
-        }
-
         .bg-base-green {
             background: var(--base-green) !important;
+        }
+
+        footer {
+            background-color: var(--base-green) !important;
         }
     </style>
     {% block style %}{% endblock %}
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light py-3" id="master-navbar">
+    <nav class="navbar navbar-expand-sm navbar-light bg-light py-3" id="master-navbar">
         <a class="navbar-brand" href="/">Project X</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">

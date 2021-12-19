@@ -82,7 +82,7 @@
     display: inline-block;
     color: darkgreen;
     text-decoration: none;
-    font-size: 2.8rem;
+    font-size: 2.5rem;
     margin: 0 1rem !important;
     font-weight: 300;
   }
@@ -104,8 +104,9 @@
 <div class="row border shadow-sm bg-light p-3 mb-1 d-flex justify-content-center align-items-center">
   <!-- filter for nd_ma start -->
   <div class="col-md-3">
-    <input type="text" id="txtFilter-nd-ma" class="form-control custom-filter-input"
-      placeholder="Lọc theo tên người dùng">
+    <input type="text" id="txtFilter-nd-ma" class="form-control" placeholder="Lọc theo tên người dùng">
+    <!-- actual field that contain value -->
+
     <div id="user-list" class="position-absolute w-100" style="z-index: 100;">
       <!-- <div data-nd-ma="" class="bg-white w-100 shadow user-list__item d-none">Tất cả</div> -->
       {% for user in user_list %}
@@ -120,7 +121,7 @@
 
   <!-- filter for dmtp_ma start -->
   <div class="col-md-3">
-    <select name="slFilter-dmtp-ma" class="form-control custom-filter-input" id="slFilter-dmtp-ma">
+    <select name="slFilter-dmtp_ma" class="form-control custom-filter-input" id="slFilter-dmtp_ma">
       <option data-dmtp-ma="" class="bg-white w-100 shadow" value="">
         Tất cả danh mục thực phẩm
       </option>
@@ -329,8 +330,8 @@
       </div>
       <div class="row my-3">
         <div class="col-12 d-flex justify-content-center align-items-center">
-          <button type="button" class="btn btn-outline-dark w-25" id="btn-next-page">
-            Xem tiếp <i class="fas fa-sort-down"></i></button>
+          <button type="button" class="btn btn-outline-secondary w-25" id="btn-next-page">
+            Xem thêm <i class="fas fa-sort-down"></i></button>
         </div>
       </div>
     </div>
@@ -382,31 +383,21 @@
         return `
           <div class="col-sm-6 col-md-4 col-lg-3 my-3 position-relative product-wrapper" data-price="${food.TP_DON_GIA}">
 
-            <div class="position-absolute h-100 text-light product-mask">
-              <!-- boss of shop -->
-              <div>
-                <i class="fas fa-user"></i> Người bán: <br />
-                <a href="#" class="text-light">
-                  <strong style="font-size: 1.5rem;">${food.ND_TAI_KHOAN}</strong>
-                </a>
-              </div>
+            <div class="position-absolute text-light product-mask">
 
-              <!-- button of tool -->
               <div>
-                <a href="/thuc-pham/${food.TP_MA}" class="btn btn-success">
-                  <i class="far fa-eye"></i>
-                  Chi tiết
+                <!-- button of tool -->
+                <a href="/thuc-pham/${food.TP_MA}" class="text-decoration-none">
+                  <i class="far fa-eye btn-view-detail"></i>
                 </a>
-                <button type="button" class="btn btn-success" data-toggle="modal"
-                  data-target="#add-cart-${food.TP_MA}">
-                  <i class="fas fa-cart-plus"></i>
-                  Giỏ hàng
-                </button>
+                <span role="button" data-toggle="modal" data-target="#add-cart-${food.TP_MA}">
+                  <i class="fas fa-cart-plus btn-add-cart"></i>
+                </span>
               </div>
 
             </div>
 
-            <div class="card product">
+            <div class="card product text-center">
               <img class="card-img-top product__image" src="${food.TP_HINH_ANH}" alt="Card image cap">
               <div class="card-body product__body">
                 <span class="card-title product__body__title">
@@ -414,24 +405,9 @@
                 </span>
 
                 <div class="card-text product__body__info">
-                  <div><span>${Number(food.TP_DON_GIA).toLocaleString("vi")}</span> đ/1 ${food.DMDVT_TEN}</div>
-
-                  <div><i>Còn lại: ${Number(food.TP_SO_LUONG).toLocaleString("vi")} ${food.DMDVT_TEN}</i></div>
-
-                  <!-- <div>
-                    <i class="fas fa-user"></i> Người bán: <br />
-                    <a href="#" class="text-success">${food.ND_TAI_KHOAN}</a>
-                  </div>
-
-                  <a href="/thuc-pham/${food.TP_MA}" class="btn btn-outline-success">
-                    <i class="far fa-eye"></i>
-                    Chi tiết
-                  </a>
-                  <button type="button" class="btn btn-outline-success" data-toggle="modal"
-                    data-target="#add-cart-${food.TP_MA}">
-                    <i class="fas fa-cart-plus"></i>
-                    Giỏ hàng
-                  </button> -->
+                  <span class="font-weight-bold text-success">
+                    ${food.TP_DON_GIA | currencyFormat} đ/1 ${food.DMDVT_TEN}
+                  </span>
                 </div>
 
                 <!-- add cart modal -->
@@ -440,8 +416,8 @@
                   <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content">
                       <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLongTitle">Thêm <b class="text-success">${food.TP_TEN
-          }</b> vào giỏ hàng</h5>
+                        <h5 class="modal-title" id="exampleModalLongTitle">
+                          Thêm <b class="text-success">${food.TP_TEN}</b> vào giỏ hàng</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                           <span aria-hidden="true">&times;</span>
                         </button>
@@ -471,7 +447,7 @@
 
               </div>
             </div>
-        </div>
+          </div>
         `;
       });
     }
@@ -518,10 +494,10 @@
 
       // clear other filters
       $("#txtFilter-nd-ma").val("");
-      $("#slFilter-dmtp-ma").val("");
+      $("#slFilter-dmtp_ma").val("");
     });
 
-    $("#slFilter-dmtp-ma").change(async function () {
+    $("#slFilter-dmtp_ma").change(async function () {
       let val = $(this).val();
       // get all danh muc thuc pham
       let response = await axios.get("/api/thuc-pham", {
@@ -636,34 +612,7 @@
         $("#cart-body").html('<td colspan="4" class="text-center">Giỏ hàng trống</td>')
       }
     });
-
-    // sort
-    /*
-    $("#slSortByPrice").change(function () {
-      let val = $(this).val();
-      console.log({ val });
-      let products = Array.from($(".product-wrapper"));
-      switch (val) {
-        case 'inc':
-          products = products.sort((x, y) => Number($(x).attr("data-price")) - Number($(x).attr("data-price")));
-          break;
- 
-        case 'des':
-          products = products.sort((x, y) => Number($(y).attr("data-price")) - Number($(x).attr("data-price")));
-          break;
-      }
-      //console.log(products)
-      $("#product-presenter").html("");
-      for (let product of products) {
-        $("#product-presenter").append(product);
-      }
-    })
-    */
-
   });
-
-
-
 
 </script>
 {% endblock %}

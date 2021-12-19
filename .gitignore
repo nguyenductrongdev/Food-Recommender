@@ -13,3 +13,5 @@ _test.html
 __pycache__
 
 crawl_images
+
+.venv
