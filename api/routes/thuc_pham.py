@@ -49,17 +49,38 @@ def index():
     # param for pagination
     limit = query_string_dict.get("limit")
     page = query_string_dict.get("page")
-
+    # param for filter
     nd_ma = query_string_dict.get("nd_ma")
     dmtp_ma = query_string_dict.get("dmtp_ma")
+    price_range = query_string_dict.get("price_range")
 
-    if nd_ma:
-        thuc_pham_list = list(filter(
-            lambda food: food.get("ND_MA") == int(nd_ma), thuc_pham_list))
+    # if nd_ma:
+    #     thuc_pham_list = list(filter(
+    #         lambda food: food.get("ND_MA") == int(nd_ma), thuc_pham_list))
 
-    if dmtp_ma:
-        thuc_pham_list = list(filter(
-            lambda food: food.get("DMTP_MA") == int(dmtp_ma), thuc_pham_list))
+    # if dmtp_ma:
+    #     thuc_pham_list = list(filter(
+    #         lambda food: food.get("DMTP_MA") == int(dmtp_ma), thuc_pham_list))
+
+    price_min= None
+    price_max = None
+    if price_range: 
+        price_min, price_max = price_range.split("|")
+
+    print(nd_ma, dmtp_ma, price_range, "price_range")
+
+    def filter_func(food) -> bool:
+        return all([
+            food.get("ND_MA") == int(nd_ma) if nd_ma else True,
+            food.get("DMTP_MA") == int(dmtp_ma) if dmtp_ma else True,
+            int(price_min) <= int(food.get("TP_DON_GIA")) <= int(price_max) if price_range else True
+        ])
+        
+    thuc_pham_list = list(
+        filter(filter_func, thuc_pham_list)
+    )
+
+    
 
     if page:
         page = int(page)

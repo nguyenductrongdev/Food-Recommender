@@ -215,9 +215,14 @@
         <label for="amount">Lọc theo giá:</label>
         <input type="text" id="amount" class="w-100 text-success" readonly
           style="border:0; font-weight:bold; font-size: 1.5rem">
+        <input type="text" id="price_range" name="price_range" class="d-none custom-filter" />
       </p>
 
-      <div id="slider-range"></div>
+
+      <div class="d-flex justify-content-between align-items-center">
+        <div id="slider-range" class="w-75"></div>
+        <button type="button" class="btn btn-success" id="btnPriceFilter">Lọc theo khoảng giá</button>
+      </div>
 
       <script>
         $(function () {
@@ -230,6 +235,7 @@
           $("#amount").val(ui.values[0].toLocaleString('vi') + " VNĐ - " + ui.values[1].toLocaleString("vi") + " VNĐ");
           let min = ui.values[0];
           let max = ui.values[1];
+          return;
 
           $(".product-wrapper").each(function () {
             let price = Number($(this).attr("data-price"));
@@ -239,6 +245,10 @@
               $(this).show();
             }
           });
+        },
+        stop: function(event, ui) {
+          let [costMin, costMax] = ui.values;
+          $("#price_range").val(`${costMin}|${costMax}`);
         }
           });
 
@@ -246,15 +256,19 @@
           $("#slider-range").slider("values", 0).toLocaleString('vi') + " VNĐ" +
           " - " + $("#slider-range").slider("values", 1).toLocaleString('vi') + " VNĐ"
         );
+
+        $("#btnPriceFilter").click(function (e) {
+          $("#price_range").trigger('change');
+        });
         });
       </script>
     </div>
   </div>
   <!-- range by price end -->
 
-  <div class="row">
+  <div class="row" style="min-height: 90vh;">
     <div class="col-12">
-      <div class="row" id="product-presenter" style="min-height: 90vh;">
+      <div class="row" id="product-presenter">
         {% for food in food_list %}
         <div class="col-sm-6 col-md-4 col-lg-3 my-3 position-relative product-wrapper"
           data-price="{{ food.TP_DON_GIA }}">
@@ -405,7 +419,7 @@
 
                 <div class="card-text product__body__info">
                   <span class="font-weight-bold text-success">
-                    ${food.TP_DON_GIA | currencyFormat} đ/1 ${food.DMDVT_TEN}
+                    ${Number(food.TP_DON_GIA).toLocaleString('vi')} đ/1 ${food.DMDVT_TEN}
                   </span>
                 </div>
 
@@ -458,11 +472,25 @@
       let params = {
         "nd_ma": $(`option[value="${$("#txtFilter-nd_ma").val()}"]`).attr("data-nd_ma"),
         "dmtp_ma": $("#slFilter-dmtp_ma").val(),
+        "price_range": $("#price_range").val(),
       }
-
+      console.log("start filter call API");
+      $("#product-presenter").html(`
+        <div class="d-flex justify-content-between align-items-center w-75 mx-auto">
+          <div class="spinner-grow text-muted"></div>
+          <div class="spinner-grow text-primary"></div>
+          <div class="spinner-grow text-success"></div>
+          <div class="spinner-grow text-info"></div>
+          <div class="spinner-grow text-warning"></div>
+          <div class="spinner-grow text-danger"></div>
+          <div class="spinner-grow text-secondary"></div>
+          <div class="spinner-grow text-dark"></div>
+          <div class="spinner-grow text-light"></div>
+        </div>
+      `);
       // call API
       let response = await axios.get("/api/thuc-pham", { params });
-
+      console.log("finish filter call API");
       // re-render
       let foods = response.data.foods;
       let productsHTML = toFoodString(foods);

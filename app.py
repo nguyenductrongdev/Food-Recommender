@@ -101,7 +101,7 @@ def index():
         danh_muc_thuc_pham_list=dmtp_leaf,
 
         max_of_price=max(
-            thuc_pham_list,
+            thuc_pham_list or [{"TP_DON_GIA": 0}],
             key=lambda food: food["TP_DON_GIA"]
         )["TP_DON_GIA"],
     )

@@ -13,7 +13,7 @@
                                 <i class="fas fa-user"></i>
                             </span>
                         </div>
-                        <input type="text" name="txtTaiKhoan" class="form-control" id="txtTaiKhoan"
+                        <input type="text" name="txtTaiKhoanDangKy" class="form-control" id="txtTaiKhoanDangKy"
                             placeholder="Username...">
                     </div>
                 </div>
@@ -86,6 +86,14 @@
             e.preventDefault();
             try {
                 let queryString = $(this).serialize();
+                if (!/[A-Za-z0-9]{5,50}/.test($("#txtTaiKhoanDangKy").val())) {
+                    alert("Tài khoản không hợp lệ");
+                    return;
+                }
+                if (!/[A-Za-z0-9]{5,50}/.test($("#txtPassword").val())) {
+                    alert("Mật khẩu không hợp lệ");
+                    return;
+                }
                 let response = await axios.post(`/nguoi-dung/dang-ky?${queryString}`);
                 let { message } = response.data;
                 alert(message);

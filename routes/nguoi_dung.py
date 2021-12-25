@@ -86,7 +86,7 @@ def post_register():
     try:
         query_string_dict = request.args
         new_user = {
-            "ND_TAI_KHOAN": query_string_dict["txtTaiKhoan"],
+            "ND_TAI_KHOAN": query_string_dict["txtTaiKhoanDangKy"],
             "ND_MAT_KHAU": query_string_dict["txtPassword"],
             "ND_HO_TEN": query_string_dict.get("txtFullname", None),
             "ND_DIA_cHI": query_string_dict.get("txtDiaChi", None),
