@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thực phẩm xanh</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" />
     <script
@@ -100,7 +100,6 @@
 
         #master-navbar {
             background: var(--base-green) !important;
-            height: 55px;
         }
 
         #master-navbar .nav-link {
@@ -121,6 +120,20 @@
 
         .bg-base-green {
             background: var(--base-green) !important;
+        }
+
+        /* Medium devices (tablets, 768px and up)*/
+        @media (min-width: 768px) {
+            html {
+                font-size: 15px !important;
+            }
+        }
+
+        /* Large devices (desktops, 992px and up) */
+        @media (min-width: 992px) {
+            html {
+                font-size: 17px !important;
+            }
         }
     </style>
     {% block style %}{% endblock %}
@@ -214,7 +227,7 @@
 
     {% block main %}{% endblock %}
 
-    <footer class="bg-base-green">
+    <footer class="bg-base-green p-3">
         <div class="text-light">
             Website thực phẩm hàng đầu Việt Nam
         </div>

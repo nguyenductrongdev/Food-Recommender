@@ -467,6 +467,9 @@
 
     // handle filtering when any filter field is change
     $("#btnFilter").click(async function (e) {
+      // remove next page
+      $("#btn-next-page").hide();
+
       // notice: must define here!
       let params = {
         "nd_ma": $(`option[value="${$("#txtFilter-nd_ma").val()}"]`).attr("data-nd_ma"),
@@ -495,8 +498,7 @@
       let productsHTML = toFoodString(foods);
       $("#product-presenter").html(productsHTML);
 
-      // remove next page
-      $("#btn-next-page").hide();
+
     });
 
 
