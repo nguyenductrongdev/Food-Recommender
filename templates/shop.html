@@ -35,7 +35,7 @@
 
     <div class="row" id="food-presenter" style="min-height: 90vh;">
         {% for food in food_list %}
-        <div class="col-3 my-3 product-wrapper" data-dmtp_ten="{{ food.DMTP_TEN }}">
+        <div class="col-3 my-3 product-wrapper" data-tp_ten="{{ food.TP_TEN }}">
             <div class="card product position-relative">
                 {% if food.ready_registered_count %}
                 <div class="badge badge-danger position-absolute" style="bottom: 0; right: 0;">
@@ -46,7 +46,7 @@
                 <img class="card-img-top product__image" src="/{{ food.TP_HINH_ANH }}" alt="Card image cap">
                 <div class="card-body">
                     <h5 class="card-title">
-                        {{ food.DMTP_TEN }}
+                        {{ food.TP_TEN }}
                     </h5>
                     <p class="card-text">
                         <i>Còn lại:
@@ -82,7 +82,7 @@
                 $(".product-wrapper").show();
             } else {
                 $(".product-wrapper").hide();
-                $(`.product-wrapper[data-dmtp_ten*='${value}']`).show();
+                $(`.product-wrapper[data-tp_ten*='${value}']`).show();
             }
         });
     });

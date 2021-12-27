@@ -93,10 +93,18 @@ def post_register():
             "ND_SO_DIEN_THOAI": query_string_dict.get("txtPhone", None),
             "ND_EMAIL": query_string_dict.get("txtEmail", None),
         }
+        user_list = NguoiDung.get_all()
+        if len([db_user for db_user in user_list if db_user["ND_TAI_KHOAN"] == new_user["ND_TAI_KHOAN"]]):
+            return {
+                "query_string_dict": query_string_dict,
+                "message": "Tài khoản đã tồn tại",
+                "error": True,
+            }
         NguoiDung.create(new_user)
         return {
             "query_string_dict": query_string_dict,
             "message": "Đăng ký thành công",
+            "error": False,
         }
     except Exception as e:
         logging.getLogger("__main__").exception(e)
@@ -301,6 +309,7 @@ def dashboard(nd_ma):
                 AND chi_tiet_dang_ky_mua.DKM_MA = dang_ky_mua.DKM_MA
                 AND dang_ky_mua.ND_MA = nguoi_dung.ND_MA
                 AND chi_tiet_dang_ky_mua.CTDKM_TRANG_THAI = {COMPLETED}
+                AND thuc_pham.ND_MA = {user_info["ND_MA"]}
         """
         cursor.execute(custom_sql)
         return cursor.fetchall()

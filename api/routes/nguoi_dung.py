@@ -107,7 +107,7 @@ def recommend_page():
         ])
 
         # skip when one of cluster/ctdkm item merged
-        print(approve_db_count)
+        print("approve_db_count", approve_db_count, len(data["cluster"]["nodes"]))
         is_skip_cluster = approve_db_count not in [
             0, len(data["cluster"]["nodes"])
         ]

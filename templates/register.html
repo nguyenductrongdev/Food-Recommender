@@ -95,9 +95,11 @@
                     return;
                 }
                 let response = await axios.post(`/nguoi-dung/dang-ky?${queryString}`);
-                let { message } = response.data;
+                let { message, error } = response.data;
                 alert(message);
-                window.location.assign("/nguoi-dung/dang-nhap");
+                if (!error) {
+                    window.location.assign("/nguoi-dung/dang-nhap");
+                }
             } catch (error) {
                 alert("Có lỗi xảy ra");
             }

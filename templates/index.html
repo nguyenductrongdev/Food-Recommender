@@ -109,8 +109,9 @@
   <!-- filter for nd_ma start -->
   <div class="col-md-3">
     <input class="form-control custom-filter" list="filter-user-list" name="txtFilter-nd_ma" id="txtFilter-nd_ma"
-      placeholder="Tất cả người dùng" />
+      placeholder="Tất cả người bán" />
     <datalist id="filter-user-list">
+      <option value="Tất cả" data-nd_ma=""></option>
       {% for user in user_list %}
       <option value="{{ user.ND_TAI_KHOAN }}" data-nd_ma="{{ user.ND_MA }}"></option>
       {% endfor %}
@@ -221,7 +222,7 @@
 
       <div class="d-flex justify-content-between align-items-center">
         <div id="slider-range" class="w-75"></div>
-        <button type="button" class="btn btn-success" id="btnPriceFilter">Lọc theo khoảng giá</button>
+        <button type="button" class="btn btn-success" id="btnFilter">Lọc</button>
       </div>
 
       <script>
@@ -257,9 +258,7 @@
           " - " + $("#slider-range").slider("values", 1).toLocaleString('vi') + " VNĐ"
         );
 
-        $("#btnPriceFilter").click(function (e) {
-          $("#price_range").trigger('change');
-        });
+       
         });
       </script>
     </div>
@@ -467,7 +466,7 @@
 
 
     // handle filtering when any filter field is change
-    $(".custom-filter").change(async function (e) {
+    $("#btnFilter").click(async function (e) {
       // notice: must define here!
       let params = {
         "nd_ma": $(`option[value="${$("#txtFilter-nd_ma").val()}"]`).attr("data-nd_ma"),
@@ -599,6 +598,7 @@
         $("#cart-body").html('<td colspan="4" class="text-center">Giỏ hàng trống</td>')
       }
     });
+
   });
 
 </script>
